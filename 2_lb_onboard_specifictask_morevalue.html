@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Onboarding Flow</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --secondary-bg: #262626;
+            --text-color: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --border-color: #404040;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --input-bg: #2a2a2a;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        
+        .app-container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--secondary-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        .screen {
+            display: none;
+            padding: 32px;
+        }
+        
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        
+        .logo-img {
+            width: 64px;
+            height: 64px;
+            background-color: var(--accent-color);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-secondary);
+        }
+        
+        .links {
+            display: flex;
+            justify-content: center;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+        
+        .links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        
+        .links a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+        
+        .verification-inputs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        
+        .verification-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+        
+        .verification-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .verification-message {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .verification-message a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        
+        .features {
+            margin-bottom: 24px;
+        }
+        
+        .feature {
+            padding: 16px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            border: 1px solid var(--border-color);
+        }
+        
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: rgba(59, 130, 246, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+            color: var(--accent-color);
+            font-size: 16px;
+        }
+        
+        .feature-content h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-color);
+        }
+        
+        .feature-content p {
+            font-size: 14px;
+            margin-bottom: 0;
+            text-align: left;
+            color: var(--text-secondary);
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+        
+        .step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            margin: 0 4px;
+        }
+        
+        .step.active {
+            background-color: var(--accent-color);
+            width: 24px;
+            border-radius: 4px;
+        }
+        
+        .accessibility-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .chat-container {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .message {
+            margin-bottom: 16px;
+            max-width: 80%;
+        }
+        
+        .message.incoming {
+            align-self: flex-start;
+        }
+        
+        .message.outgoing {
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .message.incoming .message-bubble {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .message.outgoing .message-bubble {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .chat-input {
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-input input {
+            flex-grow: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 16px;
+            margin-right: 8px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+        
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .send-btn:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        .screen-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .screen-title h2 {
+            margin-bottom: 0;
+            margin-right: auto;
+        }
+        
+        .back-btn {
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+        }
+        
+        .back-btn:hover {
+            color: var(--accent-color);
+        }
+        
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            background-color: rgba(16, 185, 129, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--success-color);
+            font-size: 40px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Enhanced Task Flow Specific Styles */
+        .section-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--text-color);
+        }
+        
+        .analysis-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .task-card {
+            background-color: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .task-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .task-title {
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .task-details {
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .task-location {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        
+        .task-location-icon {
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
+        
+        .priority-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            background-color: rgba(59, 130, 246, 0.2);
+            color: var(--accent-color);
+            margin-bottom: 16px;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .task-action-btn {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .task-action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-color);
+        }
+        
+        .suggestion-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .suggestion-icon {
+            width: 32px;
+            height: 32px;
+            background-color: rgba(255, 215, 0, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            color: gold;
+            font-size: 16px;
+        }
+        
+        .suggestion-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .suggestion-title {
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .suggestion-text {
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .suggestion-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .suggestion-action-btn {
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-action-btn.primary {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+        }
+        
+        .suggestion-action-btn.primary:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        .suggestion-action-btn.secondary {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .suggestion-action-btn.secondary:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+        }
+        
+        .timeline {
+            display: flex;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .timeline-point {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .timeline-point:not(:last-child):after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: -40%;
+            width: 80%;
+            height: 2px;
+            background-color: var(--border-color);
+        }
+        
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            margin-bottom: 8px;
+        }
+        
+        .timeline-point.active .timeline-dot {
+            background-color: var(--accent-color);
+        }
+
+        .quick-reaction {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .reaction-btn {
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
+            background-color: var(--input-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .reaction-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        .processing-animation {
+            height: 4px;
+            width: 100%;
+            background-color: rgba(59, 130, 246, 0.2);
+            overflow: hidden;
+            position: relative;
+            border-radius: 2px;
+            margin-bottom: 24px;
+        }
+
+        .processing-animation:before {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 30%;
+            background-color: var(--accent-color);
+            animation: processing 1.5s infinite ease-in-out;
+        }
+
+        @keyframes processing {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .mb-16 { margin-bottom: 16px; }
+        .mb-24 { margin-bottom: 24px; }
+        .mb-32 { margin-bottom: 32px; }
+        .mt-16 { margin-top: 16px; }
+        .mt-24 { margin-top: 24px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Email Screen -->
+        <div class="screen active" id="email-screen">
+            <div class="logo">
+                <div class="logo-img">L</div>
+            </div>
+            <h2>Welcome to Little Bird</h2>
+            <p>Let's set up your assistant to help you capture tasks and ideas effortlessly.</p>
+            
+            <form id="email-form">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <div class="terms-checkbox" style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+                        <input type="checkbox" id="terms-accept" style="margin-right: 10px; margin-top: 3px;">
+                        <label for="terms-accept" style="font-size: 14px; color: var(--text-secondary);">
+                            I agree to the <a href="#" id="show-terms" style="color: var(--accent-color);">Terms of Service</a> and <a href="#" id="show-privacy" style="color: var(--accent-color);">Privacy Policy</a>
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="continue-to-verify">
+                    Continue
+                </button>
+            </form>
+            
+            <div class="mt-24">
+                <p style="font-size: 14px; color: var(--text-secondary); text-align: center; margin-bottom: 16px;">
+                    Having issues? You can download the latest version or contact our support team.
+                </p>
+                <a href="#" class="btn btn-outline" id="download-latest">
+                    Download Latest Version
+                </a>
+            </div>
+            
+            <div class="links mt-16">
+                <a href="#" id="contact-support">Contact Support</a>
+            </div>
+        </div>
+        
+        <!-- Verification Screen -->
+        <div class="screen" id="verification-screen">
+            <div class="screen-title">
+                <button class="back-btn" id="back-to-email">←</button>
+                <h2>Verify your email</h2>
+            </div>
+            
+            <p>We've sent a 4-digit code to <span id="email-display">your email</span></p>
+            
+            <div class="verification-inputs">
+                <input type="text" maxlength="1" class="verification-input" data-index="1">
+                <input type="text" maxlength="1" class="verification-input" data-index="2">
+                <input type="text" maxlength="1" class="verification-input" data-index="3">
+                <input type="text" maxlength="1" class="verification-input" data-index="4">
+            </div>
+            
+            <div class="verification-message">
+                Didn't receive the code? <a href="#" id="resend-code">Resend</a>
+            </div>
+            
+            <button class="btn btn-primary" id="verify-code">
+                Verify Code
+            </button>
+        </div>
+        
+        <!-- Accessibility Screen -->
+        <div class="screen" id="accessibility-screen">
+            <div class="step-indicator">
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+            
+            <h2>Enable Accessibility</h2>
+            <p>Little Bird needs accessibility permissions to capture text from your screen.</p>
+            
+            
+            <div class="feature mb-24">
+                <div class="feature-icon">?</div>
+                <div class="feature-content">
+                    <h3>Why we need this</h3>
+                    <p>This allows our app to capture text from your screen which we use to create tasks and build your assistant - all while respecting your privacy.</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary mb-16" id="open-accessibility">
+                Open Accessibility Settings
+            </button>
+            
+            <button class="btn btn-outline" id="accessibility-done">
+                I've Enabled Accessibility
+            </button>
+        </div>
+        
+        <!-- Safety Screen -->
+        <div class="screen" id="safety-screen">
+            <div class="step-indicator">
+                <div class="step"></div>
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+            
+            <h2>Your Privacy Matters</h2>
+            <p>We take your privacy seriously with these safety measures.</p>
+            
+            <div class="privacy-visual" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 24px;">
+                <div style="width: 120px; height: 120px; background-color: rgba(59, 130, 246, 0.1); border-radius: 60px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 48px; color: var(--accent-color);">🔒</div>
+                </div>
+            </div>
+            
+            <div class="privacy-cards" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                <div class="privacy-card" style="background-color: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <div style="width: 48px; height: 48px; background-color: rgba(59, 130, 246, 0.2); border-radius: 24px; display: flex; justify-content: center; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 24px;">🎮</span>
+                    </div>
+                    <h3 style="font-size: 14px; margin-bottom: 8px;">Full Control</h3>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">Disable data collection anytime from the app</p>
+                </div>
+                
+                <div class="privacy-card" style="background-color: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <div style="width: 48px; height: 48px; background-color: rgba(59, 130, 246, 0.2); border-radius: 24px; display: flex; justify-content: center; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 24px;">📝</span>
+                    </div>
+                    <h3 style="font-size: 14px; margin-bottom: 8px;">Text Only</h3>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">We dont record your screen. Only capture text</p>
+                </div>
+                
+                <div class="privacy-card" style="background-color: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <div style="width: 48px; height: 48px; background-color: rgba(59, 130, 246, 0.2); border-radius: 24px; display: flex; justify-content: center; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 24px;">🗑️</span>
+                    </div>
+                    <h3 style="font-size: 14px; margin-bottom: 8px;">Delete data</h3>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">You can delete entire captured data anytime</p>
+                </div>
+                
+                <div class="privacy-card" style="background-color: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <div style="width: 48px; height: 48px; background-color: rgba(59, 130, 246, 0.2); border-radius: 24px; display: flex; justify-content: center; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 24px;">🛡️</span>
+                    </div>
+                    <h3 style="font-size: 14px; margin-bottom: 8px;">Protected Areas</h3>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">No data collected from incognito mode and password managers</p>
+                </div>
+            </div>
+            
+            <div class="privacy-indicator" style="width: 100%; height: 6px; background-color: rgba(59, 130, 246, 0.1); border-radius: 3px; margin-bottom: 16px; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 0; left: 0; height: 100%; width: 85%; background-color: var(--accent-color); border-radius: 3px;"></div>
+            </div>
+            <p style="text-align: center; font-size: 12px; color: var(--text-secondary); margin-bottom: 24px;">
+                Your data is protected by industry-leading security standards
+            </p>
+            
+            <button class="btn btn-primary" id="continue-to-chat">
+                Continue
+            </button>
+        </div>
+        
+        <!-- Chat Screen -->
+        <div class="screen" id="chat-screen">
+            <div class="step-indicator">
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step active"></div>
+                <div class="step"></div>
+            </div>
+            
+            <h2>Let's Get Started</h2>
+            
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message incoming">
+                        <div class="message-bubble">
+                            Hi there! I'm Little Bird. What's your name?
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="chat-input-field" placeholder="Type your message...">
+                    <button class="send-btn" id="send-message">→</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Task Assignment Screen -->
+        <div class="screen" id="task-assignment-screen">
+            <div class="step-indicator">
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step active"></div>
+                <div class="step"></div>
+            </div>
+            
+            <h2>Complete a Quick Task</h2>
+            <p>Let's see how Little Bird works with a real-world example</p>
+            
+            <div class="feature mb-24" style="background-color: rgba(59, 130, 246, 0.1); border-color: var(--accent-color);">
+                <div class="feature-icon" style="background-color: rgba(59, 130, 246, 0.3);">🔍</div>
+                <div class="feature-content">
+                    <h3>Your Task</h3>
+                    <p>Open your browser and search for "<span style="color: var(--accent-color); font-weight: 500;">coffee shops near me</span>"</p>
+                </div>
+            </div>
+            
+            <div class="feature mb-24">
+                <div class="feature-icon">⏱️</div>
+                <div class="feature-content">
+                    <h3>Return When Done</h3>
+                    <p>Browse a few results that interest you, then come back here</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="task-completed">
+                I've Completed the Task
+            </button>
+        </div>
+        
+        <!-- Loading Analysis Screen -->
+        <div class="screen" id="loading-analysis-screen">
+            <div class="step-indicator">
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step active"></div>
+                <div class="step"></div>
+            </div>
+            
+            <h2>Analyzing Your Activity</h2>
+            <p>Little Bird is processing what you just did...</p>
+            
+            <div class="processing-animation"></div>
+            
+            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 24px;">
+                <div style="width: 120px; height: 120px; background-color: rgba(59, 130, 246, 0.1); border-radius: 60px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 48px;">🔎</div>
+                </div>
+                <p style="text-align: center; color: var(--text-secondary); font-size: 14px;">
+                    Identifying key information in your browsing activity...
+                </p>
+            </div>
+        </div>
+        
+        <!-- Analysis Results Screen -->
+        <div class="screen" id="analysis-results-screen">
+            <div class="step-indicator">
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step active"></div>
+            </div>
+            
+            <div class="success-checkmark">✓</div>
+            
+            <h2>Activity Captured!</h2>
+            
+            <!-- What I Observed Section -->
+            <div class="section-title">What I Observed</div>
+            <div class="analysis-card">
+                <p style="margin-bottom: 16px; font-size: 15px; color: var(--text-color);">
+                    You searched for "coffee shops near me" and browsed results including Ritual Coffee, Four Barrel, and Blue Bottle. You spent most time viewing Ritual's location and menu pages.
+                </p>
+                
+            </div>
+            
+            <!-- Task Creation Section -->
+            <div class="section-title">Suggested Task For You</div>
+            <div class="task-card">
+                <div class="task-header">
+                    <div class="task-icon">✓</div>
+                    <div class="task-title">Visit Ritual Coffee Roasters</div>
+                </div>
+                <div class="task-details">
+                    Try their highly-rated pour-over coffee
+                </div>
+                <div class="task-location">
+                    <span class="task-location-icon">📍</span>
+                    1050 Howard Street, San Francisco
+                </div>
+                <div class="task-actions">
+                    <button class="task-action-btn">Add to my To-do list in Little Bird</button>
+                </div>
+            </div>
+            
+           
+            
+            <!-- Suggestion Section -->
+            <div class="section-title">Would You Like Me To...</div>
+            <div class="suggestion-card">
+                <div class="suggestion-header">
+                    <div class="suggestion-icon">🥐</div>
+                    <div class="suggestion-title">Find highly-rated bakeries near Ritual Coffee?</div>
+                </div>
+                <div class="suggestion-actions">
+                    <button class="suggestion-action-btn primary" id="accept-suggestion">Yes, find bakeries</button>
+                    <button class="suggestion-action-btn secondary" id="decline-suggestion">Not now</button>
+                </div>
+            </div>
+            
+            <!-- Interactive Feedback Section -->
+            <div class="chat-container">
+                <div class="chat-messages" id="result-chat-messages">
+                    <div class="message incoming">
+                        <div class="message-bubble">
+                            These are just a few examples of how I can help turn your browsing into actionable tasks and insights. Would you like me to adjust anything about the task I created?
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="result-chat-input" placeholder="Type your message...">
+                    <button class="send-btn" id="result-chat-send">→</button>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary mt-24" id="finish-onboarding">
+                Start Using Little Bird
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let userName = '';
+            
+            // Navigation between screens
+            function showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                document.getElementById(screenId).classList.add('active');
+            }
+            
+            // Email screen
+            document.getElementById('email-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                document.getElementById('email-display').textContent = email;
+                showScreen('verification-screen');
+            });
+            
+            // Ensure the continue button works independently as well
+            document.getElementById('continue-to-verify').addEventListener('click', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const termsAccepted = document.getElementById('terms-accept').checked;
+                
+                if (!email) {
+                    alert('Please enter your email address');
+                    return;
+                }
+                
+                if (!termsAccepted) {
+                    alert('Please accept the Terms of Service and Privacy Policy to continue');
+                    return;
+                }
+                
+                document.getElementById('email-display').textContent = email;
+                showScreen('verification-screen');
+            });
+            
+            // Links on email screen
+            document.getElementById('show-privacy').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Privacy Policy would open here');
+            });
+            
+            document.getElementById('show-terms').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Terms of Service would open here');
+            });
+            
+            document.getElementById('download-latest').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Download latest version would start here');
+            });
+            
+            document.getElementById('contact-support').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Contact support would open here');
+            });
+            
+            // Back button
+            document.getElementById('back-to-email').addEventListener('click', function() {
+                showScreen('email-screen');
+            });
+            
+            // Verification screen
+            const verificationInputs = document.querySelectorAll('.verification-input');
+            verificationInputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    if (this.value.length === 1) {
+                        if (index < verificationInputs.length - 1) {
+                            verificationInputs[index + 1].focus();
+                        }
+                    }
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value.length === 0) {
+                        if (index > 0) {
+                            verificationInputs[index - 1].focus();
+                        }
+                    }
+                });
+            });
+            
+            document.getElementById('resend-code').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Code resent to your email');
+            });
+            
+            document.getElementById('verify-code').addEventListener('click', function() {
+                // Here you would normally verify the code
+                showScreen('accessibility-screen');
+            });
+            
+            // Accessibility screen
+            document.getElementById('open-accessibility').addEventListener('click', function() {
+                alert('This would open System Preferences > Security & Privacy > Privacy > Accessibility');
+            });
+            
+            document.getElementById('accessibility-done').addEventListener('click', function() {
+                showScreen('safety-screen');
+            });
+            
+            // Safety screen
+            document.getElementById('continue-to-chat').addEventListener('click', function() {
+                showScreen('chat-screen');
+            });
+            
+            // Chat screen
+            document.getElementById('send-message').addEventListener('click', sendChatMessage);
+            document.getElementById('chat-input-field').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+            
+            function sendChatMessage() {
+                const messageInput = document.getElementById('chat-input-field');
+                const message = messageInput.value.trim();
+                
+                if (message) {
+                    // Add user message
+                    const chatMessages = document.getElementById('chat-messages');
+                    chatMessages.innerHTML += `
+                        <div class="message outgoing">
+                            <div class="message-bubble">
+                                ${message}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Save name and reply
+                    userName = message;
+                    messageInput.value = '';
+                    
+                    // Scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // Simulate typing and reply after a delay
+                    setTimeout(() => {
+                        chatMessages.innerHTML += `
+                            <div class="message incoming">
+                                <div class="message-bubble">
+                                    Nice to meet you, ${userName}! I'd like to show you how I can help turn your browsing activities into valuable insights and tasks. Let me give you a quick task to try.
+                                </div>
+                            </div>
+                        `;
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                        
+                        // Move to task assignment screen after delay
+                        setTimeout(() => {
+                            showScreen('task-assignment-screen');
+                        }, 2000);
+                    }, 1000);
+                }
+            }
+            
+            // Task completed button
+            document.getElementById('task-completed').addEventListener('click', function() {
+                showScreen('loading-analysis-screen');
+                
+                // Simulate analysis time then show results
+                setTimeout(() => {
+                    showScreen('analysis-results-screen');
+                }, 3000);
+            });
+            
+            // Task helpfulness reaction buttons
+            document.getElementById('task-helpful-yes').addEventListener('click', function() {
+                this.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+                this.style.color = 'var(--success-color)';
+                document.getElementById('task-helpful-no').style.backgroundColor = 'var(--input-bg)';
+                document.getElementById('task-helpful-no').style.color = 'var(--text-secondary)';
+            });
+            
+            document.getElementById('task-helpful-no').addEventListener('click', function() {
+                this.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+                this.style.color = 'var(--error-color)';
+                document.getElementById('task-helpful-yes').style.backgroundColor = 'var(--input-bg)';
+                document.getElementById('task-helpful-yes').style.color = 'var(--text-secondary)';
+            });
+            
+            // Suggestion action buttons
+            document.getElementById('accept-suggestion').addEventListener('click', function() {
+                const resultChatMessages = document.getElementById('result-chat-messages');
+                resultChatMessages.innerHTML += `
+                    <div class="message incoming">
+                        <div class="message-bubble">
+                            I'll find highly-rated bakeries near Ritual Coffee for you! I've created a research task to explore bakeries in the area. You'll be able to see the results in your tasks list once we finish onboarding.
+                        </div>
+                    </div>
+                `;
+                resultChatMessages.scrollTop = resultChatMessages.scrollHeight;
+                
+                // Hide the suggestion card as it's been accepted
+                document.querySelector('.suggestion-card').style.display = 'none';
+            });
+            
+            document.getElementById('decline-suggestion').addEventListener('click', function() {
+                const resultChatMessages = document.getElementById('result-chat-messages');
+                resultChatMessages.innerHTML += `
+                    <div class="message incoming">
+                        <div class="message-bubble">
+                            No problem! I won't look for bakeries right now. You can always ask me to find related information later when you're using Little Bird.
+                        </div>
+                    </div>
+                `;
+                resultChatMessages.scrollTop = resultChatMessages.scrollHeight;
+                
+                // Hide the suggestion card as it's been declined
+                document.querySelector('.suggestion-card').style.display = 'none';
+            });
+            
+            // Result chat interaction
+            document.getElementById('result-chat-send').addEventListener('click', sendResultChatMessage);
+            document.getElementById('result-chat-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendResultChatMessage();
+                }
+            });
+            
+            function sendResultChatMessage() {
+                const messageInput = document.getElementById('result-chat-input');
+                const message = messageInput.value.trim();
+                
+                if (message) {
+                    // Add user message
+                    const chatMessages = document.getElementById('result-chat-messages');
+                    chatMessages.innerHTML += `
+                        <div class="message outgoing">
+                            <div class="message-bubble">
+                                ${message}
+                            </div>
+                        </div>
+                    `;
+                    
+                    messageInput.value = '';
+                    
+                    // Scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // Simulate typing and reply after a delay
+                    setTimeout(() => {
+                        chatMessages.innerHTML += `
+                            <div class="message incoming">
+                                <div class="message-bubble">
+                                    I've updated your task based on your feedback. As you use Little Bird, I'll learn your preferences and get better at creating the exact kinds of tasks and summaries you find most valuable.
+                                </div>
+                            </div>
+                        `;
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }, 1000);
+                }
+            }
+            
+            // Finish onboarding
+            document.getElementById('finish-onboarding').addEventListener('click', function() {
+                alert('Onboarding complete! You would now enter the main app interface.');
+            });
+        });
+    </script>
+</body>
+</html>
