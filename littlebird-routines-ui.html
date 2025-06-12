@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird Routines</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0 8px;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .step.completed {
+            background: #10b981;
+            color: white;
+        }
+
+        .step.inactive {
+            background: #f3f4f6;
+            color: #9ca3af;
+        }
+
+        .step-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .step-description {
+            color: #6b7280;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .format-card {
+            padding: 24px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: white;
+        }
+
+        .format-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .format-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .format-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .format-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .format-description {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .example-prompts {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .example-prompt {
+            padding: 12px 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .example-prompt:hover {
+            background: #e2e8f0;
+            border-color: #667eea;
+        }
+
+        .frequency-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .frequency-card {
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .frequency-card:hover {
+            border-color: #667eea;
+        }
+
+        .frequency-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .time-picker {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .time-input {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            width: 80px;
+        }
+
+        .time-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .preview-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .preview-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+
+        .preview-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .preview-value {
+            color: #1f2937;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .success-animation {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #10b981;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .success-description {
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🐦 Littlebird</div>
+            <div class="subtitle">Create your custom routine</div>
+            
+            <div class="step-indicator">
+                <div class="step active" id="step-1">1</div>
+                <div class="step inactive" id="step-2">2</div>
+                <div class="step inactive" id="step-3">3</div>
+                <div class="step inactive" id="step-4">4</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Format Selection -->
+        <div class="step-content active" id="content-1">
+            <div class="step-title">Choose your format</div>
+            <div class="step-description">How would you like your routine to be structured?</div>
+            
+            <div class="format-grid">
+                <div class="format-card" data-format="document">
+                    <div class="format-icon">📄</div>
+                    <div class="format-title">Document</div>
+                    <div class="format-description">Rich reports & summaries</div>
+                </div>
+                <div class="format-card" data-format="todos">
+                    <div class="format-icon">✅</div>
+                    <div class="format-title">Todos</div>
+                    <div class="format-description">Action items & tasks</div>
+                </div>
+                <div class="format-card" data-format="journal">
+                    <div class="format-icon">📖</div>
+                    <div class="format-title">Journal</div>
+                    <div class="format-description">Daily reflections & notes</div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-primary" id="next-1" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Instructions -->
+        <div class="step-content" id="content-2">
+            <div class="step-title">Customize your content</div>
+            <div class="step-description">Tell Littlebird what to include and how to format your routine</div>
+            
+            <textarea class="textarea" id="instructions" 
+                placeholder="Describe what you want in your routine...&#10;&#10;For example:&#10;• Focus on client meetings and action items&#10;• Include time spent on each project&#10;• Highlight important decisions made&#10;• Format as bullet points with priorities"></textarea>
+
+            <div class="example-prompts">
+                <div class="example-prompt" data-example="Create a daily summary of my meetings, highlighting key decisions, action items, and follow-ups needed. Focus on client interactions and project progress.">
+                    📊 Meeting summary with decisions & action items
+                </div>
+                <div class="example-prompt" data-example="Generate a weekly reflection journal including my accomplishments, challenges faced, and lessons learned. Include time allocation across different projects.">
+                    📝 Weekly reflection with accomplishments & insights
+                </div>
+                <div class="example-prompt" data-example="Create a todo list from my conversations and notes, prioritizing urgent items and grouping by project. Include deadlines where mentioned.">
+                    ✅ Smart todo extraction with priorities
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-secondary" id="back-2">Back</button>
+                <button class="btn btn-primary" id="next-2" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Schedule -->
+        <div class="step-content" id="content-3">
+            <div class="step-title">Set your schedule</div>
+            <div class="step-description">When should Littlebird generate your routine?</div>
+            
+            <div class="frequency-options">
+                <div class="frequency-card" data-frequency="daily">
+                    <div style="font-size: 24px; margin-bottom: 8px;">📅</div>
+                    <div class="format-title">Daily</div>
+                    <div class="format-description">Every day at your chosen time</div>
+                </div>
+                <div class="frequency-card" data-frequency="weekly">
+                    <div style="font-size: 24px; margin-bottom: 8px;">📆</div>
+                    <div class="format-title">Weekly</div>
+                    <div class="format-description">Every week on your chosen day</div>
+                </div>
+            </div>
+
+            <div class="time-picker">
+                <span style="color: #6b7280;">Generate at</span>
+                <select class="time-input" id="hour">
+                    <option value="09">09</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                </select>
+                <span style="color: #6b7280;">:</span>
+                <select class="time-input" id="minute">
+                    <option value="00">00</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                </select>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-secondary" id="back-3">Back</button>
+                <button class="btn btn-primary" id="next-3" disabled>Review & Create</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Preview & Confirm -->
+        <div class="step-content" id="content-4">
+            <div class="step-title">Review your routine</div>
+            <div class="step-description">Everything looks good? Your routine will start tomorrow.</div>
+            
+            <div class="preview-card">
+                <div class="preview-title">Routine Summary</div>
+                <div class="preview-item">
+                    <span class="preview-label">Format</span>
+                    <span class="preview-value" id="preview-format">-</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Schedule</span>
+                    <span class="preview-value" id="preview-schedule">-</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Instructions</span>
+                    <span class="preview-value" id="preview-instructions">-</span>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-secondary" id="back-4">Back</button>
+                <button class="btn btn-primary" id="create-routine">Create Routine</button>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div class="step-content" id="content-success">
+            <div class="success-animation">
+                <div class="checkmark">✓</div>
+                <div class="success-title">Routine created!</div>
+                <div class="success-description">Your routine will start generating tomorrow. You can manage it in Settings → Routines.</div>
+                <button class="btn btn-primary" onclick="resetForm()">Create Another Routine</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedFormat = '';
+        let selectedFrequency = '';
+        let instructions = '';
+
+        // Format selection
+        document.querySelectorAll('.format-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedFormat = card.dataset.format;
+                document.getElementById('next-1').disabled = false;
+            });
+        });
+
+        // Example prompts
+        document.querySelectorAll('.example-prompt').forEach(prompt => {
+            prompt.addEventListener('click', () => {
+                document.getElementById('instructions').value = prompt.dataset.example;
+                checkInstructions();
+            });
+        });
+
+        // Instructions validation
+        document.getElementById('instructions').addEventListener('input', checkInstructions);
+
+        function checkInstructions() {
+            const value = document.getElementById('instructions').value.trim();
+            document.getElementById('next-2').disabled = value.length < 10;
+            instructions = value;
+        }
+
+        // Frequency selection
+        document.querySelectorAll('.frequency-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.frequency-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedFrequency = card.dataset.frequency;
+                document.getElementById('next-3').disabled = false;
+            });
+        });
+
+        // Navigation
+        document.getElementById('next-1').addEventListener('click', () => goToStep(2));
+        document.getElementById('next-2').addEventListener('click', () => goToStep(3));
+        document.getElementById('next-3').addEventListener('click', () => {
+            updatePreview();
+            goToStep(4);
+        });
+        document.getElementById('back-2').addEventListener('click', () => goToStep(1));
+        document.getElementById('back-3').addEventListener('click', () => goToStep(2));
+        document.getElementById('back-4').addEventListener('click', () => goToStep(3));
+        
+        document.getElementById('create-routine').addEventListener('click', () => {
+            // Simulate creation process
+            document.getElementById('create-routine').textContent = 'Creating...';
+            document.getElementById('create-routine').disabled = true;
+            
+            setTimeout(() => {
+                goToStep('success');
+            }, 1500);
+        });
+
+        function goToStep(step) {
+            // Hide current step
+            document.getElementById(`content-${currentStep}`).classList.remove('active');
+            
+            // Update step indicator
+            if (currentStep <= 4) {
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                document.getElementById(`step-${currentStep}`).classList.add('completed');
+            }
+            
+            currentStep = step;
+            
+            // Show new step
+            if (step === 'success') {
+                document.getElementById('content-success').classList.add('active');
+            } else {
+                document.getElementById(`content-${step}`).classList.add('active');
+                document.getElementById(`step-${step}`).classList.remove('inactive', 'completed');
+                document.getElementById(`step-${step}`).classList.add('active');
+            }
+        }
+
+        function updatePreview() {
+            const formatNames = {
+                'document': 'Document Report',
+                'todos': 'Todo List',
+                'journal': 'Journal Entry'
+            };
+            
+            document.getElementById('preview-format').textContent = formatNames[selectedFormat];
+            
+            const hour = document.getElementById('hour').value;
+            const minute = document.getElementById('minute').value;
+            const schedule = `${selectedFrequency.charAt(0).toUpperCase() + selectedFrequency.slice(1)} at ${hour}:${minute}`;
+            document.getElementById('preview-schedule').textContent = schedule;
+            
+            const truncatedInstructions = instructions.length > 100 ? 
+                instructions.substring(0, 100) + '...' : instructions;
+            document.getElementById('preview-instructions').textContent = truncatedInstructions;
+        }
+
+        function resetForm() {
+            currentStep = 1;
+            selectedFormat = '';
+            selectedFrequency = '';
+            instructions = '';
+            
+            // Reset all step indicators
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`step-${i}`).className = i === 1 ? 'step active' : 'step inactive';
+                document.getElementById(`content-${i}`).classList.remove('active');
+            }
+            
+            document.getElementById('content-success').classList.remove('active');
+            document.getElementById('content-1').classList.add('active');
+            
+            // Reset form elements
+            document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.frequency-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('instructions').value = '';
+            document.getElementById('next-1').disabled = true;
+            document.getElementById('next-2').disabled = true;
+            document.getElementById('next-3').disabled = true;
+            document.getElementById('create-routine').disabled = false;
+            document.getElementById('create-routine').textContent = 'Create Routine';
+        }
+    </script>
+</body>
+</html>
