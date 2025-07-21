@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Daily Digest</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #F8F9FA;
+            color: #1F2937;
+        }
+        
+        .email-container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            padding: 40px 40px 32px 40px;
+            text-align: center;
+            color: white;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+            opacity: 0.9;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .date {
+            color: #9CA3AF;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        .greeting {
+            color: #F9FAFB;
+            font-size: 18px;
+            font-weight: 500;
+            margin-top: 24px;
+        }
+        
+        .section {
+            padding: 40px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        
+        .section:last-of-type {
+            border-bottom: none;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .section-subtitle {
+            font-size: 14px;
+            color: #6B7280;
+            font-weight: 400;
+        }
+        
+        /* Section 1 - Quote */
+        .quote-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 48px 40px;
+        }
+        
+        .quote-text {
+            font-size: 24px;
+            font-weight: 400;
+            line-height: 1.4;
+            margin: 0 0 16px 0;
+            color: white;
+        }
+        
+        .quote-author {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        /* Section 2 - Journal */
+        .journal-section {
+            background: #FAFBFC;
+        }
+        
+        .journal-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #667eea;
+        }
+        
+        .journal-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px 0;
+        }
+        
+        .journal-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            padding: 0;
+        }
+        
+        .journal-bullet {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            margin-right: 16px;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+        
+        .journal-text {
+            color: #374151;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+        
+        .journal-cta {
+            text-align: center;
+            padding-top: 16px;
+            border-top: 1px solid #F1F5F9;
+        }
+        
+        /* Section 3 - Grid Layout */
+        .insights-section {
+            background: #F8F9FA;
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .insight-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .insight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .insight-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .insight-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .urgent-icon {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+        }
+        
+        .connection-icon {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        
+        .opportunity-icon {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+        
+        .insight-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .insight-content {
+            color: #374151;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        
+        .highlight {
+            color: #059669;
+            font-weight: 600;
+        }
+        
+        .urgent {
+            color: #DC2626;
+            font-weight: 600;
+        }
+        
+        /* Section 4 - Two Column */
+        .optimization-section {
+            background: #FFFFFF;
+        }
+        
+        .optimization-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+        
+        .optimization-card {
+            background: #FAFBFC;
+            border: 2px solid #F1F5F9;
+            border-radius: 12px;
+            padding: 28px;
+            transition: all 0.2s ease;
+        }
+        
+        .optimization-card:hover {
+            background: #F8F9FA;
+            border-color: #E5E7EB;
+        }
+        
+        .fix-card {
+            border-left: 4px solid #7C3AED;
+        }
+        
+        .pattern-card {
+            border-left: 4px solid #059669;
+        }
+        
+        .optimization-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .optimization-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+        
+        .fix-icon {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: white;
+        }
+        
+        .pattern-icon {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        
+        .optimization-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* CTA Buttons */
+        .chat-button {
+            background: #1F2937;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .chat-button:hover {
+            background: #111827;
+            transform: translateY(-1px);
+        }
+        
+        .chat-button-secondary {
+            background: #F3F4F6;
+            color: #374151;
+            border: 1px solid #D1D5DB;
+        }
+        
+        .chat-button-secondary:hover {
+            background: #E5E7EB;
+            color: #1F2937;
+        }
+        
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #F8F9FA 0%, #E5E7EB 100%);
+            padding: 32px 40px;
+            text-align: center;
+        }
+        
+        .footer-text {
+            color: #6B7280;
+            font-size: 14px;
+            margin: 0 0 20px 0;
+            line-height: 1.5;
+        }
+        
+        .main-cta {
+            background: linear-gradient(135deg, #1F2937, #111827);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+        
+        .main-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(31, 41, 55, 0.3);
+        }
+        
+        .small-text {
+            color: #9CA3AF;
+            font-size: 12px;
+            margin-top: 20px;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .section {
+                padding: 24px;
+            }
+            
+            .optimization-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .email-container {
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+                    <line x1="16" y1="8" x2="2" y2="22"/>
+                    <line x1="17.5" y1="15" x2="9" y2="15"/>
+                </svg>
+                <div class="logo-text">Littlebird</div>
+            </div>
+            <div class="date">Wednesday, July 21, 2025</div>
+            <div class="greeting">Good morning, Sarah 👋</div>
+        </div>
+        
+        <!-- Section 1: Quote -->
+        <div class="quote-section">
+            <div class="quote-text">"Focus on being productive instead of busy."</div>
+            <div class="quote-author">— Tim Ferriss</div>
+        </div>
+        
+        <!-- Section 2: Journal -->
+        <div class="section journal-section">
+            <div class="section-header">
+                <div class="section-title">Yesterday's Reflection</div>
+                <div class="section-subtitle">Key moments from your workday</div>
+            </div>
+            
+            <div class="journal-card">
+                <ul class="journal-list">
+                    <li class="journal-item">
+                        <div class="journal-bullet"></div>
+                        <div class="journal-text">Hit a strong flow state around 10:30 AM while working on the quarterly planning document</div>
+                    </li>
+                    <li class="journal-item">
+                        <div class="journal-bullet"></div>
+                        <div class="journal-text">Felt well-prepared for the afternoon client presentation thanks to focused prep time</div>
+                    </li>
+                    <li class="journal-item">
+                        <div class="journal-bullet"></div>
+                        <div class="journal-text">Much less scattered than Monday by keeping Slack closed during morning work block</div>
+                    </li>
+                </ul>
+                
+                <div class="journal-cta">
+                    <a href="#" class="chat-button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                        View Full Journal
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 3: Key Insights -->
+        <div class="section insights-section">
+            <div class="section-header">
+                <div class="section-title">Today's Priorities</div>
+                <div class="section-subtitle">Important items that need your attention</div>
+            </div>
+            
+            <div class="insights-grid">
+                <!-- Time Sensitive -->
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon urgent-icon">⏰</div>
+                        <div class="insight-title">Time Sensitive</div>
+                    </div>
+                    <div class="insight-content">
+                        Your <span class="urgent">campaign launches Friday at 2pm</span>, but creative assets need Sarah's approval. She hasn't responded to yesterday's review request.
+                    </div>
+                    <a href="#" class="chat-button">⚡ Help me figure out what makes sense</a>
+                </div>
+                
+                <!-- Cross App Connections -->
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon connection-icon">🔗</div>
+                        <div class="insight-title">Connected Insights</div>
+                    </div>
+                    <div class="insight-content">
+                        Your 2pm meeting on <span class="highlight">Q4 budget revisions</span> connects to your draft proposal, spreadsheet, and 3 Slack messages.
+                    </div>
+                    <a href="#" class="chat-button">🔗 Show me all content in one place</a>
+                </div>
+                
+                <!-- Missed Opportunities -->
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon opportunity-icon">💡</div>
+                        <div class="insight-title">Missed Opportunity</div>
+                    </div>
+                    <div class="insight-content">
+                        Your recent <span class="highlight">competitor pricing research</span> aligns perfectly with that premium tier proposal you shelved in June.
+                    </div>
+                    <a href="#" class="chat-button">💡 Help me plan next steps</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 4: Optimization -->
+        <div class="section optimization-section">
+            <div class="section-header">
+                <div class="section-title">Work Optimization</div>
+                <div class="section-subtitle">Small changes, big improvements</div>
+            </div>
+            
+            <div class="optimization-grid">
+                <!-- Small Fix -->
+                <div class="optimization-card fix-card">
+                    <div class="optimization-header">
+                        <div class="optimization-icon fix-icon">🔧</div>
+                        <div class="optimization-title">Quick Fix</div>
+                    </div>
+                    <div class="insight-content">
+                        You spent 8 minutes yesterday searching for the budget spreadsheet across three different folders.
+                        <br><br>
+                        💡 <strong>Add it to your dock or create a "Daily Files" folder</strong>
+                    </div>
+                    <a href="#" class="chat-button chat-button-secondary">🔧 Find more efficiency wins</a>
+                </div>
+                
+                <!-- Pattern Insight -->
+                <div class="optimization-card pattern-card">
+                    <div class="optimization-header">
+                        <div class="optimization-icon pattern-icon">📈</div>
+                        <div class="optimization-title">Pattern Insight</div>
+                    </div>
+                    <div class="insight-content">
+                        You consistently hit your <span class="highlight">flow state between 2-4pm</span> — 40% faster typing and 70% fewer app switches during this window.
+                    </div>
+                    <a href="#" class="chat-button chat-button-secondary">🧠 Tips on protecting this flow time</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">Every insight helps you work smarter, not harder. These patterns compound into significant improvements over time.</p>
+            <a href="#" class="main-cta">Open Dashboard</a>
+            <p class="small-text">This analysis is based on your Mac activity patterns.<br>Reply to this email if you have questions or feedback.</p>
+        </div>
+    </div>
+</body>
+</html>
