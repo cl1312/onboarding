@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Daily Digest</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #F8F9FA;
+            color: #1F2937;
+        }
+        
+        .email-container {
+            max-width: 640px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: #FFFFFF;
+            padding: 32px 32px 24px 32px;
+            text-align: center;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            margin-right: 8px;
+        }
+        
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        
+        .date {
+            color: #6B7280;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        .greeting {
+            padding: 32px 32px 24px 32px;
+            text-align: center;
+        }
+        
+        .greeting h1 {
+            color: #1F2937;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+        
+        .greeting p {
+            color: #6B7280;
+            font-size: 16px;
+            margin: 0;
+            font-weight: 400;
+        }
+        
+        .content {
+            padding: 0 32px 32px 32px;
+        }
+        
+        .widget {
+            background: #FAFBFC;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #E5E7EB;
+            transition: all 0.2s ease;
+        }
+        
+        .widget:hover {
+            background: #F8F9FA;
+            border-color: #D1D5DB;
+        }
+        
+        .widget-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .widget-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+        
+        .widget-title {
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .quote-widget {
+            background: #1F2937;
+            color: #F9FAFB;
+            border: 1px solid #374151;
+        }
+        
+        .quote-widget:hover {
+            background: #111827;
+        }
+        
+        .quote-widget .widget-title {
+            color: #D1D5DB;
+        }
+        
+        .quote-widget .widget-icon {
+            opacity: 0.8;
+            filter: brightness(0) invert(1);
+        }
+        
+        .quote-text {
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 1.4;
+            margin: 16px 0 12px 0;
+            color: #F9FAFB;
+        }
+        
+        .quote-author {
+            font-size: 14px;
+            font-weight: 500;
+            color: #9CA3AF;
+            text-align: right;
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        @media (max-width: 600px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .win-content {
+            color: #374151;
+            font-size: 15px;
+            font-weight: 400;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .win-highlight {
+            color: #059669;
+            font-weight: 600;
+        }
+        
+        .journal-content {
+            color: #374151;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        
+        .journal-content p {
+            margin: 0;
+        }
+        
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .task-priority {
+            background: #374151;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .task-text {
+            color: #374151;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+        
+        .streak-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .streak-text {
+            color: #374151;
+            font-size: 15px;
+            font-weight: 400;
+        }
+        
+        .streak-number {
+            background: #EF4444;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .meeting-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        
+        .meeting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .meeting-time {
+            color: #6B7280;
+            font-size: 13px;
+            font-weight: 500;
+            min-width: 65px;
+            margin-right: 12px;
+        }
+        
+        .meeting-title {
+            color: #374151;
+            font-size: 14px;
+            font-weight: 400;
+            flex-grow: 1;
+        }
+        
+        .focus-block {
+            background: #F0F9FF;
+            border: 1px solid #BAE6FD;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 16px;
+        }
+        
+        .focus-block-title {
+            color: #0284C7;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .focus-block-text {
+            color: #374151;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        .tip-content {
+            color: #374151;
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+        }
+        
+        .tip-action {
+            color: #7C3AED;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0;
+        }
+        
+        .footer {
+            background: #F8F9FA;
+            padding: 24px 32px;
+            text-align: center;
+            border-top: 1px solid #F1F5F9;
+        }
+        
+        .footer-text {
+            color: #6B7280;
+            font-size: 14px;
+            margin: 0 0 16px 0;
+            line-height: 1.5;
+        }
+        
+        .cta-button {
+            background: #1F2937;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+        
+        .cta-button:hover {
+            background: #111827;
+        }
+        
+        .small-text {
+            color: #9CA3AF;
+            font-size: 12px;
+            margin-top: 16px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+                    <line x1="16" y1="8" x2="2" y2="22"/>
+                    <line x1="17.5" y1="15" x2="9" y2="15"/>
+                </svg>
+                <div class="logo-text">Littlebird</div>
+            </div>
+            <div class="date">Wednesday, July 21, 2025</div>
+        </div>
+        
+        <!-- Greeting -->
+        <div class="greeting">
+            <h1>Good morning, Sarah 👋</h1>
+            <p>Here's your personalized daily insight based on yesterday's work patterns.</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <!-- Daily Quote Widget -->
+            <div class="widget quote-widget">
+                <div class="widget-header">
+                    <svg class="widget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                    <h3 class="widget-title">Daily Inspiration</h3>
+                </div>
+                <div class="quote-text">"Focus on being productive instead of busy."</div>
+                <div class="quote-author">— Tim Ferriss</div>
+            </div>
+            
+            <!-- Journal Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <svg class="widget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                    <h3 class="widget-title">Yesterday's Journal</h3>
+                </div>
+                <div class="journal-content">
+                    <p>"Yesterday felt productive and focused. Started the morning strong with deep work on the quarterly planning document—really got into a flow state around 10:30 AM. The afternoon client presentation went well, and I felt prepared thanks to that focused prep time. Noticed I was much less scattered than Monday, probably because I kept Slack closed during my morning block. Small wins: finally organized those project files that were cluttering my desktop."</p>
+                </div>
+            </div>
+            
+            <!-- Two Column Layout -->
+            <div class="two-column">
+                <!-- Yesterday's Win Widget -->
+                <div class="widget">
+                    <div class="widget-header">
+                        <svg class="widget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                        <h3 class="widget-title">Yesterday's Victory</h3>
+                    </div>
+                    <p class="win-content">You eliminated <span class="win-highlight">73% of distractions</span> during your morning writing session compared to Monday — your focus is really improving!</p>
+                </div>
+                
+                <!-- Streak Widget -->
+                <div class="widget">
+                    <div class="widget-header">
+                        <svg class="widget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
+                        </svg>
+                        <h3 class="widget-title">Streak</h3>
+                    </div>
+                    <div class="streak-content">
+                        <div class="streak-text">No social media before 11 AM</div>
+                        <div class="streak-number">12 days</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Today's Schedule Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <svg class="widget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <h3 class="widget-title">Today's Agenda</h3>
+                </div>
+                <div class="meeting-item">
+                    <div class="meeting-time">9:00 AM</div>
+                    <div class="meeting-title">Team Standup</div>
+                </div>
+                <div class="meeting-item">
+                    <div class="meeting-time">11:30 AM</div>
+                    <div class="meeting-title">Product Strategy Review</div>
+                </div>
+                <div class="meeting-item">
+                    <div class="meeting-time">2:00 PM</div>
+                    <div class="meeting-title">Client Presentation Prep</div>
+                </div>
+                
+                <div class="focus-block">
+                    <div class="focus-block-title">Perfect Focus Window</div>
+                    <p class="focus-block-text">3:30-5:00 PM is clear — ideal for deep work on that quarterly planning document you were reviewing yesterday.</p>
+                </div>
+            </div>
+            
+            <!-- Two Column Layout for Tasks and Tips -->
+            <div class="two-column">
+                <!-- Top 3 Tasks Widget -->
+                <div class="widget">
+                    <div class="widget-header">
+                        <svg class="widget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3 8-8"/>
+                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.39 0 4.56.94 6.16 2.46"/>
+                        </svg>
+                        <h3 class="widget-title">Top 3 Tasks</h3>
+                    </div>
+                    <div class="task-list">
+                        <div class="task-item">
+                            <div class="task-priority">1</div>
+                            <div class="task-text">Finalize Q3 budget presentation</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-priority">2</div>
+                            <div class="task-text">Review team performance reports</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-priority">3</div>
+                            <div class="task-text">Update project timeline in Asana</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Win Widget -->
+                <div class="widget">
+                    <div class="widget-header">
+                        <svg class="widget-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="m9 12 2 2 4-4"/>
+                        </svg>
+                        <h3 class="widget-title">Quick Win</h3>
+                    </div>
+                    <p class="tip-content">You spent 8 minutes yesterday searching for the budget spreadsheet across three different folders.</p>
+                    <p class="tip-action">💡 Add it to your dock or create a "Daily Files" folder on your desktop</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">Every day you're building better work habits, Sarah. These small insights compound into significant improvements over time.</p>
+            <a href="#" class="cta-button">Open Dashboard</a>
+            <p class="small-text">This analysis is based on your Mac activity patterns.<br>Reply to this email if you have questions or feedback.</p>
+        </div>
+    </div>
+</body>
+</html>
