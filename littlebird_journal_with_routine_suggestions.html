@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Daily Journal with Routine Suggestions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f4f2;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #faf9f8;
+            border-right: 1px solid #e8e7e5;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding: 8px;
+        }
+
+        .logo-icon {
+            font-size: 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: #6b6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #f0efed;
+        }
+
+        .menu-item.active {
+            background: #e8e7e5;
+            color: #1a1a1a;
+        }
+
+        .menu-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .recents {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .recents-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 12px;
+            padding: 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recent-item {
+            padding: 10px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .recent-item:hover {
+            background: #f0efed;
+        }
+
+        .context-status {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #e8e7e5;
+        }
+
+        .context-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-bottom: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            font-size: 10px;
+            color: #999;
+            background: #f0efed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .journal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 48px;
+        }
+
+        .journal-header {
+            margin-bottom: 32px;
+        }
+
+        .journal-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .journal-date {
+            font-size: 14px;
+            color: #6b6b6b;
+        }
+
+        .journal-section {
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8e7e5;
+        }
+
+        .section-content {
+            font-size: 15px;
+            color: #1a1a1a;
+            line-height: 1.8;
+        }
+
+        .section-content p {
+            margin-bottom: 12px;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .bullet-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .bullet-list li::before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: #6366f1;
+            font-weight: bold;
+        }
+
+        /* Routine Suggestion Card */
+        .routine-suggestion {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #fbbf24;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 24px 0;
+            position: relative;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .suggestion-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .suggestion-icon {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-content {
+            flex: 1;
+        }
+
+        .suggestion-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            color: #92400e;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-description {
+            font-size: 14px;
+            color: #92400e;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .suggestion-pattern {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #1a1a1a;
+            line-height: 1.5;
+        }
+
+        .pattern-label {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .suggestion-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .suggestion-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestion-button-primary {
+            background: #92400e;
+            color: #fef3c7;
+            flex: 1;
+        }
+
+        .suggestion-button-primary:hover {
+            background: #78350f;
+            transform: scale(1.02);
+        }
+
+        .suggestion-button-secondary {
+            background: white;
+            color: #92400e;
+            border: 2px solid #92400e;
+        }
+
+        .suggestion-button-secondary:hover {
+            background: #fef3c7;
+        }
+
+        .suggestion-dismiss {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            background: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .suggestion-dismiss:hover {
+            background: #fef3c7;
+            transform: scale(1.1);
+        }
+
+        /* Highlighted text in journal */
+        .highlighted-pattern {
+            background: linear-gradient(120deg, #fef3c7 0%, #fef3c7 100%);
+            background-size: 100% 40%;
+            background-repeat: no-repeat;
+            background-position: 0 85%;
+            padding: 2px 4px;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .highlighted-pattern:hover {
+            background-size: 100% 100%;
+        }
+
+        /* Modal for routine creation */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            background: #fef3c7;
+        }
+
+        .modal-title-group {
+            flex: 1;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: #6b6b6b;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #f0efed;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e8e7e5;
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e8e7e5;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e8e7e5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.2s;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-top: 6px;
+        }
+
+        .frequency-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .frequency-select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e8e7e5;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .frequency-select:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            padding-top: 24px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-button-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .modal-button-primary:hover {
+            background: #4f46e5;
+        }
+
+        .modal-button-secondary {
+            background: #f0efed;
+            color: #1a1a1a;
+        }
+
+        .modal-button-secondary:hover {
+            background: #e8e7e5;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-box-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+
+        .info-box-text {
+            font-size: 13px;
+            color: #1e40af;
+            line-height: 1.5;
+        }
+
+        /* Date Sidebar */
+        .date-sidebar {
+            width: 280px;
+            background: white;
+            border-left: 1px solid #e8e7e5;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .date-list-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            padding: 0 8px;
+        }
+
+        .date-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .date-item:hover {
+            background: #faf9f8;
+        }
+
+        .date-item.active {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .date-item-date {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .date-item-title {
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">▶</span>
+            <span>Littlebird</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">💬</span>
+            <span>New Chat</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔍</span>
+            <span>Search</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📝</span>
+            <span>Meeting Notes</span>
+        </div>
+
+        <div class="menu-item active">
+            <span class="menu-icon">📔</span>
+            <span>Daily Journal</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔄</span>
+            <span>Routines</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">✓</span>
+            <span>Todos</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🪵</span>
+            <span>Request Logger</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Extras</span>
+        </div>
+
+        <div class="recents">
+            <div class="recents-title">Recents</div>
+            <div class="recent-item">Deducing User's Profession</div>
+            <div class="recent-item">Goal Planning Framework</div>
+            <div class="recent-item">Setting Up a Routine</div>
+        </div>
+
+        <div class="context-status">
+            <div class="context-indicator">
+                <span class="status-dot"></span>
+                <span>Context enabled</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Chandan Luthra</div>
+                <div class="user-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Journal Content -->
+        <div class="journal-content">
+            <div class="journal-header">
+                <h1 class="journal-title">Productive Sprint Planning Day</h1>
+                <div class="journal-date">Thursday, December 12, 2024</div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="journal-section">
+                <h2 class="section-title">Summary Points</h2>
+                <div class="section-content">
+                    <ul class="bullet-list">
+                        <li>Led EmailZap sprint planning - prioritized inbox clustering feature and Gmail sidebar improvements</li>
+                        <li>1-on-1 with Sarah about LittleBird's onboarding flow - agreed to simplify the setup wizard</li>
+                        <li>Reviewed and merged 3 PRs from the team, including the analytics dashboard that tracks user engagement</li>
+                        <li>Made critical decision to switch from GPT-4 to Claude API for email summarization - 40% cost reduction with better quality</li>
+                        <li>Discovered promising growth channel through Product Hunt launch planning</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Routine Suggestion #1 - After recurring pattern detected -->
+            <div class="routine-suggestion" id="suggestion1">
+                <button class="suggestion-dismiss" onclick="dismissSuggestion('suggestion1')">×</button>
+                <div class="suggestion-header">
+                    <div class="suggestion-icon">🔄</div>
+                    <div class="suggestion-content">
+                        <div class="suggestion-badge">
+                            <span>✨</span>
+                            <span>Pattern Detected</span>
+                        </div>
+                        <div class="suggestion-title">Turn this into a routine?</div>
+                        <div class="suggestion-description">
+                            We've noticed you consistently track <strong>team meetings and sprint planning</strong> in your journals. 
+                            Get a weekly summary automatically!
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="suggestion-pattern">
+                    <span class="pattern-label">Appears in 6 of your last 7 journals:</span>
+                    "Sprint planning sessions", "Team standups", "Project prioritization discussions"
+                </div>
+
+                <div class="suggestion-actions">
+                    <button class="suggestion-button suggestion-button-primary" onclick="createRoutineFromPattern('sprint')">
+                        <span>⚡</span>
+                        <span>Create Routine</span>
+                    </button>
+                    <button class="suggestion-button suggestion-button-secondary" onclick="dismissSuggestion('suggestion1')">
+                        Not Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Timeline Section -->
+            <div class="journal-section">
+                <h2 class="section-title">Timeline of the Day</h2>
+                <div class="section-content">
+                    <p><strong>9:30 AM - Sprint Planning</strong><br>
+                    Kicked off the day with <span class="highlighted-pattern" onclick="showInlineTooltip(event, 'sprint')">EmailZap sprint planning with the engineering team</span>. We reviewed the backlog and decided to prioritize the unified inbox view over calendar integration. The email clustering algorithm is showing 85% accuracy in tests, so we're pushing forward with that as the headline feature.</p>
+
+                    <p><strong>11:00 AM - Deep Work Session</strong><br>
+                    Focused coding time implementing the Gmail sidebar component. Got the basic UI working and integrated with the background service worker. Need to optimize the message passing layer for better performance.</p>
+
+                    <p><strong>2:00 PM - 1-on-1 with Sarah</strong><br>
+                    Great discussion about LittleBird's user onboarding. Sarah showed mockups for the simplified setup flow - instead of 5 steps, we're going down to 3. The key insight was asking users about their goals upfront, then auto-configuring based on that.</p>
+
+                    <p><strong>4:30 PM - PR Review & Team Collaboration</strong><br>
+                    Reviewed Mark's analytics dashboard PR - really solid work. Also merged Priya's notification system changes. The team is shipping fast and the code quality is high. Feels like we're hitting our stride.</p>
+                </div>
+            </div>
+
+            <!-- Key Decisions Section with second suggestion -->
+            <div class="journal-section">
+                <h2 class="section-title">Key Decisions Made</h2>
+                <div class="section-content">
+                    <ul class="bullet-list">
+                        <li><span class="highlighted-pattern" onclick="showInlineTooltip(event, 'api')">Switched from GPT-4 to Claude API for email summarization</span> - testing showed better context understanding and 40% lower costs. This will significantly improve our unit economics.</li>
+                        <li>Decided to delay the mobile app for LittleBird until we perfect the Mac experience. Focus is key.</li>
+                        <li>Approved budget increase for Product Hunt launch campaign - could be a major growth driver</li>
+                        <li>Prioritized inbox clustering feature over calendar integration for EmailZap's next release based on user feedback</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Routine Suggestion #2 - For decision tracking -->
+            <div class="routine-suggestion" id="suggestion2">
+                <button class="suggestion-dismiss" onclick="dismissSuggestion('suggestion2')">×</button>
+                <div class="suggestion-header">
+                    <div class="suggestion-icon">💡</div>
+                    <div class="suggestion-content">
+                        <div class="suggestion-badge">
+                            <span>🎯</span>
+                            <span>Smart Suggestion</span>
+                        </div>
+                        <div class="suggestion-title">Track your strategic decisions</div>
+                        <div class="suggestion-description">
+                            You're making <strong>important product and technical decisions</strong> regularly. 
+                            Get a weekly digest to review and learn from your decision-making patterns.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="suggestion-pattern">
+                    <span class="pattern-label">Recent decisions captured:</span>
+                    API switches, feature prioritization, hiring choices, budget allocations
+                </div>
+
+                <div class="suggestion-actions">
+                    <button class="suggestion-button suggestion-button-primary" onclick="createRoutineFromPattern('decisions')">
+                        <span>⚡</span>
+                        <span>Create Routine</span>
+                    </button>
+                    <button class="suggestion-button suggestion-button-secondary" onclick="dismissSuggestion('suggestion2')">
+                        Not Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Conversations Section -->
+            <div class="journal-section">
+                <h2 class="section-title">Conversations I Had</h2>
+                <div class="section-content">
+                    <p><strong>Sarah Chen (Product Designer):</strong> Discussed the new user onboarding flow for LittleBird. Sarah's insight about progressive disclosure was spot on - we don't need to explain everything upfront. Show value first, educate along the way.</p>
+                    
+                    <p><strong>Mark Rodriguez (Backend Engineer):</strong> Technical deep dive on the analytics pipeline architecture. Mark's proposal to use event streaming instead of batch processing will give us real-time insights. Approved his implementation plan.</p>
+                    
+                    <p><strong>EmailZap Engineering Team (Slack):</strong> Sprint planning discussion covered feature prioritization, technical debt allocation, and velocity targets. Team is aligned on the unified inbox being our north star feature.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Sidebar -->
+        <div class="date-sidebar">
+            <div class="date-list-header">Journal Entries</div>
+            
+            <div class="date-item active">
+                <div class="date-item-date">Dec 12th - Today</div>
+                <div class="date-item-title">Productive Sprint Planning Day</div>
+            </div>
+
+            <div class="date-item">
+                <div class="date-item-date">Dec 11th</div>
+                <div class="date-item-title">Deep Work on Email Clustering</div>
+            </div>
+
+            <div class="date-item">
+                <div class="date-item-date">Dec 10th</div>
+                <div class="date-item-title">Customer Feedback Session</div>
+            </div>
+
+            <div class="date-item">
+                <div class="date-item-date">Dec 9th</div>
+                <div class="date-item-title">Weekly Team Retrospective</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Routine Creation Modal -->
+    <div class="modal" id="routineModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">🔄</div>
+                <div class="modal-title-group">
+                    <h2 class="modal-title" id="modalTitle">Create Sprint Planning Routine</h2>
+                    <p class="modal-subtitle">Based on patterns from your journals</p>
+                </div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">✨ Pre-filled from your journals!</div>
+                <div class="info-box-text">
+                    We've analyzed your journal patterns and pre-filled this routine with what matters to you. 
+                    Feel free to customize or use as-is.
+                </div>
+            </div>
+
+            <form id="routineForm">
+                <div class="form-section">
+                    <label class="form-label">Routine Name</label>
+                    <input type="text" class="form-input" id="routineName" value="Weekly Sprint & Team Summary">
+                    <div class="form-help">Give your routine a memorable name</div>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Instructions</label>
+                    <textarea class="form-textarea" id="routineInstructions">Analyze my week and provide a comprehensive summary of:
+
+• Sprint planning sessions - decisions made, features prioritized, and team alignment
+• Team standup discussions and blockers identified
+• Project prioritization decisions and rationale
+• Key engineering discussions and technical decisions
+• Team velocity and progress against goals
+
+Format as a weekly digest with actionable insights and patterns.</textarea>
+                    <div class="form-help">These instructions were generated from your journal patterns</div>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Frequency & Timing</label>
+                    <div class="frequency-controls">
+                        <select class="frequency-select" id="routineFrequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly" selected>Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                        <select class="frequency-select" id="routineDay">
+                            <option value="monday" selected>Monday</option>
+                            <option value="tuesday">Tuesday</option>
+                            <option value="wednesday">Wednesday</option>
+                            <option value="thursday">Thursday</option>
+                            <option value="friday">Friday</option>
+                        </select>
+                        <input type="time" class="frequency-select" id="routineTime" value="09:00">
+                    </div>
+                    <div class="form-help">Weekly summaries work best on Monday mornings</div>
+                </div>
+            </form>
+
+            <div class="modal-actions">
+                <button class="modal-button modal-button-secondary" onclick="closeModal()">
+                    Cancel
+                </button>
+                <button class="modal-button modal-button-primary" onclick="confirmCreateRoutine()">
+                    Create Routine
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const routineTemplates = {
+            sprint: {
+                name: 'Weekly Sprint & Team Summary',
+                instructions: `Analyze my week and provide a comprehensive summary of:
+
+• Sprint planning sessions - decisions made, features prioritized, and team alignment
+• Team standup discussions and blockers identified
+• Project prioritization decisions and rationale
+• Key engineering discussions and technical decisions
+• Team velocity and progress against goals
+
+Format as a weekly digest with actionable insights and patterns.`
+            },
+            decisions: {
+                name: 'Strategic Decision Digest',
+                instructions: `Review my strategic and tactical decisions from the past week:
+
+• Product decisions - feature prioritization, roadmap changes
+• Technical decisions - architecture, tool selection, API choices
+• Business decisions - budget, hiring, partnerships
+• Impact analysis of past decisions where possible
+
+Help me identify patterns in my decision-making and areas for improvement.`
+            },
+            api: {
+                name: 'Technical Decision Tracker',
+                instructions: `Track technical decisions I make:
+
+• API and tool selection choices
+• Architecture decisions and their rationale
+• Technology stack changes
+• Performance optimization decisions
+• Technical debt prioritization
+
+Summarize weekly with context on outcomes and learnings.`
+            }
+        };
+
+        function dismissSuggestion(suggestionId) {
+            const suggestion = document.getElementById(suggestionId);
+            suggestion.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                suggestion.style.display = 'none';
+            }, 300);
+        }
+
+        function createRoutineFromPattern(patternKey) {
+            const template = routineTemplates[patternKey];
+            
+            // Fill modal with template data
+            document.getElementById('modalTitle').textContent = `Create ${template.name}`;
+            document.getElementById('routineName').value = template.name;
+            document.getElementById('routineInstructions').value = template.instructions;
+            
+            // Show modal
+            document.getElementById('routineModal').classList.add('active');
+        }
+
+        function showInlineTooltip(event, patternKey) {
+            // This would show a small tooltip suggesting to create a routine
+            // For demo purposes, we'll just open the modal
+            createRoutineFromPattern(patternKey);
+        }
+
+        function closeModal() {
+            document.getElementById('routineModal').classList.remove('active');
+        }
+
+        function confirmCreateRoutine() {
+            const name = document.getElementById('routineName').value;
+            const frequency = document.getElementById('routineFrequency').value;
+            
+            alert(`🎉 Success! Your routine "${name}" has been created!\n\nYou'll receive your first ${frequency} update based on patterns from your journals.`);
+            closeModal();
+        }
+
+        // Close modal on background click
+        document.getElementById('routineModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Add CSS for slide out animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideOut {
+                from {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateX(-20px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
