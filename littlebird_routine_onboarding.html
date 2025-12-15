@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Setup Your Daily Routine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .onboarding-container {
+            background: white;
+            border-radius: 24px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #f0efed;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+
+        .onboarding-content {
+            padding: 48px;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #e8e7e5;
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: #667eea;
+            transform: scale(1.2);
+        }
+
+        .step-dot.completed {
+            background: #10b981;
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .step-icon {
+            font-size: 72px;
+            margin-bottom: 24px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .step-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .step-subtitle {
+            font-size: 18px;
+            color: #6b6b6b;
+            line-height: 1.6;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .option-card {
+            background: #faf9f8;
+            border: 3px solid #e8e7e5;
+            border-radius: 16px;
+            padding: 20px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .option-card:hover {
+            background: #f0efed;
+            border-color: #d1d5db;
+        }
+
+        .option-card.selected {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .option-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .option-description {
+            font-size: 14px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        .option-checkbox {
+            width: 28px;
+            height: 28px;
+            border: 3px solid #d1d5db;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .option-card.selected .option-checkbox {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .custom-input-section {
+            display: none;
+            margin-top: 20px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .custom-input-section.visible {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 16px;
+            border: 3px solid #e8e7e5;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.2s;
+        }
+
+        .custom-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .custom-input-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .custom-input-help {
+            font-size: 13px;
+            color: #6b6b6b;
+            margin-top: 8px;
+        }
+
+        .time-select-section {
+            margin-bottom: 32px;
+        }
+
+        .time-select-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .time-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .time-button {
+            padding: 16px;
+            background: #faf9f8;
+            border: 3px solid #e8e7e5;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .time-button:hover {
+            background: #f0efed;
+            border-color: #d1d5db;
+        }
+
+        .time-button.selected {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .button {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .button-secondary {
+            background: #f0efed;
+            color: #1a1a1a;
+        }
+
+        .button-secondary:hover {
+            background: #e8e7e5;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .button-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .button-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-box {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .info-box-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .info-box-content {
+            flex: 1;
+        }
+
+        .info-box-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 4px;
+        }
+
+        .info-box-text {
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.5;
+        }
+
+        .summary-section {
+            display: none;
+        }
+
+        .summary-section.visible {
+            display: block;
+        }
+
+        .summary-card {
+            background: #faf9f8;
+            border: 2px solid #e8e7e5;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .summary-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-content {
+            font-size: 15px;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .summary-routine-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #6366f1;
+            margin-bottom: 8px;
+        }
+
+        .summary-time {
+            font-size: 14px;
+            color: #6b6b6b;
+        }
+
+        .success-animation {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .success-icon {
+            font-size: 120px;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .success-subtitle {
+            font-size: 16px;
+            color: #6b6b6b;
+            line-height: 1.6;
+        }
+
+        .reminder-box {
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+
+        .reminder-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reminder-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .reminder-list li {
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+            font-size: 15px;
+            color: #1e40af;
+            line-height: 1.6;
+        }
+
+        .reminder-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 8px;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="onboarding-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 33.33%"></div>
+        </div>
+
+        <div class="onboarding-content">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step-dot active" id="dot1"></div>
+                <div class="step-dot" id="dot2"></div>
+                <div class="step-dot" id="dot3"></div>
+            </div>
+
+            <!-- Step 1: What to track -->
+            <div id="step1" class="step-section">
+                <div class="step-header">
+                    <div class="step-icon">🎯</div>
+                    <h1 class="step-title">What matters most to you?</h1>
+                    <p class="step-subtitle">
+                        Choose what you'd like Littlebird to track and remind you about daily. 
+                        We'll create a personalized routine just for you.
+                    </p>
+                </div>
+
+                <div class="options-grid">
+                    <div class="option-card" onclick="toggleOption('conversations')">
+                        <div class="option-icon" style="background: #dbeafe;">💬</div>
+                        <div class="option-content">
+                            <div class="option-title">Important Conversations</div>
+                            <div class="option-description">Key discussions, decisions, and follow-ups from chats and emails</div>
+                        </div>
+                        <div class="option-checkbox">
+                            <span class="check-mark"></span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="toggleOption('tasks')">
+                        <div class="option-icon" style="background: #fef3c7;">✓</div>
+                        <div class="option-content">
+                            <div class="option-title">Tasks & Action Items</div>
+                            <div class="option-description">Things I need to complete, deadlines, and commitments</div>
+                        </div>
+                        <div class="option-checkbox">
+                            <span class="check-mark"></span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="toggleOption('meetings')">
+                        <div class="option-icon" style="background: #d1fae5;">📅</div>
+                        <div class="option-content">
+                            <div class="option-title">Meeting Highlights</div>
+                            <div class="option-description">Key takeaways, decisions, and action items from meetings</div>
+                        </div>
+                        <div class="option-checkbox">
+                            <span class="check-mark"></span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="toggleOption('projects')">
+                        <div class="option-icon" style="background: #fce7f3;">🎯</div>
+                        <div class="option-content">
+                            <div class="option-title">Project Progress</div>
+                            <div class="option-description">Updates on my active projects and work streams</div>
+                        </div>
+                        <div class="option-checkbox">
+                            <span class="check-mark"></span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="toggleOption('people')">
+                        <div class="option-icon" style="background: #e0e7ff;">👥</div>
+                        <div class="option-content">
+                            <div class="option-title">People to Follow Up With</div>
+                            <div class="option-description">Reminders about conversations and relationships that need attention</div>
+                        </div>
+                        <div class="option-checkbox">
+                            <span class="check-mark"></span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="toggleOption('custom')">
+                        <div class="option-icon" style="background: #fae8ff;">✨</div>
+                        <div class="option-content">
+                            <div class="option-title">Something Else</div>
+                            <div class="option-description">Tell us what you'd like to be reminded about</div>
+                        </div>
+                        <div class="option-checkbox">
+                            <span class="check-mark"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-input-section" id="customInputSection">
+                    <label class="custom-input-label">What would you like to track?</label>
+                    <textarea 
+                        class="custom-input" 
+                        id="customInput" 
+                        placeholder="For example: 'Track time spent on deep work vs meetings' or 'Remind me about learning resources I've bookmarked'"></textarea>
+                    <div class="custom-input-help">Be as specific as you'd like - we'll tailor the routine to your needs</div>
+                </div>
+
+                <div class="actions">
+                    <button class="button button-secondary" onclick="skipOnboarding()">Skip for now</button>
+                    <button class="button button-primary" id="step1Next" onclick="goToStep2()" disabled>
+                        Continue
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: When to receive -->
+            <div id="step2" class="step-section" style="display: none;">
+                <div class="step-header">
+                    <div class="step-icon">⏰</div>
+                    <h1 class="step-title">When should we deliver this?</h1>
+                    <p class="step-subtitle">
+                        Choose the best time to receive your daily summary
+                    </p>
+                </div>
+
+                <div class="time-select-section">
+                    <label class="time-select-label">Select your preferred time:</label>
+                    <div class="time-buttons">
+                        <div class="time-button" onclick="selectTime('morning')">
+                            <div style="font-size: 24px; margin-bottom: 4px;">☀️</div>
+                            <div>Morning</div>
+                            <div style="font-size: 13px; color: #6b6b6b; margin-top: 4px;">9:00 AM</div>
+                        </div>
+                        <div class="time-button" onclick="selectTime('midday')">
+                            <div style="font-size: 24px; margin-bottom: 4px;">🌤️</div>
+                            <div>Midday</div>
+                            <div style="font-size: 13px; color: #6b6b6b; margin-top: 4px;">12:00 PM</div>
+                        </div>
+                        <div class="time-button" onclick="selectTime('evening')">
+                            <div style="font-size: 24px; margin-bottom: 4px;">🌙</div>
+                            <div>Evening</div>
+                            <div style="font-size: 13px; color: #6b6b6b; margin-top: 4px;">6:00 PM</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-box-icon">💡</span>
+                    <div class="info-box-content">
+                        <div class="info-box-title">Pro tip</div>
+                        <div class="info-box-text">
+                            Most people prefer morning summaries to start their day, or evening summaries to review and plan for tomorrow.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="button button-secondary" onclick="goToStep1()">Back</button>
+                    <button class="button button-primary" id="step2Next" onclick="goToStep3()" disabled>
+                        Continue
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Summary & Confirmation -->
+            <div id="step3" class="step-section summary-section">
+                <div class="step-header">
+                    <div class="step-icon">🎉</div>
+                    <h1 class="step-title">Your routine is ready!</h1>
+                    <p class="step-subtitle">
+                        Review your personalized daily routine below
+                    </p>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-routine-name" id="routineName">My Daily Digest</div>
+                    <div class="summary-time" id="routineTime">Delivered daily at 9:00 AM</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-title">
+                        <span>📋</span>
+                        <span>What you'll get:</span>
+                    </div>
+                    <div class="summary-content" id="summaryContent">
+                        Loading...
+                    </div>
+                </div>
+
+                <div class="reminder-box">
+                    <div class="reminder-title">
+                        <span>⚠️</span>
+                        <span>Important: Keep Littlebird running!</span>
+                    </div>
+                    <ul class="reminder-list">
+                        <li>Keep Littlebird running in the background to collect context</li>
+                        <li>Make sure context collection is enabled in settings</li>
+                        <li>We'll deliver your first routine in about 2-3 hours after gathering enough context</li>
+                        <li>You can edit or pause this routine anytime from the Routines tab</li>
+                    </ul>
+                </div>
+
+                <div class="actions">
+                    <button class="button button-secondary" onclick="goToStep2()">Back</button>
+                    <button class="button button-primary" onclick="createRoutine()">
+                        Create My Routine
+                    </button>
+                </div>
+            </div>
+
+            <!-- Success State -->
+            <div id="successState" style="display: none;">
+                <div class="success-animation">
+                    <div class="success-icon">✅</div>
+                    <h1 class="success-title">You're all set!</h1>
+                    <p class="success-subtitle">
+                        Your routine "<span id="finalRoutineName">My Daily Digest</span>" has been created.<br>
+                        You'll receive your first update <span id="finalTimeframe">in a few hours</span>.
+                    </p>
+                </div>
+
+                <div class="reminder-box">
+                    <div class="reminder-title">
+                        <span>🔥</span>
+                        <span>Keep Littlebird running to get your routine!</span>
+                    </div>
+                    <div style="font-size: 15px; color: #1e40af; line-height: 1.6; margin-top: 12px;">
+                        We're now collecting context from your work. Keep the app running in the background 
+                        and make sure context collection is enabled. We'll notify you when your first routine is ready!
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="button button-primary" onclick="finishOnboarding()" style="width: 100%;">
+                        Start Using Littlebird
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedOptions = new Set();
+        let selectedTime = null;
+        let currentStep = 1;
+
+        const optionDescriptions = {
+            conversations: "Key discussions and decisions from your conversations",
+            tasks: "Action items, to-dos, and commitments you've made",
+            meetings: "Meeting summaries with decisions and action items",
+            projects: "Progress updates on your active projects",
+            people: "Important people you should follow up with",
+            custom: ""
+        };
+
+        const timeMapping = {
+            morning: { time: "9:00 AM", label: "Morning" },
+            midday: { time: "12:00 PM", label: "Midday" },
+            evening: { time: "6:00 PM", label: "Evening" }
+        };
+
+        function toggleOption(option) {
+            const card = event.currentTarget;
+            const checkbox = card.querySelector('.check-mark');
+            
+            if (selectedOptions.has(option)) {
+                selectedOptions.delete(option);
+                card.classList.remove('selected');
+                checkbox.textContent = '';
+            } else {
+                selectedOptions.add(option);
+                card.classList.add('selected');
+                checkbox.textContent = '✓';
+            }
+
+            // Show custom input if custom option selected
+            if (option === 'custom') {
+                const customSection = document.getElementById('customInputSection');
+                if (selectedOptions.has('custom')) {
+                    customSection.classList.add('visible');
+                } else {
+                    customSection.classList.remove('visible');
+                }
+            }
+
+            // Enable next button if at least one option selected
+            document.getElementById('step1Next').disabled = selectedOptions.size === 0;
+        }
+
+        function selectTime(time) {
+            // Remove selection from all time buttons
+            document.querySelectorAll('.time-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Select clicked button
+            event.currentTarget.classList.add('selected');
+            selectedTime = time;
+            
+            // Enable next button
+            document.getElementById('step2Next').disabled = false;
+        }
+
+        function goToStep2() {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            
+            document.getElementById('dot1').classList.remove('active');
+            document.getElementById('dot1').classList.add('completed');
+            document.getElementById('dot2').classList.add('active');
+            
+            document.getElementById('progressBar').style.width = '66.66%';
+            currentStep = 2;
+        }
+
+        function goToStep1() {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step1').style.display = 'block';
+            
+            document.getElementById('dot1').classList.add('active');
+            document.getElementById('dot1').classList.remove('completed');
+            document.getElementById('dot2').classList.remove('active');
+            
+            document.getElementById('progressBar').style.width = '33.33%';
+            currentStep = 1;
+        }
+
+        function goToStep3() {
+            // Generate summary
+            const summaryContent = document.getElementById('summaryContent');
+            let contentHTML = '<ul style="list-style: none; padding: 0;">';
+            
+            selectedOptions.forEach(option => {
+                if (option === 'custom') {
+                    const customText = document.getElementById('customInput').value;
+                    if (customText) {
+                        contentHTML += `<li style="padding: 8px 0; padding-left: 24px; position: relative;"><span style="position: absolute; left: 0; color: #6366f1; font-weight: bold;">•</span> ${customText}</li>`;
+                    }
+                } else {
+                    contentHTML += `<li style="padding: 8px 0; padding-left: 24px; position: relative;"><span style="position: absolute; left: 0; color: #6366f1; font-weight: bold;">•</span> ${optionDescriptions[option]}</li>`;
+                }
+            });
+            
+            contentHTML += '</ul>';
+            summaryContent.innerHTML = contentHTML;
+            
+            // Update time
+            const timeInfo = timeMapping[selectedTime];
+            document.getElementById('routineTime').textContent = `Delivered daily at ${timeInfo.time}`;
+            
+            // Show step 3
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'block';
+            document.getElementById('step3').classList.add('visible');
+            
+            document.getElementById('dot2').classList.remove('active');
+            document.getElementById('dot2').classList.add('completed');
+            document.getElementById('dot3').classList.add('active');
+            
+            document.getElementById('progressBar').style.width = '100%';
+            currentStep = 3;
+        }
+
+        function goToStep2FromStep3() {
+            document.getElementById('step3').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            
+            document.getElementById('dot2').classList.add('active');
+            document.getElementById('dot2').classList.remove('completed');
+            document.getElementById('dot3').classList.remove('active');
+            
+            document.getElementById('progressBar').style.width = '66.66%';
+            currentStep = 2;
+        }
+
+        function createRoutine() {
+            // Hide step 3, show success
+            document.getElementById('step3').style.display = 'none';
+            document.getElementById('successState').style.display = 'block';
+            
+            // Update final details
+            const timeInfo = timeMapping[selectedTime];
+            let timeframe = "this evening";
+            if (selectedTime === "morning") timeframe = "tonight";
+            else if (selectedTime === "midday") timeframe = "this afternoon";
+            
+            document.getElementById('finalTimeframe').textContent = timeframe;
+            
+            // Scroll to top
+            document.querySelector('.onboarding-content').scrollTop = 0;
+        }
+
+        function skipOnboarding() {
+            if (confirm('Are you sure you want to skip? You can always create routines later from the Routines tab.')) {
+                alert('Onboarding skipped. You can create routines anytime from the Routines tab.');
+                window.close();
+            }
+        }
+
+        function finishOnboarding() {
+            alert('Welcome to Littlebird! Your routine is active and will start delivering insights once we gather enough context. Keep the app running!');
+            window.close();
+        }
+    </script>
+</body>
+</html>
