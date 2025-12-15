@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Learning Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f4f2;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #faf9f8;
+            border-right: 1px solid #e8e7e5;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding: 8px;
+        }
+
+        .logo-icon {
+            font-size: 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: #6b6b6b;
+            cursor: not-allowed;
+            font-size: 14px;
+            position: relative;
+            opacity: 0.5;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #f0efed;
+        }
+
+        .menu-item.active {
+            background: #e8e7e5;
+            color: #1a1a1a;
+        }
+
+        .menu-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lock-icon {
+            position: absolute;
+            right: 12px;
+            font-size: 14px;
+            color: #999;
+        }
+
+        .recents {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .recents-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 12px;
+            padding: 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recent-item {
+            padding: 10px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            font-size: 13px;
+            cursor: not-allowed;
+            opacity: 0.4;
+        }
+
+        .recent-item:hover {
+            background: #f0efed;
+        }
+
+        .context-status {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #e8e7e5;
+        }
+
+        .context-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-bottom: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            font-size: 10px;
+            color: #999;
+            background: #f0efed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .learning-container {
+            max-width: 600px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .learning-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .learning-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        .learning-subtitle {
+            font-size: 18px;
+            color: #6b6b6b;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .progress-container {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #6b6b6b;
+            font-weight: 500;
+        }
+
+        .progress-percentage {
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0efed;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            padding: 16px;
+            background: #faf9f8;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b6b6b;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-card {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .info-card-icon {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .info-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .info-card-text {
+            font-size: 13px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        .notification-preferences {
+            background: #f8f9fa;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        .notification-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e8e7e5;
+        }
+
+        .notification-option:last-child {
+            border-bottom: none;
+        }
+
+        .notification-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #1a1a1a;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #10b981;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.off {
+            background: #d1d5db;
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle.off .toggle-knob {
+            transform: translateX(0);
+        }
+
+        .toggle:not(.off) .toggle-knob {
+            transform: translateX(20px);
+        }
+
+        .tip-box {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 13px;
+            color: #92400e;
+            margin-top: 24px;
+        }
+
+        .tip-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .modal-text {
+            font-size: 15px;
+            color: #6b6b6b;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .modal-button {
+            width: 100%;
+            padding: 14px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .modal-button:hover {
+            background: #4f46e5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">▶</span>
+            <span>Littlebird</span>
+        </div>
+
+        <div class="menu-item" onclick="showLockedModal('Chat')">
+            <span class="menu-icon">💬</span>
+            <span>New Chat</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item" onclick="showLockedModal('Search')">
+            <span class="menu-icon">🔍</span>
+            <span>Search</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item" onclick="showLockedModal('Meeting Notes')">
+            <span class="menu-icon">📝</span>
+            <span>Meeting Notes</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item" onclick="showLockedModal('Daily Journal')">
+            <span class="menu-icon">📔</span>
+            <span>Daily Journal</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item" onclick="showLockedModal('Routines')">
+            <span class="menu-icon">🔄</span>
+            <span>Routines</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item" onclick="showLockedModal('Todos')">
+            <span class="menu-icon">✓</span>
+            <span>Todos</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item" onclick="showLockedModal('Request Logger')">
+            <span class="menu-icon">🪵</span>
+            <span>Request Logger</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item" onclick="showLockedModal('Extras')">
+            <span class="menu-icon">⚙️</span>
+            <span>Extras</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="recents">
+            <div class="recents-title">Recents</div>
+            <div class="recent-item">🔒 Previous conversations locked</div>
+        </div>
+
+        <div class="context-status">
+            <div class="context-indicator">
+                <span class="status-dot"></span>
+                <span>Learning in progress</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Chandan Luthra</div>
+                <div class="user-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="learning-container">
+            <div class="learning-icon">🧠</div>
+            <h1 class="learning-title">Littlebird is learning about you</h1>
+            <p class="learning-subtitle">
+                We're building your personalized memory by observing your screen activity. 
+                This usually takes 2-3 hours of active computer use.
+            </p>
+
+            <div class="progress-container">
+                <div class="progress-header">
+                    <span class="progress-label">Context Collection Progress</span>
+                    <span class="progress-percentage" id="progressPercentage">24%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 24%"></div>
+                </div>
+                
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="screenshotCount">47</div>
+                        <div class="stat-label">Screenshots</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="timeActive">1h 42m</div>
+                        <div class="stat-label">Time Active</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="timeRemaining">~1h 15m</div>
+                        <div class="stat-label">Est. Remaining</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-card-icon">🎯</div>
+                    <div class="info-card-title">What we're learning</div>
+                    <div class="info-card-text">
+                        Your work patterns, frequent topics, important people, and recurring tasks
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">🔐</div>
+                    <div class="info-card-title">Your privacy matters</div>
+                    <div class="info-card-text">
+                        All data stays on your device. You control what's captured and can delete anytime
+                    </div>
+                </div>
+            </div>
+
+            <div class="notification-preferences">
+                <div class="notification-title">📬 Notification Preferences</div>
+                <div class="notification-option">
+                    <div class="notification-label">
+                        <span>Email me when ready</span>
+                    </div>
+                    <div class="toggle" id="emailToggle" onclick="toggleNotification('email')">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                <div class="notification-option">
+                    <div class="notification-label">
+                        <span>Desktop notification when ready</span>
+                    </div>
+                    <div class="toggle" id="desktopToggle" onclick="toggleNotification('desktop')">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <span class="tip-icon">💡</span>
+                <div>
+                    <strong>Tip:</strong> Keep Littlebird running in the background while you work normally. 
+                    The more context we gather, the better your experience will be!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Locked Feature Modal -->
+    <div class="modal" id="lockedModal">
+        <div class="modal-content">
+            <div class="modal-icon">🔒</div>
+            <h2 class="modal-title" id="modalTitle">Feature Locked</h2>
+            <p class="modal-text" id="modalText">
+                This feature will be available once Littlebird has gathered enough context about you. 
+                We're currently at 24% progress and should be ready in about 1 hour 15 minutes.
+            </p>
+            <button class="modal-button" onclick="closeModal()">Got it</button>
+        </div>
+    </div>
+
+    <script>
+        // Progress simulation
+        let progress = 24;
+        let screenshots = 47;
+        let minutesActive = 102;
+
+        function updateProgress() {
+            if (progress < 100) {
+                progress += Math.random() * 2;
+                screenshots += Math.floor(Math.random() * 3);
+                minutesActive += 1;
+
+                if (progress > 100) progress = 100;
+
+                document.getElementById('progressPercentage').textContent = Math.floor(progress) + '%';
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('screenshotCount').textContent = screenshots;
+                
+                const hours = Math.floor(minutesActive / 60);
+                const mins = minutesActive % 60;
+                document.getElementById('timeActive').textContent = `${hours}h ${mins}m`;
+
+                const totalNeeded = 180; // 3 hours
+                const remaining = totalNeeded - minutesActive;
+                const remHours = Math.floor(remaining / 60);
+                const remMins = remaining % 60;
+                document.getElementById('timeRemaining').textContent = `~${remHours}h ${remMins}m`;
+            }
+        }
+
+        setInterval(updateProgress, 5000);
+
+        // Toggle notifications
+        function toggleNotification(type) {
+            const toggle = document.getElementById(type + 'Toggle');
+            toggle.classList.toggle('off');
+        }
+
+        // Modal handling
+        function showLockedModal(featureName) {
+            document.getElementById('modalTitle').textContent = featureName + ' - Coming Soon';
+            document.getElementById('modalText').textContent = 
+                `${featureName} will be available once Littlebird has gathered enough context. We're at ${Math.floor(progress)}% progress.`;
+            document.getElementById('lockedModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('lockedModal').classList.remove('active');
+        }
+
+        // Close modal on background click
+        document.getElementById('lockedModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize toggles as on
+        document.getElementById('emailToggle').classList.remove('off');
+        document.getElementById('desktopToggle').classList.remove('off');
+    </script>
+</body>
+</html>
