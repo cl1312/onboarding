@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Getting Started</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f4f2;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #faf9f8;
+            border-right: 1px solid #e8e7e5;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding: 8px;
+        }
+
+        .logo-icon {
+            font-size: 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: #6b6b6b;
+            cursor: not-allowed;
+            font-size: 14px;
+            position: relative;
+            opacity: 0.5;
+            transition: all 0.2s;
+        }
+
+        .menu-item.active {
+            background: #e8e7e5;
+            color: #1a1a1a;
+            opacity: 1;
+            cursor: default;
+        }
+
+        .menu-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lock-icon {
+            position: absolute;
+            right: 12px;
+            font-size: 14px;
+            color: #999;
+        }
+
+        .progress-widget {
+            margin-top: 32px;
+            padding: 16px;
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+        }
+
+        .progress-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #f0efed;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 11px;
+            color: #6b6b6b;
+        }
+
+        .context-status {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #e8e7e5;
+        }
+
+        .context-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-bottom: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f59e0b;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            font-size: 10px;
+            color: #999;
+            background: #f0efed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .header {
+            padding: 32px 48px;
+            background: white;
+            border-bottom: 1px solid #e8e7e5;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: #6b6b6b;
+            line-height: 1.6;
+        }
+
+        .content-area {
+            padding: 48px;
+        }
+
+        .task-list {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .task-card {
+            background: white;
+            border: 2px solid #e8e7e5;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card.completed {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .task-card.active {
+            border-color: #6366f1;
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.1);
+        }
+
+        .task-card.locked {
+            opacity: 0.6;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .task-checkbox {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .task-card.completed .task-checkbox {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .task-card.active .task-checkbox {
+            border-color: #6366f1;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-number {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b6b6b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .task-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .task-description {
+            font-size: 14px;
+            color: #6b6b6b;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .task-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-button-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .task-button-primary:hover {
+            background: #4f46e5;
+        }
+
+        .task-button-secondary {
+            background: #f0efed;
+            color: #1a1a1a;
+        }
+
+        .task-button-secondary:hover {
+            background: #e8e7e5;
+        }
+
+        .task-card.locked .task-button {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .task-reward {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .task-details {
+            background: #faf9f8;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .details-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            font-size: 13px;
+            color: #6b6b6b;
+        }
+
+        .detail-item::before {
+            content: "→";
+            color: #6366f1;
+            font-weight: bold;
+        }
+
+        .task-context-preview {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #6b6b6b;
+            display: none;
+        }
+
+        .task-card.completed .task-context-preview {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .context-label {
+            font-weight: 600;
+            color: #10b981;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .completion-celebration {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .completion-celebration.active {
+            display: flex;
+        }
+
+        .celebration-content {
+            background: white;
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 600px;
+            text-align: center;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .celebration-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            animation: bounce 1s ease infinite;
+        }
+
+        .celebration-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        .celebration-subtitle {
+            font-size: 18px;
+            color: #6b6b6b;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .celebration-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: #faf9f8;
+            border-radius: 12px;
+        }
+
+        .celebration-stat {
+            text-align: center;
+        }
+
+        .celebration-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 4px;
+        }
+
+        .celebration-stat-label {
+            font-size: 12px;
+            color: #6b6b6b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .celebration-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .celebration-button:hover {
+            transform: scale(1.02);
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #6366f1;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .tip-box {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 32px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .tip-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .tip-content {
+            flex: 1;
+        }
+
+        .tip-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 6px;
+        }
+
+        .tip-text {
+            font-size: 13px;
+            color: #1e40af;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">▶</span>
+            <span>Littlebird</span>
+        </div>
+
+        <div class="menu-item active">
+            <span class="menu-icon">🚀</span>
+            <span>Getting Started</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">💬</span>
+            <span>New Chat</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔍</span>
+            <span>Search</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📝</span>
+            <span>Meeting Notes</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📔</span>
+            <span>Daily Journal</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔄</span>
+            <span>Routines</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="progress-widget">
+            <div class="progress-title">Your Progress</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="sidebarProgress"></div>
+            </div>
+            <div class="progress-text">
+                <span id="completedCount">0</span> of <span id="totalCount">6</span> tasks completed
+            </div>
+        </div>
+
+        <div class="context-status">
+            <div class="context-indicator">
+                <span class="status-dot"></span>
+                <span>Building memory</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Chandan Luthra</div>
+                <div class="user-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div class="header-badge">
+                <span>🎮</span>
+                <span>QUICK START MISSIONS</span>
+            </div>
+            <h1 class="header-title">Let's build your memory together!</h1>
+            <p class="header-subtitle">
+                Complete these simple tasks on your Mac to help Littlebird learn about you. 
+                Each task adds rich context and unlocks powerful features. Let's get started! 🚀
+            </p>
+        </div>
+
+        <div class="content-area">
+            <div class="task-list">
+                <!-- Task 1: Send an Email -->
+                <div class="task-card active" id="task1">
+                    <div class="task-header">
+                        <div class="task-checkbox" onclick="simulateTaskCompletion(1)">
+                            <span class="checkbox-icon"></span>
+                        </div>
+                        <div class="task-info">
+                            <div class="task-number">Mission 1</div>
+                            <h3 class="task-title">📧 Send an email to anyone</h3>
+                            <p class="task-description">
+                                Open your email client and send a quick message to a colleague, friend, or yourself. 
+                                This helps Littlebird understand who you communicate with.
+                            </p>
+                            <div class="task-actions">
+                                <button class="task-button task-button-primary" onclick="simulateTaskCompletion(1)">
+                                    <span>✓</span> Mark as Done
+                                </button>
+                                <button class="task-button task-button-secondary" onclick="toggleDetails(1)">
+                                    Why this helps
+                                </button>
+                                <span class="task-reward">+5 context points 🌟</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-details" id="details1" style="display: none;">
+                        <div class="details-title">What we'll learn:</div>
+                        <div class="detail-item">Key people you communicate with</div>
+                        <div class="detail-item">Your communication style and tone</div>
+                        <div class="detail-item">Important relationships and contexts</div>
+                    </div>
+                    <div class="task-context-preview">
+                        <div class="context-label">✨ Context Captured!</div>
+                        <div>• Found 1 person: Sarah Johnson (Colleague)</div>
+                        <div>• Topic: Project update discussion</div>
+                        <div>• Relationship: Work contact, Engineering team</div>
+                    </div>
+                </div>
+
+                <!-- Task 2: Join a Video Call -->
+                <div class="task-card locked" id="task2">
+                    <div class="task-header">
+                        <div class="task-checkbox">
+                            <span class="checkbox-icon"></span>
+                        </div>
+                        <div class="task-info">
+                            <div class="task-number">Mission 2</div>
+                            <h3 class="task-title">🎥 Join a Zoom/Meet/Teams call</h3>
+                            <p class="task-description">
+                                Join any video meeting (or create a test meeting with yourself). 
+                                We'll learn about your meeting patterns and participants.
+                            </p>
+                            <div class="task-actions">
+                                <button class="task-button task-button-primary" onclick="simulateTaskCompletion(2)">
+                                    <span>✓</span> Mark as Done
+                                </button>
+                                <button class="task-button task-button-secondary" onclick="toggleDetails(2)">
+                                    Why this helps
+                                </button>
+                                <span class="task-reward">+8 context points 🌟</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-details" id="details2" style="display: none;">
+                        <div class="details-title">What we'll learn:</div>
+                        <div class="detail-item">Meeting participants and attendees</div>
+                        <div class="detail-item">Meeting titles and topics</div>
+                        <div class="detail-item">Your calendar and schedule patterns</div>
+                    </div>
+                    <div class="task-context-preview">
+                        <div class="context-label">✨ Context Captured!</div>
+                        <div>• Meeting: EmailZap Sprint Planning</div>
+                        <div>• Participants: 4 people including Mark, Priya, Alex</div>
+                        <div>• Duration: 45 minutes • Topics: Feature prioritization</div>
+                    </div>
+                </div>
+
+                <!-- Task 3: Open Work Documents -->
+                <div class="task-card locked" id="task3">
+                    <div class="task-header">
+                        <div class="task-checkbox">
+                            <span class="checkbox-icon"></span>
+                        </div>
+                        <div class="task-info">
+                            <div class="task-number">Mission 3</div>
+                            <h3 class="task-title">📄 Open and work on 2-3 documents</h3>
+                            <p class="task-description">
+                                Open Google Docs, Notion, or any documents you typically work with. 
+                                This helps us understand your projects and work focus.
+                            </p>
+                            <div class="task-actions">
+                                <button class="task-button task-button-primary" onclick="simulateTaskCompletion(3)">
+                                    <span>✓</span> Mark as Done
+                                </button>
+                                <button class="task-button task-button-secondary" onclick="toggleDetails(3)">
+                                    Why this helps
+                                </button>
+                                <span class="task-reward">+10 context points 🌟</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-details" id="details3" style="display: none;">
+                        <div class="details-title">What we'll learn:</div>
+                        <div class="detail-item">Active projects and their names</div>
+                        <div class="detail-item">Key topics and areas of focus</div>
+                        <div class="detail-item">Document types you work with</div>
+                    </div>
+                    <div class="task-context-preview">
+                        <div class="context-label">✨ Context Captured!</div>
+                        <div>• Found 3 documents about EmailZap, LittleBird, Growth Strategy</div>
+                        <div>• Topics: Product development, User acquisition, Analytics</div>
+                        <div>• Tools used: Notion, Google Docs</div>
+                    </div>
+                </div>
+
+                <!-- Task 4: Browse Web Content -->
+                <div class="task-card locked" id="task4">
+                    <div class="task-header">
+                        <div class="task-checkbox">
+                            <span class="checkbox-icon"></span>
+                        </div>
+                        <div class="task-info">
+                            <div class="task-number">Mission 4</div>
+                            <h3 class="task-title">🌐 Browse work-related content</h3>
+                            <p class="task-description">
+                                Visit 3-4 websites related to your work - tech blogs, documentation, industry news, etc. 
+                                This shows us what you're learning and exploring.
+                            </p>
+                            <div class="task-actions">
+                                <button class="task-button task-button-primary" onclick="simulateTaskCompletion(4)">
+                                    <span>✓</span> Mark as Done
+                                </button>
+                                <button class="task-button task-button-secondary" onclick="toggleDetails(4)">
+                                    Why this helps
+                                </button>
+                                <span class="task-reward">+7 context points 🌟</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-details" id="details4" style="display: none;">
+                        <div class="details-title">What we'll learn:</div>
+                        <div class="detail-item">Topics you're researching</div>
+                        <div class="detail-item">Industry trends you follow</div>
+                        <div class="detail-item">Knowledge areas and interests</div>
+                    </div>
+                    <div class="task-context-preview">
+                        <div class="context-label">✨ Context Captured!</div>
+                        <div>• Research topics: AI agents, Chrome extensions, SaaS metrics</div>
+                        <div>• Sources: TechCrunch, Product Hunt, Y Combinator</div>
+                        <div>• Learning about: Product-market fit, Growth strategies</div>
+                    </div>
+                </div>
+
+                <!-- Task 5: Use Communication Tools -->
+                <div class="task-card locked" id="task5">
+                    <div class="task-header">
+                        <div class="task-checkbox">
+                            <span class="checkbox-icon"></span>
+                        </div>
+                        <div class="task-info">
+                            <div class="task-number">Mission 5</div>
+                            <h3 class="task-title">💬 Send messages on Slack or Teams</h3>
+                            <p class="task-description">
+                                Have a conversation on your team chat platform. 
+                                This helps us understand team dynamics and discussions.
+                            </p>
+                            <div class="task-actions">
+                                <button class="task-button task-button-primary" onclick="simulateTaskCompletion(5)">
+                                    <span>✓</span> Mark as Done
+                                </button>
+                                <button class="task-button task-button-secondary" onclick="toggleDetails(5)">
+                                    Why this helps
+                                </button>
+                                <span class="task-reward">+6 context points 🌟</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-details" id="details5" style="display: none;">
+                        <div class="details-title">What we'll learn:</div>
+                        <div class="detail-item">Team members and channels</div>
+                        <div class="detail-item">Discussion topics and decisions</div>
+                        <div class="detail-item">Communication patterns</div>
+                    </div>
+                    <div class="task-context-preview">
+                        <div class="context-label">✨ Context Captured!</div>
+                        <div>• Channels: #emailzap-dev, #general, #product</div>
+                        <div>• Team: 8 active members across engineering and product</div>
+                        <div>• Topics: Bug fixes, Feature requests, User feedback</div>
+                    </div>
+                </div>
+
+                <!-- Task 6: Review Calendar -->
+                <div class="task-card locked" id="task6">
+                    <div class="task-header">
+                        <div class="task-checkbox">
+                            <span class="checkbox-icon"></span>
+                        </div>
+                        <div class="task-info">
+                            <div class="task-number">Mission 6 - Final Mission! 🎯</div>
+                            <h3 class="task-title">📅 Open your calendar app</h3>
+                            <p class="task-description">
+                                Check your Google Calendar, Outlook, or Calendar app. 
+                                This final step helps us understand your schedule and commitments.
+                            </p>
+                            <div class="task-actions">
+                                <button class="task-button task-button-primary" onclick="simulateTaskCompletion(6)">
+                                    <span>✓</span> Mark as Done
+                                </button>
+                                <button class="task-button task-button-secondary" onclick="toggleDetails(6)">
+                                    Why this helps
+                                </button>
+                                <span class="task-reward">+9 context points 🌟</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-details" id="details6" style="display: none;">
+                        <div class="details-title">What we'll learn:</div>
+                        <div class="detail-item">Your meeting schedule and patterns</div>
+                        <div class="detail-item">Recurring commitments</div>
+                        <div class="detail-item">Work-life balance and routines</div>
+                    </div>
+                    <div class="task-context-preview">
+                        <div class="context-label">✨ Context Captured!</div>
+                        <div>• Detected 12 meetings this week</div>
+                        <div>• Recurring: Daily standup, Weekly review, 1-on-1s</div>
+                        <div>• Peak time: 10 AM - 12 PM for meetings</div>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <span class="tip-icon">💡</span>
+                    <div class="tip-content">
+                        <div class="tip-title">Pro Tip</div>
+                        <div class="tip-text">
+                            You can do these tasks in any order! Littlebird automatically detects when you complete them. 
+                            Just go about your normal work and we'll check them off as you go. 
+                            The whole process typically takes 20-30 minutes of regular computer use.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completion Celebration -->
+    <div class="completion-celebration" id="celebration">
+        <div class="celebration-content">
+            <div class="celebration-icon">🎉</div>
+            <h2 class="celebration-title">Amazing work, Chandan!</h2>
+            <p class="celebration-subtitle">
+                You've completed all missions and Littlebird now has a rich understanding of your work. 
+                Let's explore what we've learned together!
+            </p>
+            
+            <div class="celebration-stats">
+                <div class="celebration-stat">
+                    <div class="celebration-stat-value">45</div>
+                    <div class="celebration-stat-label">Points Earned</div>
+                </div>
+                <div class="celebration-stat">
+                    <div class="celebration-stat-value">12</div>
+                    <div class="celebration-stat-label">People Found</div>
+                </div>
+                <div class="celebration-stat">
+                    <div class="celebration-stat-value">5</div>
+                    <div class="celebration-stat-label">Projects</div>
+                </div>
+                <div class="celebration-stat">
+                    <div class="celebration-stat-value">23</div>
+                    <div class="celebration-stat-label">Documents</div>
+                </div>
+            </div>
+
+            <button class="celebration-button" onclick="completeCelebration()">
+                🚀 Explore Your Memory
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let completedTasks = 0;
+        const totalTasks = 6;
+
+        function simulateTaskCompletion(taskNum) {
+            const task = document.getElementById('task' + taskNum);
+            
+            if (task.classList.contains('completed')) return;
+            if (task.classList.contains('locked') && completedTasks !== taskNum - 1) {
+                alert('Please complete the previous tasks first!');
+                return;
+            }
+
+            // Mark task as completed
+            task.classList.add('completed');
+            task.classList.remove('active', 'locked');
+            const checkbox = task.querySelector('.checkbox-icon');
+            checkbox.textContent = '✓';
+
+            completedTasks++;
+
+            // Update progress
+            updateProgress();
+
+            // Unlock next task
+            if (taskNum < totalTasks) {
+                const nextTask = document.getElementById('task' + (taskNum + 1));
+                nextTask.classList.remove('locked');
+                nextTask.classList.add('active');
+            }
+
+            // Show celebration if all tasks complete
+            if (completedTasks === totalTasks) {
+                setTimeout(() => {
+                    showCelebration();
+                }, 1000);
+            }
+        }
+
+        function updateProgress() {
+            const percentage = (completedTasks / totalTasks) * 100;
+            document.getElementById('sidebarProgress').style.width = percentage + '%';
+            document.getElementById('completedCount').textContent = completedTasks;
+        }
+
+        function toggleDetails(taskNum) {
+            const details = document.getElementById('details' + taskNum);
+            if (details.style.display === 'none') {
+                details.style.display = 'block';
+            } else {
+                details.style.display = 'none';
+            }
+        }
+
+        function showCelebration() {
+            document.getElementById('celebration').classList.add('active');
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    document.getElementById('celebration').appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        function completeCelebration() {
+            alert('This would navigate you to the Home page where you can explore all the captured context and start using Littlebird features!');
+            document.getElementById('celebration').classList.remove('active');
+        }
+
+        // Simulate auto-detection (for demo purposes)
+        let autoCompleteIndex = 0;
+        function autoCompleteDemo() {
+            if (autoCompleteIndex < totalTasks && document.getElementById('celebration').classList.contains('active') === false) {
+                // Uncomment to see auto-completion in action
+                // setTimeout(() => {
+                //     simulateTaskCompletion(autoCompleteIndex + 1);
+                //     autoCompleteIndex++;
+                //     autoCompleteDemo();
+                // }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
