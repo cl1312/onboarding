@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f4f2;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #faf9f8;
+            border-right: 1px solid #e8e7e5;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding: 8px;
+        }
+
+        .logo-icon {
+            font-size: 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: #6b6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #f0efed;
+        }
+
+        .menu-item.active {
+            background: #e8e7e5;
+            color: #1a1a1a;
+        }
+
+        .menu-item.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .menu-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lock-icon {
+            position: absolute;
+            right: 12px;
+            font-size: 14px;
+            color: #999;
+        }
+
+        .recents {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .recents-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 12px;
+            padding: 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recent-item {
+            padding: 10px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            font-size: 13px;
+            cursor: pointer;
+            opacity: 0.4;
+        }
+
+        .context-status {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #e8e7e5;
+        }
+
+        .context-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-bottom: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            font-size: 10px;
+            color: #999;
+            background: #f0efed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .header {
+            padding: 32px 48px;
+            border-bottom: 1px solid #e8e7e5;
+            background: white;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: #6b6b6b;
+            line-height: 1.6;
+        }
+
+        .progress-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 24px 48px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .progress-info {
+            flex: 1;
+        }
+
+        .progress-banner-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .progress-banner-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .progress-visual {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .circular-progress {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .circular-progress-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.2);
+            stroke-width: 8;
+        }
+
+        .circular-progress-bar {
+            fill: none;
+            stroke: white;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s;
+        }
+
+        .circular-progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .time-remaining {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content-grid {
+            padding: 48px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .context-card {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .context-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .context-card.locked {
+            opacity: 0.7;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: #f5f4f2;
+        }
+
+        .card-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .badge-collecting {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-ready {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-locked {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #6b6b6b;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0efed;
+        }
+
+        .card-stat {
+            flex: 1;
+        }
+
+        .card-stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .card-stat-label {
+            font-size: 11px;
+            color: #6b6b6b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-examples {
+            background: #faf9f8;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .examples-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b6b6b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .example-item {
+            font-size: 13px;
+            color: #1a1a1a;
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .example-item::before {
+            content: "•";
+            color: #6366f1;
+            font-weight: bold;
+        }
+
+        .card-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f5f4f2;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            transition: background 0.2s;
+        }
+
+        .context-card:not(.locked) .card-action:hover {
+            background: #e8e7e5;
+        }
+
+        .card-locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .context-card.locked:hover .card-locked-overlay {
+            opacity: 1;
+        }
+
+        .locked-icon {
+            font-size: 48px;
+        }
+
+        .locked-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .locked-subtext {
+            font-size: 12px;
+            color: #6b6b6b;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        /* Loading shimmer effect */
+        @keyframes shimmer {
+            0% { background-position: -468px 0; }
+            100% { background-position: 468px 0; }
+        }
+
+        .loading-shimmer {
+            animation: shimmer 1.5s infinite;
+            background: linear-gradient(to right, #f0efed 0%, #e8e7e5 50%, #f0efed 100%);
+            background-size: 800px 104px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6b6b6b;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">▶</span>
+            <span>Littlebird</span>
+        </div>
+
+        <div class="menu-item active">
+            <span class="menu-icon">🏠</span>
+            <span>Home</span>
+        </div>
+
+        <div class="menu-item locked">
+            <span class="menu-icon">💬</span>
+            <span>New Chat</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item locked">
+            <span class="menu-icon">🔍</span>
+            <span>Search</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item locked">
+            <span class="menu-icon">📝</span>
+            <span>Meeting Notes</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item locked">
+            <span class="menu-icon">📔</span>
+            <span>Daily Journal</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item locked">
+            <span class="menu-icon">🔄</span>
+            <span>Routines</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item locked">
+            <span class="menu-icon">✓</span>
+            <span>Todos</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item locked">
+            <span class="menu-icon">🪵</span>
+            <span>Request Logger</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="menu-item locked">
+            <span class="menu-icon">⚙️</span>
+            <span>Extras</span>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+        <div class="recents">
+            <div class="recents-title">Recents</div>
+            <div class="recent-item">No recent chats yet</div>
+        </div>
+
+        <div class="context-status">
+            <div class="context-indicator">
+                <span class="status-dot"></span>
+                <span>Learning in progress</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Chandan Luthra</div>
+                <div class="user-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1 class="header-title">Welcome to Littlebird</h1>
+            <p class="header-subtitle">
+                Your personal memory assistant is learning about you. Here's what we're collecting to make your experience magical.
+            </p>
+        </div>
+
+        <div class="progress-banner">
+            <div class="progress-info">
+                <div class="progress-banner-title">Building your memory...</div>
+                <div class="progress-banner-subtitle">Keep Littlebird running while you work normally</div>
+            </div>
+            <div class="progress-visual">
+                <div class="circular-progress">
+                    <svg width="80" height="80">
+                        <circle class="circular-progress-bg" cx="40" cy="40" r="36"></circle>
+                        <circle class="circular-progress-bar" id="progressCircle" cx="40" cy="40" r="36"
+                            stroke-dasharray="226.19" stroke-dashoffset="170.64"></circle>
+                    </svg>
+                    <div class="circular-progress-text" id="progressText">24%</div>
+                </div>
+                <div class="time-remaining">
+                    <div style="font-weight: 600;">~1h 15m</div>
+                    <div style="font-size: 12px;">remaining</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <!-- People & Relationships Card -->
+            <div class="context-card" onclick="handleCardClick('people')">
+                <div class="card-header">
+                    <div class="card-icon-wrapper" style="background: #fef3c7;">
+                        <span>👥</span>
+                    </div>
+                    <div class="card-badge badge-collecting">Collecting</div>
+                </div>
+                <h3 class="card-title">People & Relationships</h3>
+                <p class="card-description">
+                    Important people you interact with, their roles, and your relationship context
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value" id="peopleCount">12</div>
+                        <div class="card-stat-label">People Found</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value" id="interactionCount">37</div>
+                        <div class="card-stat-label">Interactions</div>
+                    </div>
+                </div>
+                <div class="card-examples">
+                    <div class="examples-title">What we'll capture</div>
+                    <div class="example-item">Colleagues and team members</div>
+                    <div class="example-item">Email contacts and correspondents</div>
+                    <div class="example-item">Meeting participants</div>
+                </div>
+            </div>
+
+            <!-- Projects & Work Card -->
+            <div class="context-card" onclick="handleCardClick('projects')">
+                <div class="card-header">
+                    <div class="card-icon-wrapper" style="background: #dbeafe;">
+                        <span>🎯</span>
+                    </div>
+                    <div class="card-badge badge-collecting">Collecting</div>
+                </div>
+                <h3 class="card-title">Projects & Work</h3>
+                <p class="card-description">
+                    Your active projects, work streams, and what you're currently focused on
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value" id="projectCount">5</div>
+                        <div class="card-stat-label">Projects</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value" id="taskCount">23</div>
+                        <div class="card-stat-label">Tasks</div>
+                    </div>
+                </div>
+                <div class="card-examples">
+                    <div class="examples-title">What we'll capture</div>
+                    <div class="example-item">Active project names and goals</div>
+                    <div class="example-item">Work documents and files</div>
+                    <div class="example-item">Task lists and priorities</div>
+                </div>
+            </div>
+
+            <!-- Conversations & Decisions Card -->
+            <div class="context-card" onclick="handleCardClick('conversations')">
+                <div class="card-header">
+                    <div class="card-icon-wrapper" style="background: #d1fae5;">
+                        <span>💬</span>
+                    </div>
+                    <div class="card-badge badge-collecting">Collecting</div>
+                </div>
+                <h3 class="card-title">Conversations & Decisions</h3>
+                <p class="card-description">
+                    Key discussions, decisions made, and important conversation threads
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value" id="conversationCount">28</div>
+                        <div class="card-stat-label">Conversations</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value" id="decisionCount">7</div>
+                        <div class="card-stat-label">Decisions</div>
+                    </div>
+                </div>
+                <div class="card-examples">
+                    <div class="examples-title">What we'll capture</div>
+                    <div class="example-item">Chat messages and email threads</div>
+                    <div class="example-item">Meeting discussions and outcomes</div>
+                    <div class="example-item">Important decisions and rationale</div>
+                </div>
+            </div>
+
+            <!-- Documents & Knowledge Card -->
+            <div class="context-card" onclick="handleCardClick('documents')">
+                <div class="card-header">
+                    <div class="card-icon-wrapper" style="background: #fce7f3;">
+                        <span>📚</span>
+                    </div>
+                    <div class="card-badge badge-collecting">Collecting</div>
+                </div>
+                <h3 class="card-title">Documents & Knowledge</h3>
+                <p class="card-description">
+                    Documents you read, important information, and knowledge you access
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value" id="documentCount">43</div>
+                        <div class="card-stat-label">Documents</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value" id="topicCount">18</div>
+                        <div class="card-stat-label">Topics</div>
+                    </div>
+                </div>
+                <div class="card-examples">
+                    <div class="examples-title">What we'll capture</div>
+                    <div class="example-item">Articles and research you read</div>
+                    <div class="example-item">Documentation and guides</div>
+                    <div class="example-item">Important reference materials</div>
+                </div>
+            </div>
+
+            <!-- Meetings & Events Card -->
+            <div class="context-card locked" onclick="handleCardClick('meetings')">
+                <div class="card-header">
+                    <div class="card-icon-wrapper" style="background: #e0e7ff;">
+                        <span>📅</span>
+                    </div>
+                    <div class="card-badge badge-locked">Locked</div>
+                </div>
+                <h3 class="card-title">Meetings & Events</h3>
+                <p class="card-description">
+                    Your calendar events, meeting notes, and scheduled commitments
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value">—</div>
+                        <div class="card-stat-label">Meetings</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">—</div>
+                        <div class="card-stat-label">Events</div>
+                    </div>
+                </div>
+                <div class="card-examples">
+                    <div class="examples-title">What we'll capture</div>
+                    <div class="example-item">Calendar appointments</div>
+                    <div class="example-item">Meeting agendas and notes</div>
+                    <div class="example-item">Action items from meetings</div>
+                </div>
+                <div class="card-locked-overlay">
+                    <div class="locked-icon">🔒</div>
+                    <div class="locked-text">Unlocks in ~1h 15m</div>
+                    <div class="locked-subtext">We need more context before we can start tracking your meetings</div>
+                </div>
+            </div>
+
+            <!-- Tools & Applications Card -->
+            <div class="context-card locked" onclick="handleCardClick('tools')">
+                <div class="card-header">
+                    <div class="card-icon-wrapper" style="background: #fef3c7;">
+                        <span>🛠️</span>
+                    </div>
+                    <div class="card-badge badge-locked">Locked</div>
+                </div>
+                <h3 class="card-title">Tools & Applications</h3>
+                <p class="card-description">
+                    Applications you use, workflows, and your digital work environment
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value">—</div>
+                        <div class="card-stat-label">Apps Used</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">—</div>
+                        <div class="card-stat-label">Workflows</div>
+                    </div>
+                </div>
+                <div class="card-examples">
+                    <div class="examples-title">What we'll capture</div>
+                    <div class="example-item">Frequently used applications</div>
+                    <div class="example-item">Work patterns and routines</div>
+                    <div class="example-item">Tool preferences</div>
+                </div>
+                <div class="card-locked-overlay">
+                    <div class="locked-icon">🔒</div>
+                    <div class="locked-text">Unlocks in ~1h 15m</div>
+                    <div class="locked-subtext">We need more context before we can identify your tool usage patterns</div>
+                </div>
+            </div>
+
+            <!-- Ideas & Notes Card -->
+            <div class="context-card locked" onclick="handleCardClick('ideas')">
+                <div class="card-header">
+                    <div class="card-icon-wrapper" style="background: #fae8ff;">
+                        <span>💡</span>
+                    </div>
+                    <div class="card-badge badge-locked">Locked</div>
+                </div>
+                <h3 class="card-title">Ideas & Notes</h3>
+                <p class="card-description">
+                    Personal notes, brainstorming sessions, and creative thoughts
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value">—</div>
+                        <div class="card-stat-label">Notes</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">—</div>
+                        <div class="card-stat-label">Ideas</div>
+                    </div>
+                </div>
+                <div class="card-examples">
+                    <div class="examples-title">What we'll capture</div>
+                    <div class="example-item">Quick notes and thoughts</div>
+                    <div class="example-item">Brainstorming sessions</div>
+                    <div class="example-item">Personal reminders</div>
+                </div>
+                <div class="card-locked-overlay">
+                    <div class="locked-icon">🔒</div>
+                    <div class="locked-text">Unlocks in ~1h 15m</div>
+                    <div class="locked-subtext">We need more context to start capturing your ideas and notes</div>
+                </div>
+            </div>
+
+            <!-- Learning & Growth Card -->
+            <div class="context-card locked" onclick="handleCardClick('learning')">
+                <div class="card-header">
+                    <div class="card-icon-wrapper" style="background: #d1fae5;">
+                        <span>🌱</span>
+                    </div>
+                    <div class="card-badge badge-locked">Locked</div>
+                </div>
+                <h3 class="card-title">Learning & Growth</h3>
+                <p class="card-description">
+                    Topics you're exploring, skills you're developing, and knowledge areas
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value">—</div>
+                        <div class="card-stat-label">Topics</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">—</div>
+                        <div class="card-stat-label">Resources</div>
+                    </div>
+                </div>
+                <div class="card-examples">
+                    <div class="examples-title">What we'll capture</div>
+                    <div class="example-item">Learning resources you access</div>
+                    <div class="example-item">Skills you're developing</div>
+                    <div class="example-item">Areas of interest and exploration</div>
+                </div>
+                <div class="card-locked-overlay">
+                    <div class="locked-icon">🔒</div>
+                    <div class="locked-text">Unlocks in ~1h 15m</div>
+                    <div class="locked-subtext">We need more context to identify your learning interests</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Progress simulation
+        let progress = 24;
+        const maxProgress = 100;
+        const circumference = 2 * Math.PI * 36;
+
+        function updateProgress() {
+            if (progress < maxProgress) {
+                progress += Math.random() * 1.5;
+                if (progress > maxProgress) progress = maxProgress;
+
+                // Update circular progress
+                const offset = circumference - (progress / 100) * circumference;
+                document.getElementById('progressCircle').style.strokeDashoffset = offset;
+                document.getElementById('progressText').textContent = Math.floor(progress) + '%';
+
+                // Update stats
+                document.getElementById('peopleCount').textContent = Math.floor(12 + (progress / 100) * 15);
+                document.getElementById('interactionCount').textContent = Math.floor(37 + (progress / 100) * 50);
+                document.getElementById('projectCount').textContent = Math.floor(5 + (progress / 100) * 3);
+                document.getElementById('taskCount').textContent = Math.floor(23 + (progress / 100) * 30);
+                document.getElementById('conversationCount').textContent = Math.floor(28 + (progress / 100) * 40);
+                document.getElementById('decisionCount').textContent = Math.floor(7 + (progress / 100) * 8);
+                document.getElementById('documentCount').textContent = Math.floor(43 + (progress / 100) * 60);
+                document.getElementById('topicCount').textContent = Math.floor(18 + (progress / 100) * 25);
+
+                // Unlock cards at 80% progress
+                if (progress >= 80) {
+                    const lockedCards = document.querySelectorAll('.context-card.locked');
+                    lockedCards.forEach(card => {
+                        card.classList.remove('locked');
+                        const badge = card.querySelector('.card-badge');
+                        badge.classList.remove('badge-locked');
+                        badge.classList.add('badge-ready');
+                        badge.textContent = 'Ready';
+                    });
+                }
+            }
+        }
+
+        setInterval(updateProgress, 5000);
+
+        function handleCardClick(cardType) {
+            const card = event.currentTarget;
+            if (card.classList.contains('locked')) {
+                return; // Locked cards show overlay on hover, no action on click
+            }
+
+            // Navigate to chat with pre-filled query
+            const queries = {
+                'people': 'Show me all the people I\'ve interacted with this week',
+                'projects': 'What are my active projects and their current status?',
+                'conversations': 'What were the key decisions made in recent conversations?',
+                'documents': 'What documents have I been reading about lately?',
+                'meetings': 'Summarize my meetings from today',
+                'tools': 'What applications do I use most frequently?',
+                'ideas': 'Show me my recent ideas and notes',
+                'learning': 'What topics have I been learning about?'
+            };
+
+            alert(`Once unlocked, clicking this will open Chat with: "${queries[cardType]}"`);
+        }
+    </script>
+</body>
+</html>
