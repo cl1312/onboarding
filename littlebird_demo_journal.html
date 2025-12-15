@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Daily Journal (Demo)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f4f2;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #faf9f8;
+            border-right: 1px solid #e8e7e5;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding: 8px;
+        }
+
+        .logo-icon {
+            font-size: 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: #6b6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #f0efed;
+        }
+
+        .menu-item.active {
+            background: #e8e7e5;
+            color: #1a1a1a;
+        }
+
+        .menu-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .recents {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .recents-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 12px;
+            padding: 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recent-item {
+            padding: 10px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .recent-item:hover {
+            background: #f0efed;
+        }
+
+        .context-status {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #e8e7e5;
+        }
+
+        .context-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-bottom: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            font-size: 10px;
+            color: #999;
+            background: #f0efed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .journal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 48px;
+            position: relative;
+        }
+
+        /* Demo Badge Overlay */
+        .demo-banner {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            padding: 20px 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-bottom: 3px solid #1e40af;
+        }
+
+        .demo-banner-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .demo-icon {
+            font-size: 32px;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .demo-text {
+            color: white;
+            flex: 1;
+        }
+
+        .demo-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .demo-subtitle {
+            font-size: 13px;
+            opacity: 0.95;
+            line-height: 1.4;
+        }
+
+        .demo-requirements {
+            display: flex;
+            gap: 24px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .requirement-icon {
+            font-size: 16px;
+        }
+
+        .requirement-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-check {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #10b981;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .demo-notify-button {
+            background: white;
+            color: #2563eb;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .demo-notify-button:hover {
+            background: #f1f5f9;
+            transform: scale(1.02);
+        }
+
+        .blur-overlay {
+            position: relative;
+        }
+
+        .blur-overlay::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .journal-header {
+            margin-bottom: 32px;
+        }
+
+        .journal-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .journal-date {
+            font-size: 14px;
+            color: #6b6b6b;
+        }
+
+        .journal-meta {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #6b6b6b;
+        }
+
+        .journal-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8e7e5;
+        }
+
+        .section-content {
+            font-size: 15px;
+            color: #1a1a1a;
+            line-height: 1.8;
+        }
+
+        .section-content p {
+            margin-bottom: 12px;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .bullet-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .bullet-list li::before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: #6366f1;
+            font-weight: bold;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #faf9f8;
+            border-radius: 8px;
+        }
+
+        .timeline-time {
+            font-weight: 600;
+            color: #6366f1;
+            min-width: 80px;
+            font-size: 14px;
+        }
+
+        .timeline-content {
+            flex: 1;
+            font-size: 14px;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: #faf9f8;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #6366f1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b6b6b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Right Sidebar - Date List */
+        .date-sidebar {
+            width: 280px;
+            background: white;
+            border-left: 1px solid #e8e7e5;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .date-list-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            padding: 0 8px;
+        }
+
+        .date-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .date-item:hover {
+            background: #faf9f8;
+        }
+
+        .date-item.active {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .date-item.demo {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #fbbf24;
+        }
+
+        .date-item.insufficient {
+            opacity: 0.5;
+        }
+
+        .date-item-date {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .date-item-title {
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-bottom: 2px;
+        }
+
+        .date-item-status {
+            font-size: 11px;
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .date-item-badge {
+            font-size: 10px;
+            background: #f59e0b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .cta-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 32px;
+            text-align: center;
+        }
+
+        .cta-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .cta-card-text {
+            font-size: 14px;
+            opacity: 0.95;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .cta-button {
+            background: white;
+            color: #6366f1;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Notification Modal */
+        .notification-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .notification-modal.active {
+            display: flex;
+        }
+
+        .notification-modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 480px;
+            width: 90%;
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .notification-modal-icon {
+            font-size: 64px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .notification-modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .notification-modal-subtitle {
+            font-size: 15px;
+            color: #6b6b6b;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .notification-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .notification-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: #faf9f8;
+            border: 2px solid #e8e7e5;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notification-option:hover {
+            background: #f0efed;
+            border-color: #d1d5db;
+        }
+
+        .notification-option.selected {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .notification-option-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .notification-option-icon {
+            font-size: 32px;
+        }
+
+        .notification-option-text {
+            text-align: left;
+        }
+
+        .notification-option-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .notification-option-description {
+            font-size: 13px;
+            color: #6b6b6b;
+        }
+
+        .notification-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .notification-option.selected .notification-checkbox {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .notification-modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .notification-modal-button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notification-modal-button-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .notification-modal-button-primary:hover {
+            background: #2563eb;
+        }
+
+        .notification-modal-button-primary:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .notification-modal-button-secondary {
+            background: #f0efed;
+            color: #1a1a1a;
+        }
+
+        .notification-modal-button-secondary:hover {
+            background: #e8e7e5;
+        }
+
+        .progress-note {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .progress-note-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .progress-note-text {
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.5;
+        }
+
+        .progress-note-text strong {
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">▶</span>
+            <span>Littlebird</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">💬</span>
+            <span>New Chat</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔍</span>
+            <span>Search</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📝</span>
+            <span>Meeting Notes</span>
+        </div>
+
+        <div class="menu-item active">
+            <span class="menu-icon">📔</span>
+            <span>Daily Journal</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔄</span>
+            <span>Routines</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">✓</span>
+            <span>Todos</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🪵</span>
+            <span>Request Logger</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Extras</span>
+        </div>
+
+        <div class="recents">
+            <div class="recents-title">Recents</div>
+            <div class="recent-item">Deducing User's Profession</div>
+            <div class="recent-item">Goal Planning Framework</div>
+            <div class="recent-item">Setting Up a Routine</div>
+        </div>
+
+        <div class="context-status">
+            <div class="context-indicator">
+                <span class="status-dot"></span>
+                <span>Context enabled</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Chandan Luthra</div>
+                <div class="user-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Journal Content -->
+        <div class="journal-content">
+            <!-- Demo Banner -->
+            <div class="demo-banner">
+                <div class="demo-banner-content">
+                    <span class="demo-icon">⚙️</span>
+                    <div class="demo-text">
+                        <div class="demo-title">🎯 Your personalized journal is being created...</div>
+                        <div class="demo-subtitle">This is a sample to show you what's coming. Keep Littlebird running for ~2 hours to get your own journal by end of day.</div>
+                    </div>
+                </div>
+                <div class="demo-requirements">
+                    <div class="requirement-item">
+                        <div class="requirement-status">
+                            <span class="status-check">✓</span>
+                            <span>App Running</span>
+                        </div>
+                    </div>
+                    <div class="requirement-item">
+                        <div class="requirement-status">
+                            <span class="status-check">✓</span>
+                            <span>Context On</span>
+                        </div>
+                    </div>
+                    <div class="requirement-item">
+                        <span class="requirement-icon">⏱️</span>
+                        <span>~1h 20m remaining</span>
+                    </div>
+                </div>
+                <button class="demo-notify-button" onclick="showNotificationModal()">📬 Notify Me</button>
+            </div>
+
+            <div style="padding: 0 48px;">
+                <!-- Journal Header -->
+                <div class="journal-header">
+                    <h1 class="journal-title">A Productive Day Building the Future</h1>
+                    <div class="journal-date">Sample Day - What your journal could look like</div>
+                    <div class="journal-meta">
+                        <span>📊 Based on your activity</span>
+                        <span>•</span>
+                        <span>⏱️ Auto-generated at end of day</span>
+                    </div>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="journal-section">
+                    <h2 class="section-title">Summary Points</h2>
+                    <div class="section-content">
+                        <ul class="bullet-list">
+                            <li>Deep work session on <span class="highlight">EmailZap's Gmail sidebar</span> component, implementing the unified inbox view with smart clustering</li>
+                            <li>Had productive 1-on-1 with <span class="highlight">Sarah from Design</span> about the new onboarding flow - decided to prioritize visual polish over feature completeness</li>
+                            <li>Reviewed and merged 3 PRs from the team, including the analytics integration that tracks user engagement patterns</li>
+                            <li>Discovered interesting approach to <span class="highlight">LLM-based email classification</span> while reading research from Anthropic's latest paper</li>
+                            <li>Made progress on <span class="highlight">LittleBird's context collection system</span> - added support for capturing Slack conversations in real-time</li>
+                            <li>Interview scheduled for tomorrow with a promising Full Stack candidate who previously built a Chrome extension with 50k users</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Timeline Section -->
+                <div class="journal-section">
+                    <h2 class="section-title">Timeline of the Day</h2>
+                    <div class="section-content">
+                        <div class="timeline-item">
+                            <div class="timeline-time">9:00 AM</div>
+                            <div class="timeline-content">Started the day reviewing the EmailZap dashboard. Noticed the open rate for onboarding emails dropped 15% - added investigating this to the priority list.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">10:30 AM</div>
+                            <div class="timeline-content">Deep coding session on the Gmail extension. Implemented the smart email clustering algorithm that groups related emails using semantic similarity. The initial tests show 85% accuracy which is promising!</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">2:00 PM</div>
+                            <div class="timeline-content">1-on-1 with Sarah. She showed the new designs for the premium upgrade flow. Agreed to simplify the pricing page and add social proof elements. Next review scheduled for Thursday.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">4:15 PM</div>
+                            <div class="timeline-content">Code review session. Approved Mark's PR for the analytics dashboard, but asked for additional error handling in the data fetching layer. Also reviewed Priya's work on the notification system - looks solid.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">6:30 PM</div>
+                            <div class="timeline-content">Research time. Read through latest papers on AI agents and context-aware systems. Found inspiration for LittleBird's memory architecture - considering implementing a hierarchical context structure.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conversations Section -->
+                <div class="journal-section">
+                    <h2 class="section-title">Conversations I Had</h2>
+                    <div class="section-content">
+                        <p><strong>Sarah Chen (Product Designer):</strong> Discussed the new user onboarding experience. Sarah suggested adding micro-interactions to make the setup feel more engaging. We agreed on a 3-step wizard approach instead of a single long form. She'll have mockups ready by Wednesday.</p>
+                        
+                        <p><strong>Mark Rodriguez (Backend Engineer):</strong> Technical discussion about scaling the analytics pipeline. Mark proposed using a message queue to handle the increased load from tracking events. Approved his implementation plan and allocated cloud budget for Redis.</p>
+                        
+                        <p><strong>Team Slack (#emailzap-dev):</strong> Quick debugging session where Priya was stuck on a CORS issue with the Chrome extension. Helped her trace it back to the manifest.json configuration. Team also discussed the upcoming sprint planning and feature prioritization.</p>
+                        
+                        <p><strong>Alex Kumar (Potential Hire):</strong> Brief chat about his experience building browser extensions and working with AI APIs. Really impressive background - led a team that shipped a productivity tool used by 50,000 developers. Excited about the interview tomorrow.</p>
+                    </div>
+                </div>
+
+                <!-- Productivity Section -->
+                <div class="journal-section">
+                    <h2 class="section-title">Productivity</h2>
+                    <div class="section-content">
+                        <p>Today was a solid balance of focused work and collaboration. The morning deep work session was particularly productive - implemented the core email clustering feature that's been on the roadmap for weeks. The afternoon meetings were all purposeful and moved projects forward.</p>
+                        
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">6.5h</div>
+                                <div class="stat-label">Deep Work</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">4</div>
+                                <div class="stat-label">Meetings</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">3</div>
+                                <div class="stat-label">PRs Reviewed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Decisions Section -->
+                <div class="journal-section">
+                    <h2 class="section-title">Key Decisions Made</h2>
+                    <div class="section-content">
+                        <ul class="bullet-list">
+                            <li>Decided to prioritize the unified inbox view over the calendar integration for EmailZap's next release - based on user feedback showing inbox management is the top pain point</li>
+                            <li>Approved the switch to using Claude API instead of GPT-4 for email summarization after seeing better results in testing and lower costs</li>
+                            <li>Chose to postpone the mobile app development for LittleBird and focus on perfecting the Mac experience first</li>
+                            <li>Agreed to allocate 20% of engineering time to technical debt and code quality improvements starting next sprint</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Learning Section -->
+                <div class="journal-section">
+                    <h2 class="section-title">What I Learned Today</h2>
+                    <div class="section-content">
+                        <p>Explored some fascinating research on <span class="highlight">hierarchical memory systems for AI agents</span>. The paper from DeepMind on "Memory-Augmented Neural Networks" gave me ideas for improving LittleBird's context retention. The key insight is organizing memories by temporal proximity and semantic relevance, not just chronologically.</p>
+                        
+                        <p>Also learned about a clever Chrome extension architecture pattern from a blog post - using service workers more efficiently to reduce memory footprint. Will apply this to EmailZap's background processing.</p>
+                    </div>
+                </div>
+
+                <!-- CTA Card -->
+                <div class="cta-card">
+                    <div class="cta-card-title">⚙️ Your journal is being created right now</div>
+                    <div class="cta-card-text">
+                        Keep Littlebird running in the background while you work. We need about 2 more hours to capture 
+                        enough context to create your personalized daily journal. Make sure context collection stays enabled!
+                    </div>
+                    <button class="cta-button" onclick="showNotificationModal()">Set Notification Preferences</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Sidebar -->
+        <div class="date-sidebar">
+            <div class="date-list-header">Journal Entries</div>
+            
+            <div class="date-item demo active">
+                <div class="date-item-date">Sample Journal</div>
+                <div class="date-item-title">A Productive Day Building...</div>
+                <span class="date-item-badge">DEMO</span>
+            </div>
+
+            <div class="date-item insufficient">
+                <div class="date-item-date">Dec 15th - Today</div>
+                <div class="date-item-status">⚠️ Insufficient context</div>
+            </div>
+
+            <div class="date-item insufficient">
+                <div class="date-item-date">Dec 14th</div>
+                <div class="date-item-status">⚠️ Insufficient context</div>
+            </div>
+
+            <div class="date-item insufficient">
+                <div class="date-item-date">Dec 13th</div>
+                <div class="date-item-status">⚠️ Insufficient context</div>
+            </div>
+
+            <div class="date-item insufficient">
+                <div class="date-item-date">Dec 12th</div>
+                <div class="date-item-status">⚠️ Insufficient context</div>
+            </div>
+
+            <div class="date-item insufficient">
+                <div class="date-item-date">Dec 11th</div>
+                <div class="date-item-status">⚠️ Insufficient context</div>
+            </div>
+
+            <div class="date-item insufficient">
+                <div class="date-item-date">Dec 10th</div>
+                <div class="date-item-status">⚠️ Insufficient context</div>
+            </div>
+
+            <div class="date-item insufficient">
+                <div class="date-item-date">Dec 9th</div>
+                <div class="date-item-status">⚠️ Insufficient context</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Preferences Modal -->
+    <div class="notification-modal" id="notificationModal">
+        <div class="notification-modal-content">
+            <div class="notification-modal-icon">🔔</div>
+            <h2 class="notification-modal-title">Get notified when your journal is ready</h2>
+            <p class="notification-modal-subtitle">
+                We'll let you know as soon as your personalized journal is created (~1h 20m from now)
+            </p>
+
+            <div class="progress-note">
+                <span class="progress-note-icon">⚠️</span>
+                <div class="progress-note-text">
+                    <strong>Keep Littlebird running!</strong> Your journal is being created in the background. 
+                    Make sure context collection stays enabled for the best results.
+                </div>
+            </div>
+
+            <div class="notification-options">
+                <div class="notification-option" id="emailOption" onclick="toggleNotificationOption('email')">
+                    <div class="notification-option-content">
+                        <span class="notification-option-icon">📧</span>
+                        <div class="notification-option-text">
+                            <div class="notification-option-title">Email notification</div>
+                            <div class="notification-option-description">Send me an email when ready</div>
+                        </div>
+                    </div>
+                    <div class="notification-checkbox">
+                        <span class="checkbox-mark"></span>
+                    </div>
+                </div>
+
+                <div class="notification-option" id="desktopOption" onclick="toggleNotificationOption('desktop')">
+                    <div class="notification-option-content">
+                        <span class="notification-option-icon">💻</span>
+                        <div class="notification-option-text">
+                            <div class="notification-option-title">Desktop notification</div>
+                            <div class="notification-option-description">Show a notification on my Mac</div>
+                        </div>
+                    </div>
+                    <div class="notification-checkbox">
+                        <span class="checkbox-mark"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notification-modal-buttons">
+                <button class="notification-modal-button notification-modal-button-secondary" onclick="closeNotificationModal()">
+                    Skip
+                </button>
+                <button class="notification-modal-button notification-modal-button-primary" id="saveNotificationBtn" onclick="saveNotificationPreferences()" disabled>
+                    Save Preferences
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedNotifications = new Set();
+
+        function showNotificationModal() {
+            document.getElementById('notificationModal').classList.add('active');
+        }
+
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.remove('active');
+        }
+
+        function toggleNotificationOption(type) {
+            const option = document.getElementById(type + 'Option');
+            const checkbox = option.querySelector('.checkbox-mark');
+            const saveBtn = document.getElementById('saveNotificationBtn');
+            
+            if (selectedNotifications.has(type)) {
+                selectedNotifications.delete(type);
+                option.classList.remove('selected');
+                checkbox.textContent = '';
+            } else {
+                selectedNotifications.add(type);
+                option.classList.add('selected');
+                checkbox.textContent = '✓';
+            }
+
+            // Enable save button if at least one option selected
+            saveBtn.disabled = selectedNotifications.size === 0;
+        }
+
+        function saveNotificationPreferences() {
+            if (selectedNotifications.size === 0) return;
+
+            const notifications = Array.from(selectedNotifications).join(' and ');
+            alert(`Great! We'll send you ${notifications} notification(s) when your journal is ready (in ~1h 20m). Keep Littlebird running!`);
+            closeNotificationModal();
+        }
+
+        // Close modal on background click
+        document.getElementById('notificationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNotificationModal();
+            }
+        });
+
+        // Simulate progress countdown
+        let remainingMinutes = 80; // 1h 20m
+        function updateProgress() {
+            if (remainingMinutes > 0) {
+                remainingMinutes--;
+                const hours = Math.floor(remainingMinutes / 60);
+                const mins = remainingMinutes % 60;
+                const timeText = hours > 0 ? `~${hours}h ${mins}m remaining` : `~${mins}m remaining`;
+                
+                // Update banner if element exists
+                const timeElement = document.querySelector('.demo-requirements .requirement-item:last-child span:last-child');
+                if (timeElement) {
+                    timeElement.textContent = timeText;
+                }
+            }
+        }
+
+        // Update every minute
+        setInterval(updateProgress, 60000);
+    </script>
+</body>
+</html>
