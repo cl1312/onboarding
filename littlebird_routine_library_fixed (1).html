@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Routines Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f4f2;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #faf9f8;
+            border-right: 1px solid #e8e7e5;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding: 8px;
+        }
+
+        .logo-icon {
+            font-size: 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: #6b6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #f0efed;
+        }
+
+        .menu-item.active {
+            background: #e8e7e5;
+            color: #1a1a1a;
+        }
+
+        .menu-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .recents {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .recents-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 12px;
+            padding: 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recent-item {
+            padding: 10px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .recent-item:hover {
+            background: #f0efed;
+        }
+
+        .context-status {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #e8e7e5;
+        }
+
+        .context-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-bottom: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            font-size: 10px;
+            color: #999;
+            background: #f0efed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .header {
+            padding: 32px 48px;
+            background: white;
+            border-bottom: 1px solid #e8e7e5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: #6b6b6b;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .filter-button {
+            padding: 10px 20px;
+            background: #f0efed;
+            border: 1px solid #e8e7e5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b6b6b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-button:hover {
+            background: #e8e7e5;
+        }
+
+        .filter-button.active {
+            background: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+
+        .new-routine-button {
+            padding: 10px 20px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .new-routine-button:hover {
+            background: #2a2a2a;
+        }
+
+        <!-- Header Education Section -->
+        .education-section {
+            background: white;
+            padding: 32px 48px;
+            border-bottom: 1px solid #e8e7e5;
+        }
+
+        .education-content {
+            max-width: 800px;
+        }
+
+        .education-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .education-description {
+            font-size: 15px;
+            color: #6b6b6b;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .education-features {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 24px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+
+        .feature-description {
+            font-size: 13px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e8e7e5;
+            margin: 24px 0;
+        }
+
+        /* Template Grid */
+        .templates-section {
+            padding: 32px 48px 48px;
+        }
+
+        .section-header {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: #6b6b6b;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        /* Custom Routine Card */
+        .custom-routine-card {
+            background: #faf9f8;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 200px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .custom-routine-card:hover {
+            background: #f0efed;
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .custom-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .custom-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .custom-description {
+            font-size: 13px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        .template-card {
+            background: white;
+            border: 2px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .template-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+            border-color: #6366f1;
+        }
+
+        .template-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .template-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .template-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .badge-popular {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-recommended {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-advanced {
+            background: #fce7f3;
+            color: #831843;
+        }
+
+        .template-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+
+        .template-description {
+            font-size: 13px;
+            color: #6b6b6b;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .template-meta {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-top: 1px solid #f0efed;
+            margin-bottom: 16px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6b6b6b;
+        }
+
+        .meta-icon {
+            font-size: 14px;
+        }
+
+        .template-action {
+            display: flex;
+            gap: 8px;
+        }
+
+        .template-button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #6366f1;
+            color: white;
+        }
+
+        .template-button:hover {
+            background: #4f46e5;
+            transform: scale(1.02);
+        }
+
+        /* Quick Setup Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 36px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0efed;
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .modal-title-group {
+            flex: 1;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: #6b6b6b;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #f0efed;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e8e7e5;
+        }
+
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e8e7e5;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e8e7e5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.2s;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .frequency-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .frequency-select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e8e7e5;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .frequency-select:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            padding-top: 28px;
+            margin-top: 8px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-button-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .modal-button-primary:hover {
+            background: #4f46e5;
+        }
+
+        .modal-button-secondary {
+            background: #f0efed;
+            color: #1a1a1a;
+        }
+
+        .modal-button-secondary:hover {
+            background: #e8e7e5;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 28px;
+        }
+
+        .info-box-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+
+        .info-box-text {
+            font-size: 13px;
+            color: #1e40af;
+            line-height: 1.6;
+        }
+
+        /* Compact Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 48px;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-banner.dismissed {
+            display: none;
+        }
+
+        .info-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            max-width: 1200px;
+        }
+
+        .info-banner-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .info-banner-text {
+            flex: 1;
+            color: white;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .info-banner-text strong {
+            font-weight: 600;
+        }
+
+        .info-banner-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .info-banner-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">▶</span>
+            <span>Littlebird</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">💬</span>
+            <span>New Chat</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔍</span>
+            <span>Search</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📝</span>
+            <span>Meeting Notes</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📔</span>
+            <span>Daily Journal</span>
+        </div>
+
+        <div class="menu-item active">
+            <span class="menu-icon">🔄</span>
+            <span>Routines</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">✓</span>
+            <span>Todos</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🪵</span>
+            <span>Request Logger</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Extras</span>
+        </div>
+
+        <div class="recents">
+            <div class="recents-title">Recents</div>
+            <div class="recent-item">Deducing User's Profession</div>
+            <div class="recent-item">Goal Planning Framework</div>
+            <div class="recent-item">Setting Up a Routine</div>
+        </div>
+
+        <div class="context-status">
+            <div class="context-indicator">
+                <span class="status-dot"></span>
+                <span>Context enabled</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Chandan Luthra</div>
+                <div class="user-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div class="header-content">
+                <h1 class="header-title">Routines</h1>
+                <p class="header-subtitle">Automate your insights with personalized routines</p>
+            </div>
+            <div class="header-actions">
+                <button class="filter-button active">All</button>
+                <button class="filter-button">Daily</button>
+                <button class="filter-button">Weekly</button>
+                <button class="filter-button">Monthly</button>
+                <button class="new-routine-button">
+                    <span>➕</span>
+                    <span>New routine</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Compact Education Banner -->
+        <div class="info-banner" id="infoBanner">
+            <div class="info-banner-content">
+                <div class="info-banner-icon">💡</div>
+                <div class="info-banner-text">
+                    <strong>What are Routines?</strong> Automated summaries delivered on your schedule. No manual work—just receive personalized insights based on your activity (daily, weekly, or after events).
+                </div>
+                <button class="info-banner-close" onclick="dismissBanner()">✕</button>
+            </div>
+        </div>
+
+        <!-- Template Library -->
+        <div class="templates-section">
+            <div class="templates-grid">
+                <!-- Custom Routine Option -->
+                <div class="custom-routine-card" onclick="openCustomRoutine()">
+                    <div class="custom-icon">✨</div>
+                    <div class="custom-title">Create Custom Routine</div>
+                    <div class="custom-description">
+                        Build your own routine from scratch with complete control over what gets tracked
+                    </div>
+                </div>
+
+                <!-- Morning Standup Brief -->
+                <div class="template-card" onclick="openQuickSetup('standup')">
+                    <div class="template-header">
+                        <div class="template-icon-wrapper" style="background: #fef3c7;">
+                            <span>☀️</span>
+                        </div>
+                        <span class="template-badge badge-popular">Popular</span>
+                    </div>
+                    <h3 class="template-title">Morning Standup Brief</h3>
+                    <p class="template-description">
+                        Start your day with a quick recap of yesterday's highlights and today's schedule.
+                    </p>
+                    <div class="template-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span>Daily at 9:00 AM</span>
+                        </div>
+                    </div>
+                    <div class="template-action">
+                        <button class="template-button" onclick="event.stopPropagation(); openQuickSetup('standup')">
+                            Setup Routine
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Weekly Project Review -->
+                <div class="template-card" onclick="openQuickSetup('weekly')">
+                    <div class="template-header">
+                        <div class="template-icon-wrapper" style="background: #dbeafe;">
+                            <span>📊</span>
+                        </div>
+                        <span class="template-badge badge-recommended">Recommended</span>
+                    </div>
+                    <h3 class="template-title">Weekly Project Review</h3>
+                    <p class="template-description">
+                        Every Friday, get comprehensive insights into project progress and weekly accomplishments.
+                    </p>
+                    <div class="template-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span>Weekly on Friday at 5:00 PM</span>
+                        </div>
+                    </div>
+                    <div class="template-action">
+                        <button class="template-button" onclick="event.stopPropagation(); openQuickSetup('weekly')">
+                            Setup Routine
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Meeting Action Items -->
+                <div class="template-card" onclick="openQuickSetup('meetings')">
+                    <div class="template-header">
+                        <div class="template-icon-wrapper" style="background: #d1fae5;">
+                            <span>📝</span>
+                        </div>
+                        <span class="template-badge badge-popular">Popular</span>
+                    </div>
+                    <h3 class="template-title">Meeting Action Items</h3>
+                    <p class="template-description">
+                        Automatically extract action items and key decisions from your meetings.
+                    </p>
+                    <div class="template-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span>After each meeting</span>
+                        </div>
+                    </div>
+                    <div class="template-action">
+                        <button class="template-button" onclick="event.stopPropagation(); openQuickSetup('meetings')">
+                            Setup Routine
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Team Connection Summary -->
+                <div class="template-card" onclick="openQuickSetup('people')">
+                    <div class="template-header">
+                        <div class="template-icon-wrapper" style="background: #fce7f3;">
+                            <span>👥</span>
+                        </div>
+                    </div>
+                    <h3 class="template-title">Team Connection Summary</h3>
+                    <p class="template-description">
+                        Stay on top of your key relationships with weekly conversation summaries.
+                    </p>
+                    <div class="template-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span>Weekly on Monday at 9:00 AM</span>
+                        </div>
+                    </div>
+                    <div class="template-action">
+                        <button class="template-button" onclick="event.stopPropagation(); openQuickSetup('people')">
+                            Setup Routine
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Focus Time Report -->
+                <div class="template-card" onclick="openQuickSetup('focus')">
+                    <div class="template-header">
+                        <div class="template-icon-wrapper" style="background: #e0e7ff;">
+                            <span>🎯</span>
+                        </div>
+                    </div>
+                    <h3 class="template-title">Focus Time Report</h3>
+                    <p class="template-description">
+                        Track your deep work patterns with daily analysis of your most productive hours.
+                    </p>
+                    <div class="template-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span>Daily at 6:00 PM</span>
+                        </div>
+                    </div>
+                    <div class="template-action">
+                        <button class="template-button" onclick="event.stopPropagation(); openQuickSetup('focus')">
+                            Setup Routine
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Learning Digest -->
+                <div class="template-card" onclick="openQuickSetup('learning')">
+                    <div class="template-header">
+                        <div class="template-icon-wrapper" style="background: #fef3c7;">
+                            <span>🧠</span>
+                        </div>
+                    </div>
+                    <h3 class="template-title">Learning Digest</h3>
+                    <p class="template-description">
+                        Weekly compilation of topics you explored and knowledge you gained.
+                    </p>
+                    <div class="template-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span>Weekly on Sunday at 7:00 PM</span>
+                        </div>
+                    </div>
+                    <div class="template-action">
+                        <button class="template-button" onclick="event.stopPropagation(); openQuickSetup('learning')">
+                            Setup Routine
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Setup Modal -->
+    <div class="modal" id="setupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon" id="modalIcon" style="background: #fef3c7;">☀️</div>
+                <div class="modal-title-group">
+                    <h2 class="modal-title" id="modalTitle">Morning Standup Brief</h2>
+                    <p class="modal-subtitle">Customize your routine settings</p>
+                </div>
+                <button class="modal-close" onclick="closeSetupModal()">×</button>
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">✨ Smart defaults applied!</div>
+                <div class="info-box-text">
+                    We've pre-filled everything based on what works best for this routine. 
+                    You can use it as-is or customize to your preference.
+                </div>
+            </div>
+
+            <form id="routineForm">
+                <div class="form-section">
+                    <label class="form-label">Routine Name</label>
+                    <input type="text" class="form-input" id="routineName" value="Morning Standup Brief">
+                    <div class="form-help">Give your routine a memorable name</div>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Instructions</label>
+                    <textarea class="form-textarea" id="routineInstructions">Review my activity from yesterday and provide a brief summary of:
+- Key conversations and their outcomes
+- Tasks completed and decisions made
+- Outstanding action items
+
+Then, preview today's schedule:
+- Meetings scheduled and their attendees
+- Important deadlines or deliverables
+- Suggested priorities based on recent work patterns</textarea>
+                    <div class="form-help">Describe what you'd like Littlebird to gather and summarize</div>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Frequency & Timing</label>
+                    <div class="frequency-controls">
+                        <select class="frequency-select" id="routineFrequency">
+                            <option value="daily" selected>Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="after-meeting">After each meeting</option>
+                        </select>
+                        <select class="frequency-select" id="routineDay">
+                            <option value="monday">Monday</option>
+                            <option value="tuesday">Tuesday</option>
+                            <option value="wednesday">Wednesday</option>
+                            <option value="thursday">Thursday</option>
+                            <option value="friday">Friday</option>
+                        </select>
+                        <input type="time" class="frequency-select" id="routineTime" value="09:00">
+                    </div>
+                    <div class="form-help">Choose when this routine should run</div>
+                </div>
+            </form>
+
+            <div class="modal-actions">
+                <button class="modal-button modal-button-secondary" onclick="closeSetupModal()">
+                    Cancel
+                </button>
+                <button class="modal-button modal-button-primary" onclick="createRoutine()">
+                    Create Routine
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const routineTemplates = {
+            standup: {
+                name: 'Morning Standup Brief',
+                icon: '☀️',
+                color: '#fef3c7',
+                frequency: 'daily',
+                time: '09:00',
+                instructions: `Review my activity from yesterday and provide a brief summary of:
+- Key conversations and their outcomes
+- Tasks completed and decisions made
+- Outstanding action items
+
+Then, preview today's schedule:
+- Meetings scheduled and their attendees
+- Important deadlines or deliverables
+- Suggested priorities based on recent work patterns`
+            },
+            weekly: {
+                name: 'Weekly Project Review',
+                icon: '📊',
+                color: '#dbeafe',
+                frequency: 'weekly',
+                day: 'friday',
+                time: '17:00',
+                instructions: `Analyze my work from the past week and summarize:
+- Progress on active projects (EmailZap, LittleBird, etc.)
+- Key decisions and strategic choices made
+- Team discussions and collaboration highlights
+- Accomplishments and wins
+- Areas for improvement next week
+
+Include metrics on time spent per project if available.`
+            },
+            meetings: {
+                name: 'Meeting Action Items',
+                icon: '📝',
+                color: '#d1fae5',
+                frequency: 'after-meeting',
+                instructions: `After each meeting, extract and summarize:
+- Action items assigned to me specifically
+- Key decisions made during the meeting
+- Important discussion points and context
+- Follow-up items that need my attention
+- Any deadlines mentioned
+
+Format as a clear, actionable checklist.`
+            },
+            people: {
+                name: 'Team Connection Summary',
+                icon: '👥',
+                color: '#fce7f3',
+                frequency: 'weekly',
+                day: 'monday',
+                time: '09:00',
+                instructions: `Review my interactions from the past week and for each key person:
+- Summarize recent conversations and topics discussed
+- Highlight any outstanding items or replies I owe them
+- Note relationship context (ongoing projects, shared goals)
+- Suggest follow-ups if needed
+
+Focus on my direct reports, manager, and frequent collaborators.`
+            },
+            focus: {
+                name: 'Focus Time Report',
+                icon: '🎯',
+                color: '#e0e7ff',
+                frequency: 'daily',
+                time: '18:00',
+                instructions: `Analyze my work patterns for today and report:
+- Total hours of deep work (uninterrupted focus time)
+- My peak productivity periods
+- Applications and tools I used most
+- Context switches and interruptions
+- Recommendations for tomorrow's schedule
+
+Help me optimize my focus time.`
+            },
+            learning: {
+                name: 'Learning Digest',
+                icon: '🧠',
+                color: '#fef3c7',
+                frequency: 'weekly',
+                day: 'sunday',
+                time: '19:00',
+                instructions: `Compile my learning activities from the past week:
+- Topics and subjects I researched
+- Articles, papers, and resources I read
+- Key insights and takeaways
+- New concepts or skills explored
+- Knowledge areas where I'm developing expertise
+
+Present as a learning journey summary.`
+            }
+        };
+
+        function openQuickSetup(templateKey) {
+            const template = routineTemplates[templateKey];
+            
+            // Update modal header
+            document.getElementById('modalIcon').textContent = template.icon;
+            document.getElementById('modalIcon').style.background = template.color;
+            document.getElementById('modalTitle').textContent = template.name;
+            
+            // Fill form
+            document.getElementById('routineName').value = template.name;
+            document.getElementById('routineInstructions').value = template.instructions;
+            document.getElementById('routineFrequency').value = template.frequency;
+            if (template.time) {
+                document.getElementById('routineTime').value = template.time;
+            }
+            if (template.day) {
+                document.getElementById('routineDay').value = template.day;
+            }
+            
+            // Show frequency controls
+            updateFrequencyControls();
+            
+            document.getElementById('setupModal').classList.add('active');
+        }
+
+        function openCustomRoutine() {
+            // Open modal with blank template for custom routine
+            document.getElementById('modalIcon').textContent = '✨';
+            document.getElementById('modalIcon').style.background = '#fae8ff';
+            document.getElementById('modalTitle').textContent = 'Create Custom Routine';
+            
+            // Clear form
+            document.getElementById('routineName').value = '';
+            document.getElementById('routineInstructions').value = '';
+            document.getElementById('routineFrequency').value = 'daily';
+            document.getElementById('routineTime').value = '09:00';
+            
+            updateFrequencyControls();
+            
+            document.getElementById('setupModal').classList.add('active');
+        }
+
+        function closeSetupModal() {
+            document.getElementById('setupModal').classList.remove('active');
+        }
+
+        function updateFrequencyControls() {
+            const frequency = document.getElementById('routineFrequency').value;
+            const daySelect = document.getElementById('routineDay');
+            const timeInput = document.getElementById('routineTime');
+            
+            if (frequency === 'weekly' || frequency === 'monthly') {
+                daySelect.style.display = 'block';
+            } else {
+                daySelect.style.display = 'none';
+            }
+            
+            if (frequency === 'after-meeting') {
+                timeInput.style.display = 'none';
+                daySelect.style.display = 'none';
+            } else {
+                timeInput.style.display = 'block';
+            }
+        }
+
+        function createRoutine() {
+            const name = document.getElementById('routineName').value;
+            const frequency = document.getElementById('routineFrequency').value;
+            const time = document.getElementById('routineTime').value;
+            
+            alert(`🎉 Success! Your routine "${name}" has been created!\n\nYou'll receive your first update ${frequency === 'daily' ? 'tomorrow' : frequency === 'weekly' ? 'next week' : 'after your next meeting'} at ${time}.`);
+            closeSetupModal();
+        }
+
+        // Update frequency controls when frequency changes
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('routineFrequency').addEventListener('change', updateFrequencyControls);
+        });
+
+        // Close modal on background click
+        document.getElementById('setupModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSetupModal();
+            }
+        });
+
+        // Dismiss info banner
+        function dismissBanner() {
+            const banner = document.getElementById('infoBanner');
+            banner.classList.add('dismissed');
+            // Store in localStorage so it stays dismissed
+            localStorage.setItem('routinesBannerDismissed', 'true');
+        }
+
+        // Check if banner was previously dismissed
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('routinesBannerDismissed') === 'true') {
+                document.getElementById('infoBanner').classList.add('dismissed');
+            }
+        });
+    </script>
+</body>
+</html>
