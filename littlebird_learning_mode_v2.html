@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Accessible Learning Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f4f2;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #faf9f8;
+            border-right: 1px solid #e8e7e5;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding: 8px;
+        }
+
+        .logo-icon {
+            font-size: 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: #6b6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #f0efed;
+        }
+
+        .menu-item.active {
+            background: #e8e7e5;
+            color: #1a1a1a;
+        }
+
+        .menu-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .recents {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .recents-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 12px;
+            padding: 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recent-item {
+            padding: 10px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .recent-item:hover {
+            background: #f0efed;
+        }
+
+        /* Compact Context Status in Sidebar */
+        .context-status {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #e8e7e5;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .context-status:hover {
+            background: #fafafa;
+            border-color: #6366f1;
+        }
+
+        .context-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b6b6b;
+            margin-bottom: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .mini-progress-bar {
+            height: 4px;
+            background: #e8e7e5;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .mini-progress-text {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            font-size: 10px;
+            color: #999;
+            background: #f0efed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Progress Banner at top of content */
+        .progress-banner {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .progress-banner:hover {
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .progress-banner-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .progress-banner-icon {
+            font-size: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .progress-banner-text {
+            flex: 1;
+        }
+
+        .progress-banner-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .progress-banner-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            max-width: 300px;
+        }
+
+        .progress-banner-fill {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-banner-stats {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .progress-stat {
+            text-align: center;
+        }
+
+        .progress-stat-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .progress-stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .progress-banner-cta {
+            font-size: 12px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .progress-banner-cta:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        /* Learning Screen (original center content) */
+        .learning-container {
+            max-width: 600px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .learning-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+        }
+
+        .learning-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        .learning-subtitle {
+            font-size: 18px;
+            color: #6b6b6b;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .progress-container {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #6b6b6b;
+            font-weight: 500;
+        }
+
+        .progress-percentage {
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: #f0efed;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .info-card {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: left;
+        }
+
+        .info-card-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .info-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .info-card-text {
+            font-size: 14px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        .notification-preferences {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .notification-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        .notification-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0efed;
+        }
+
+        .notification-option:last-child {
+            border-bottom: none;
+        }
+
+        .notification-label {
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+
+        .toggle {
+            width: 44px;
+            height: 24px;
+            background: #6366f1;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.off {
+            background: #d1d5db;
+        }
+
+        .toggle-knob {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle:not(.off) .toggle-knob {
+            transform: translateX(20px);
+        }
+
+        .tip-box {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            font-size: 14px;
+            color: #92400e;
+            line-height: 1.5;
+        }
+
+        .tip-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Demo: Chat Screen Example */
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .chat-header {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+        }
+
+        .chat-messages {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 24px;
+            min-height: 400px;
+            margin-bottom: 16px;
+        }
+
+        .chat-message {
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .chat-input-area {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .chat-send {
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">▶</span>
+            <span>Littlebird</span>
+        </div>
+
+        <div class="menu-item" onclick="switchTab('learning')" data-tab="learning">
+            <span class="menu-icon">🧠</span>
+            <span>Learning Progress</span>
+        </div>
+
+        <div class="menu-item" onclick="switchTab('chat')" data-tab="chat">
+            <span class="menu-icon">💬</span>
+            <span>New Chat</span>
+        </div>
+
+        <div class="menu-item" onclick="switchTab('search')" data-tab="search">
+            <span class="menu-icon">🔍</span>
+            <span>Search</span>
+        </div>
+
+        <div class="menu-item" onclick="switchTab('meeting')" data-tab="meeting">
+            <span class="menu-icon">📝</span>
+            <span>Meeting Notes</span>
+        </div>
+
+        <div class="menu-item" onclick="switchTab('journal')" data-tab="journal">
+            <span class="menu-icon">📔</span>
+            <span>Daily Journal</span>
+        </div>
+
+        <div class="menu-item" onclick="switchTab('routines')" data-tab="routines">
+            <span class="menu-icon">🔄</span>
+            <span>Routines</span>
+        </div>
+
+        <div class="menu-item" onclick="switchTab('todos')" data-tab="todos">
+            <span class="menu-icon">✓</span>
+            <span>Todos</span>
+        </div>
+
+        <div class="menu-item" onclick="switchTab('logger')" data-tab="logger">
+            <span class="menu-icon">🪵</span>
+            <span>Request Logger</span>
+        </div>
+
+        <div class="menu-item" onclick="switchTab('extras')" data-tab="extras">
+            <span class="menu-icon">⚙️</span>
+            <span>Extras</span>
+        </div>
+
+        <div class="recents">
+            <div class="recents-title">Recents</div>
+            <div class="recent-item">Project discussion - 2h ago</div>
+            <div class="recent-item">Research notes - Yesterday</div>
+            <div class="recent-item">Meeting summary - 3d ago</div>
+        </div>
+
+        <!-- Compact Context Status - Clickable to return to learning screen -->
+        <div class="context-status" onclick="switchTab('learning')" title="Click to view full progress">
+            <div class="context-indicator">
+                <span class="status-dot"></span>
+                <span>Learning in progress</span>
+            </div>
+            <div class="mini-progress-bar">
+                <div class="mini-progress-fill" id="sidebarProgressFill" style="width: 24%"></div>
+            </div>
+            <div class="mini-progress-text">
+                <span id="sidebarProgressText">24% • ~1h 15m remaining</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Chandan Luthra</div>
+                <div class="user-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Progress Banner (shown on all tabs except learning) -->
+        <div class="progress-banner hidden" id="progressBanner" onclick="switchTab('learning')">
+            <div class="progress-banner-left">
+                <div class="progress-banner-icon">🧠</div>
+                <div class="progress-banner-text">
+                    <div class="progress-banner-title">Littlebird is learning about you</div>
+                    <div class="progress-banner-bar">
+                        <div class="progress-banner-fill" id="bannerProgressFill" style="width: 24%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-banner-stats">
+                <div class="progress-stat">
+                    <div class="progress-stat-value" id="bannerPercentage">24%</div>
+                    <div class="progress-stat-label">Complete</div>
+                </div>
+                <div class="progress-stat">
+                    <div class="progress-stat-value" id="bannerScreenshots">47</div>
+                    <div class="progress-stat-label">Inputs collected</div>
+                </div>
+                <div class="progress-stat">
+                    <div class="progress-stat-value" id="bannerRemaining">~1h 15m</div>
+                    <div class="progress-stat-label">Remaining</div>
+                </div>
+                <div class="progress-banner-cta">View Details →</div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Learning Screen -->
+            <div id="learningScreen">
+                <div class="learning-container">
+                    <div class="learning-icon">🧠</div>
+                    <h1 class="learning-title">Littlebird is learning about you</h1>
+                    <p class="learning-subtitle">
+                        We're building your personalized memory by observing your screen activity. 
+                        This usually takes 2-3 hours of active computer use.
+                    </p>
+
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span class="progress-label">Context Collection Progress</span>
+                            <span class="progress-percentage" id="progressPercentage">24%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 24%"></div>
+                        </div>
+                        
+                        <div class="progress-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="screenshotCount">47</div>
+                                <div class="stat-label">Inputs collected</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="timeActive">1h 42m</div>
+                                <div class="stat-label">Time Active</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="timeRemaining">~1h 15m</div>
+                                <div class="stat-label">Est. Remaining</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-cards">
+                        <div class="info-card">
+                            <div class="info-card-icon">🎯</div>
+                            <div class="info-card-title">What we're learning</div>
+                            <div class="info-card-text">
+                                Your work patterns, frequent topics, important people, and recurring tasks
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-icon">🔐</div>
+                            <div class="info-card-title">Your privacy matters</div>
+                            <div class="info-card-text">
+                                You can pause context collection anytime and LB doesn't capture sensitive content like passwords
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="notification-preferences">
+                        <div class="notification-title">📬 Notification Preferences</div>
+                        <div class="notification-option">
+                            <div class="notification-label">
+                                <span>Email me when ready</span>
+                            </div>
+                            <div class="toggle" id="emailToggle" onclick="toggleNotification('email')">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="notification-option">
+                            <div class="notification-label">
+                                <span>Desktop notification when ready</span>
+                            </div>
+                            <div class="toggle" id="desktopToggle" onclick="toggleNotification('desktop')">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tip-box">
+                        <span class="tip-icon">💡</span>
+                        <div>
+                            <strong>Tip:</strong> Feel free to use Littlebird while we're learning! 
+                            The features work right now, and they'll get even better as we gather more context.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Screen Example -->
+            <div id="chatScreen" class="hidden">
+                <div class="chat-container">
+                    <h2 class="chat-header">💬 New Chat</h2>
+                    <div class="chat-messages">
+                        <div class="chat-message">
+                            <strong>You:</strong> Hey Littlebird, can you help me?
+                        </div>
+                        <div class="chat-message">
+                            <strong>Littlebird:</strong> Of course! I'm here and ready to help. While I'm still learning about you (currently at 24%), I can already assist you with your questions. The more context I gather, the more personalized my responses will become!
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" placeholder="Type your message...">
+                        <button class="chat-send">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Placeholder screens for other tabs -->
+            <div id="searchScreen" class="hidden">
+                <div class="chat-container">
+                    <h2 class="chat-header">🔍 Search</h2>
+                    <p style="color: #6b6b6b; font-size: 16px;">Search functionality is available now. Context learning will make results more relevant over time.</p>
+                </div>
+            </div>
+
+            <div id="meetingScreen" class="hidden">
+                <div class="chat-container">
+                    <h2 class="chat-header">📝 Meeting Notes</h2>
+                    <p style="color: #6b6b6b; font-size: 16px;">Meeting notes feature is ready to use. Better suggestions coming as we learn more about your work patterns.</p>
+                </div>
+            </div>
+
+            <div id="journalScreen" class="hidden">
+                <div class="chat-container">
+                    <h2 class="chat-header">📔 Daily Journal</h2>
+                    <p style="color: #6b6b6b; font-size: 16px;">Start journaling now! Prompts will become more personalized as context builds up.</p>
+                </div>
+            </div>
+
+            <div id="routinesScreen" class="hidden">
+                <div class="chat-container">
+                    <h2 class="chat-header">🔄 Routines</h2>
+                    <p style="color: #6b6b6b; font-size: 16px;">Create routines today. We'll suggest better automations once we understand your workflow.</p>
+                </div>
+            </div>
+
+            <div id="todosScreen" class="hidden">
+                <div class="chat-container">
+                    <h2 class="chat-header">✓ Todos</h2>
+                    <p style="color: #6b6b6b; font-size: 16px;">Todo management is live. Smart prioritization improves with more context.</p>
+                </div>
+            </div>
+
+            <div id="loggerScreen" class="hidden">
+                <div class="chat-container">
+                    <h2 class="chat-header">🪵 Request Logger</h2>
+                    <p style="color: #6b6b6b; font-size: 16px;">View all your requests and interactions.</p>
+                </div>
+            </div>
+
+            <div id="extrasScreen" class="hidden">
+                <div class="chat-container">
+                    <h2 class="chat-header">⚙️ Extras</h2>
+                    <p style="color: #6b6b6b; font-size: 16px;">Additional settings and features.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Progress simulation
+        let progress = 24;
+        let screenshots = 47;
+        let minutesActive = 102;
+        let currentTab = 'learning';
+
+        function updateProgress() {
+            if (progress < 100) {
+                progress += Math.random() * 2;
+                screenshots += Math.floor(Math.random() * 3);
+                minutesActive += 1;
+
+                if (progress > 100) progress = 100;
+
+                const progressInt = Math.floor(progress);
+
+                // Update main progress display
+                document.getElementById('progressPercentage').textContent = progressInt + '%';
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('screenshotCount').textContent = screenshots;
+                
+                const hours = Math.floor(minutesActive / 60);
+                const mins = minutesActive % 60;
+                document.getElementById('timeActive').textContent = `${hours}h ${mins}m`;
+
+                const totalNeeded = 180; // 3 hours
+                const remaining = Math.max(0, totalNeeded - minutesActive);
+                const remHours = Math.floor(remaining / 60);
+                const remMins = remaining % 60;
+                const remainingText = `~${remHours}h ${remMins}m`;
+                document.getElementById('timeRemaining').textContent = remainingText;
+
+                // Update banner progress
+                document.getElementById('bannerProgressFill').style.width = progress + '%';
+                document.getElementById('bannerPercentage').textContent = progressInt + '%';
+                document.getElementById('bannerScreenshots').textContent = screenshots;
+                document.getElementById('bannerRemaining').textContent = remainingText;
+
+                // Update sidebar progress
+                document.getElementById('sidebarProgressFill').style.width = progress + '%';
+                document.getElementById('sidebarProgressText').textContent = 
+                    `${progressInt}% • ${remainingText} remaining`;
+            }
+        }
+
+        setInterval(updateProgress, 5000);
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all screens
+            const screens = [
+                'learningScreen', 'chatScreen', 'searchScreen', 'meetingScreen', 
+                'journalScreen', 'routinesScreen', 'todosScreen', 'loggerScreen', 'extrasScreen'
+            ];
+            screens.forEach(screen => {
+                document.getElementById(screen).classList.add('hidden');
+            });
+
+            // Show selected screen
+            const screenMap = {
+                'learning': 'learningScreen',
+                'chat': 'chatScreen',
+                'search': 'searchScreen',
+                'meeting': 'meetingScreen',
+                'journal': 'journalScreen',
+                'routines': 'routinesScreen',
+                'todos': 'todosScreen',
+                'logger': 'loggerScreen',
+                'extras': 'extrasScreen'
+            };
+            
+            document.getElementById(screenMap[tabName]).classList.remove('hidden');
+
+            // Update menu active state
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Show/hide progress banner (hidden on learning screen, visible elsewhere)
+            const banner = document.getElementById('progressBanner');
+            if (tabName === 'learning') {
+                banner.classList.add('hidden');
+            } else {
+                banner.classList.remove('hidden');
+            }
+
+            currentTab = tabName;
+        }
+
+        // Toggle notifications
+        function toggleNotification(type) {
+            const toggle = document.getElementById(type + 'Toggle');
+            toggle.classList.toggle('off');
+        }
+
+        // Initialize
+        document.getElementById('emailToggle').classList.remove('off');
+        document.getElementById('desktopToggle').classList.remove('off');
+        switchTab('learning'); // Start on learning screen
+    </script>
+</body>
+</html>
