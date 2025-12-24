@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird Mobile - Mac App Nudges v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f4f2;
+        }
+
+        /* Mobile Frame Container */
+        .mobile-container {
+            max-width: 400px;
+            margin: 20px auto;
+            background: #f5f5f0;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            height: 812px;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 600;
+            background: #f5f5f0;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Navigation */
+        .nav-container {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f5f5f0;
+            position: relative;
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .nav-tabs {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+            background: #e8e7e5;
+            padding: 4px;
+            border-radius: 20px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #6b6b6b;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: #1a1a1a;
+        }
+
+        /* Persistent Mini CTA (shows after dismissal) */
+        .mini-cta-banner {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 10px 20px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mini-cta-banner.show {
+            display: flex;
+        }
+
+        .mini-cta-banner:active {
+            transform: scale(0.98);
+        }
+
+        .mini-cta-icon {
+            font-size: 20px;
+        }
+
+        .mini-cta-content {
+            flex: 1;
+        }
+
+        .mini-cta-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 2px;
+        }
+
+        .mini-cta-subtitle {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .mini-cta-arrow {
+            color: white;
+            font-size: 18px;
+        }
+
+        .mini-cta-close {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+            padding: 4px 8px;
+            margin-left: 4px;
+        }
+
+        .mini-cta-close:hover {
+            color: white;
+        }
+
+        /* Main Content Area */
+        .content-area {
+            height: calc(812px - 100px);
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f0;
+        }
+
+        .content-area.with-banner {
+            height: calc(812px - 150px);
+        }
+
+        /* Empty State with Nudge */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.4;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .empty-subtitle {
+            font-size: 14px;
+            color: #6b6b6b;
+            line-height: 1.5;
+            margin-bottom: 28px;
+            max-width: 280px;
+        }
+
+        /* Mac App Nudge Card - ENHANCED */
+        .mac-nudge-card {
+            background: white;
+            border: 2px solid #1a1a1a;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .nudge-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .nudge-icon {
+            width: 40px;
+            height: 40px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nudge-badge {
+            background: #ffe57f;
+            color: #1a1a1a;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nudge-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+
+        .nudge-description {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #6b6b6b;
+            margin-bottom: 16px;
+        }
+
+        /* WARNING CALLOUT - NEW */
+        .warning-callout {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .warning-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .warning-text {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #856404;
+            font-weight: 500;
+        }
+
+        .warning-text strong {
+            font-weight: 700;
+        }
+
+        .nudge-features {
+            background: #faf9f8;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .nudge-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #1a1a1a;
+        }
+
+        .nudge-feature:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-check {
+            width: 18px;
+            height: 18px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .nudge-button {
+            width: 100%;
+            padding: 13px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .nudge-button:active {
+            transform: scale(0.98);
+            background: #2a2a2a;
+        }
+
+        .nudge-button.secondary {
+            background: white;
+            color: #1a1a1a;
+            border: 1px solid #e8e7e5;
+            margin-top: 8px;
+        }
+
+        .nudge-dismiss {
+            text-align: center;
+            margin-top: 10px;
+            color: #6b6b6b;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .nudge-dismiss:hover {
+            color: #1a1a1a;
+        }
+
+        /* NO MAC STATE - NEW */
+        .no-mac-state {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .no-mac-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .no-mac-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .no-mac-description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #6b6b6b;
+            margin-bottom: 20px;
+        }
+
+        .no-mac-features {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .no-mac-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .no-mac-feature:last-child {
+            margin-bottom: 0;
+        }
+
+        .no-mac-feature-icon {
+            color: #dc3545;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .no-mac-cta {
+            font-size: 13px;
+            color: #6b6b6b;
+            line-height: 1.5;
+            margin-top: 16px;
+        }
+
+        .no-mac-cta a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-button {
+            width: 100%;
+            padding: 13px;
+            background: white;
+            color: #1a1a1a;
+            border: 1px solid #e8e7e5;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        /* Download Flow Modal */
+        .download-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 1000;
+        }
+
+        .download-modal.active {
+            display: flex;
+        }
+
+        .download-sheet {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .download-handle {
+            width: 40px;
+            height: 4px;
+            background: #e8e7e5;
+            border-radius: 2px;
+            margin: 0 auto 20px;
+        }
+
+        .download-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .download-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .download-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .download-subtitle {
+            font-size: 14px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        .download-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .download-option {
+            background: #faf9f8;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .download-option:active {
+            transform: scale(0.98);
+            background: #f0efed;
+        }
+
+        .option-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+
+        .option-description {
+            font-size: 12px;
+            color: #6b6b6b;
+        }
+
+        .option-arrow {
+            font-size: 20px;
+            color: #6b6b6b;
+        }
+
+        .download-link-card {
+            background: #faf9f8;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .link-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b6b6b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .link-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .link-text {
+            flex: 1;
+            font-size: 13px;
+            color: #1a1a1a;
+            word-break: break-all;
+        }
+
+        .copy-button {
+            padding: 6px 12px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .copy-button.copied {
+            background: #28a745;
+        }
+
+        .email-form {
+            margin-bottom: 20px;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e8e7e5;
+            border-radius: 10px;
+            font-size: 15px;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: #1a1a1a;
+        }
+
+        .send-button {
+            width: 100%;
+            padding: 14px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .send-button:active {
+            transform: scale(0.98);
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .success-message.show {
+            display: flex;
+        }
+
+        .close-button {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #1a1a1a;
+            border: 1px solid #e8e7e5;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Screen Controls */
+        .screen-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+        }
+
+        .screen-control-btn {
+            padding: 8px 16px;
+            background: #f5f5f0;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .screen-control-btn.active {
+            background: #1a1a1a;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Screen Controls -->
+    <div class="screen-controls">
+        <button class="screen-control-btn active" onclick="showScreen('chat')">Chat</button>
+        <button class="screen-control-btn" onclick="showScreen('journal')">Journal</button>
+        <button class="screen-control-btn" onclick="showScreen('routines')">Routines</button>
+        <button class="screen-control-btn" onclick="showScreen('dismissed')">Dismissed</button>
+        <button class="screen-control-btn" onclick="showScreen('no-mac')">No Mac</button>
+    </div>
+
+    <!-- Chat Screen -->
+    <div class="mobile-container" id="chatScreen">
+        <div class="status-bar">
+            <div class="status-left">
+                <span>12:02</span>
+            </div>
+            <div class="status-right">
+                <span>📶</span>
+                <span>📡</span>
+                <span>🔋90</span>
+            </div>
+        </div>
+
+        <div class="nav-container">
+            <div class="menu-icon">☰</div>
+            <div class="nav-tabs">
+                <div class="nav-tab active">💬 Chat</div>
+                <div class="nav-tab">🔄 Routines</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="empty-state">
+                <div class="empty-icon">💬</div>
+                <h2 class="empty-title">Start a conversation</h2>
+                <p class="empty-subtitle">Ask questions based on what you've been working on</p>
+
+                <div class="mac-nudge-card">
+                    <div class="nudge-header">
+                        <div class="nudge-icon">💻</div>
+                    </div>
+                    <h3 class="nudge-title">This is just a companion app</h3>
+                    <p class="nudge-description">
+                        <strong>LittleBird's power comes from context it learns about you and currently, it can only collect context from a MacBook app.</strong> The mobile app lets you access your insights on-the-go, but all the magic happens on Mac.
+                    </p>
+
+                    <div class="warning-callout">
+                        <span class="warning-icon">⚠️</span>
+                        <div class="warning-text">
+                            <strong>Without the Mac app, LittleBird can't learn anything.</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="nudge-features">
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Mac app learns context</strong> from everything you do</div>
+                        </div>
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Get answers</strong> only possible with your context</div>
+                        </div>
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Access anywhere</strong> with mobile companion</div>
+                        </div>
+                    </div>
+
+                    <button class="nudge-button" onclick="showDownloadFlow()">
+                        Download Mac App
+                    </button>
+                    <button class="nudge-button secondary" onclick="showNoMacState()">
+                        I don't have a MacBook
+                    </button>
+                    <div class="nudge-dismiss" onclick="dismissNudge()">Maybe later</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Journal Screen -->
+    <div class="mobile-container" id="journalScreen" style="display: none;">
+        <div class="status-bar">
+            <div class="status-left">
+                <span>12:02</span>
+            </div>
+            <div class="status-right">
+                <span>📶</span>
+                <span>📡</span>
+                <span>🔋90</span>
+            </div>
+        </div>
+
+        <div class="nav-container">
+            <div class="menu-icon">☰</div>
+            <div class="nav-tabs">
+                <div class="nav-tab">💬 Chat</div>
+                <div class="nav-tab active">📔 Journal</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="empty-state">
+                <div class="empty-icon">📔</div>
+                <h2 class="empty-title">No journal entries</h2>
+                <p class="empty-subtitle">Daily summaries will appear here once created</p>
+
+                <div class="mac-nudge-card">
+                    <div class="nudge-header">
+                        <div class="nudge-icon">💻</div>
+                    </div>
+                    <h3 class="nudge-title">Journals require the Mac app</h3>
+                    <p class="nudge-description">
+                        <strong>LittleBird's power comes from context it learns about you and currently, it can only collect context from a MacBook app.</strong> Journal entries are automatically generated from your work context on Mac.
+                    </p>
+
+                    <div class="warning-callout">
+                        <span class="warning-icon">⚠️</span>
+                        <div class="warning-text">
+                            <strong>Without the Mac app, LittleBird can't learn anything.</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="nudge-features">
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Mac app learns</strong> from your screen automatically</div>
+                        </div>
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Generates summaries</strong> of your day intelligently</div>
+                        </div>
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Tracks decisions</strong> and progress over time</div>
+                        </div>
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>View on mobile</strong> for on-the-go access</div>
+                        </div>
+                    </div>
+
+                    <button class="nudge-button" onclick="showDownloadFlow()">
+                        Download Mac App
+                    </button>
+                    <button class="nudge-button secondary" onclick="showNoMacState()">
+                        I don't have a MacBook
+                    </button>
+                    <div class="nudge-dismiss" onclick="dismissNudge()">Maybe later</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Routines Screen -->
+    <div class="mobile-container" id="routinesScreen" style="display: none;">
+        <div class="status-bar">
+            <div class="status-left">
+                <span>12:02</span>
+            </div>
+            <div class="status-right">
+                <span>📶</span>
+                <span>📡</span>
+                <span>🔋90</span>
+            </div>
+        </div>
+
+        <div class="nav-container">
+            <div class="menu-icon">☰</div>
+            <div class="nav-tabs">
+                <div class="nav-tab">💬 Chat</div>
+                <div class="nav-tab active">🔄 Routines</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="empty-state">
+                <div class="empty-icon">🔄</div>
+                <h2 class="empty-title">No routines created</h2>
+                <p class="empty-subtitle">Create automated summaries on your schedule</p>
+
+                <div class="mac-nudge-card">
+                    <div class="nudge-header">
+                        <div class="nudge-icon">💻</div>
+                    </div>
+                    <h3 class="nudge-title">Routines only work with Mac</h3>
+                    <p class="nudge-description">
+                        <strong>LittleBird's power comes from context it learns about you and currently, it can only collect context from a MacBook app.</strong> Routines need the Mac app to collect context continuously in the background.
+                    </p>
+
+                    <div class="warning-callout">
+                        <span class="warning-icon">⚠️</span>
+                        <div class="warning-text">
+                            <strong>Without the Mac app, LittleBird can't learn anything.</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="nudge-features">
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Mac app collects</strong> context in background</div>
+                        </div>
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Create custom routines</strong> or use templates</div>
+                        </div>
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Schedule daily, weekly,</strong> or event-based</div>
+                        </div>
+                        <div class="nudge-feature">
+                            <div class="feature-check">✓</div>
+                            <div><strong>Read updates</strong> on mobile anytime</div>
+                        </div>
+                    </div>
+
+                    <button class="nudge-button" onclick="showDownloadFlow()">
+                        Download Mac App
+                    </button>
+                    <button class="nudge-button secondary" onclick="showNoMacState()">
+                        I don't have a MacBook
+                    </button>
+                    <div class="nudge-dismiss" onclick="dismissNudge()">Maybe later</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dismissed State Screen (with persistent mini CTA) -->
+    <div class="mobile-container" id="dismissedScreen" style="display: none;">
+        <div class="status-bar">
+            <div class="status-left">
+                <span>12:02</span>
+            </div>
+            <div class="status-right">
+                <span>📶</span>
+                <span>📡</span>
+                <span>🔋90</span>
+            </div>
+        </div>
+
+        <div class="nav-container">
+            <div class="menu-icon">☰</div>
+            <div class="nav-tabs">
+                <div class="nav-tab active">💬 Chat</div>
+                <div class="nav-tab">🔄 Routines</div>
+            </div>
+        </div>
+
+        <!-- Persistent Mini CTA Banner -->
+        <div class="mini-cta-banner show" onclick="showDownloadFlow()">
+            <div class="mini-cta-icon">💻</div>
+            <div class="mini-cta-content">
+                <div class="mini-cta-title">Download Mac App</div>
+                <div class="mini-cta-subtitle">Unlock full LittleBird experience</div>
+            </div>
+            <div class="mini-cta-arrow">→</div>
+            <div class="mini-cta-close" onclick="event.stopPropagation(); hideMiniBanner()">×</div>
+        </div>
+
+        <div class="content-area with-banner">
+            <div class="empty-state">
+                <div class="empty-icon">💬</div>
+                <h2 class="empty-title">Start a conversation</h2>
+                <p class="empty-subtitle">Limited functionality without Mac app</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Mac State Screen -->
+    <div class="mobile-container" id="noMacScreen" style="display: none;">
+        <div class="status-bar">
+            <div class="status-left">
+                <span>12:02</span>
+            </div>
+            <div class="status-right">
+                <span>📶</span>
+                <span>📡</span>
+                <span>🔋90</span>
+            </div>
+        </div>
+
+        <div class="nav-container">
+            <div class="menu-icon">☰</div>
+            <div class="nav-tabs">
+                <div class="nav-tab active">💬 Chat</div>
+                <div class="nav-tab">🔄 Routines</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="empty-state">
+                <div class="no-mac-state">
+                    <div class="no-mac-icon">💻📱</div>
+                    <h2 class="no-mac-title">LittleBird needs a MacBook</h2>
+                    <p class="no-mac-description">
+                        LittleBird's core functionality requires the Mac app to learn from your work. Without a MacBook, the mobile app has very limited value.
+                    </p>
+
+                    <button class="back-button" onclick="goBack()">
+                        Go back
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Flow Modal -->
+    <div class="download-modal" id="downloadModal">
+        <div class="download-sheet">
+            <div class="download-handle"></div>
+            
+            <div id="optionsView">
+                <div class="download-header">
+                    <div class="download-icon">💻</div>
+                    <h2 class="download-title">Get Littlebird for Mac</h2>
+                    <p class="download-subtitle">Choose how you'd like to receive the download link</p>
+                </div>
+
+                <div class="download-options">
+                    <div class="download-option" onclick="showCopyLink()">
+                        <div class="option-icon">🔗</div>
+                        <div class="option-content">
+                            <div class="option-title">Copy Download Link</div>
+                            <div class="option-description">Get the link to open on your Mac</div>
+                        </div>
+                        <div class="option-arrow">→</div>
+                    </div>
+
+                    <div class="download-option" onclick="showEmailForm()">
+                        <div class="option-icon">📧</div>
+                        <div class="option-content">
+                            <div class="option-title">Email Me the Link</div>
+                            <div class="option-description">Receive download link via email</div>
+                        </div>
+                        <div class="option-arrow">→</div>
+                    </div>
+                </div>
+
+                <button class="close-button" onclick="closeDownloadFlow()">Close</button>
+            </div>
+
+            <div id="copyView" style="display: none;">
+                <div class="download-header">
+                    <div class="download-icon">🔗</div>
+                    <h2 class="download-title">Download Link</h2>
+                    <p class="download-subtitle">Copy this link and open it on your Mac</p>
+                </div>
+
+                <div class="download-link-card">
+                    <div class="link-label">Download URL</div>
+                    <div class="link-box">
+                        <div class="link-text" id="downloadLink">https://littlebird.ai/download/mac</div>
+                        <button class="copy-button" id="copyBtn" onclick="copyLink()">Copy</button>
+                    </div>
+                </div>
+
+                <div class="success-message" id="copySuccess">
+                    <span>✓</span>
+                    <span>Link copied! Open on your Mac to download</span>
+                </div>
+
+                <button class="close-button" onclick="closeDownloadFlow()">Done</button>
+            </div>
+
+            <div id="emailView" style="display: none;">
+                <div class="download-header">
+                    <div class="download-icon">📧</div>
+                    <h2 class="download-title">Email Download Link</h2>
+                    <p class="download-subtitle">We'll send you the Mac app download link</p>
+                </div>
+
+                <div class="email-form">
+                    <input type="email" class="email-input" id="emailInput" placeholder="your@email.com" value="chandan@littlebird.ai">
+                    <button class="send-button" onclick="sendEmail()">Send Download Link</button>
+                </div>
+
+                <div class="success-message" id="emailSuccess">
+                    <span>✓</span>
+                    <span>Email sent! Check your inbox</span>
+                </div>
+
+                <button class="close-button" onclick="closeDownloadFlow()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentScreen = 'chat';
+        let lastScreen = 'chat';
+
+        function showScreen(screen) {
+            // Hide all screens
+            document.getElementById('chatScreen').style.display = 'none';
+            document.getElementById('journalScreen').style.display = 'none';
+            document.getElementById('routinesScreen').style.display = 'none';
+            document.getElementById('dismissedScreen').style.display = 'none';
+            document.getElementById('noMacScreen').style.display = 'none';
+
+            // Update button states
+            document.querySelectorAll('.screen-control-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected screen
+            if (screen === 'chat') {
+                document.getElementById('chatScreen').style.display = 'block';
+                lastScreen = 'chat';
+            } else if (screen === 'journal') {
+                document.getElementById('journalScreen').style.display = 'block';
+                lastScreen = 'journal';
+            } else if (screen === 'routines') {
+                document.getElementById('routinesScreen').style.display = 'block';
+                lastScreen = 'routines';
+            } else if (screen === 'dismissed') {
+                document.getElementById('dismissedScreen').style.display = 'block';
+            } else if (screen === 'no-mac') {
+                document.getElementById('noMacScreen').style.display = 'block';
+            }
+
+            // Update active button
+            event.target.classList.add('active');
+            currentScreen = screen;
+        }
+
+        function showNoMacState() {
+            showScreen('no-mac');
+        }
+
+        function goBack() {
+            showScreen(lastScreen);
+        }
+
+        function dismissNudge() {
+            showScreen('dismissed');
+        }
+
+        function hideMiniBanner() {
+            document.querySelector('.mini-cta-banner').classList.remove('show');
+        }
+
+        function showDownloadFlow() {
+            document.getElementById('downloadModal').classList.add('active');
+            document.getElementById('optionsView').style.display = 'block';
+            document.getElementById('copyView').style.display = 'none';
+            document.getElementById('emailView').style.display = 'none';
+        }
+
+        function closeDownloadFlow() {
+            document.getElementById('downloadModal').classList.remove('active');
+        }
+
+        function showCopyLink() {
+            document.getElementById('optionsView').style.display = 'none';
+            document.getElementById('copyView').style.display = 'block';
+            document.getElementById('copySuccess').classList.remove('show');
+        }
+
+        function showEmailForm() {
+            document.getElementById('optionsView').style.display = 'none';
+            document.getElementById('emailView').style.display = 'block';
+            document.getElementById('emailSuccess').classList.remove('show');
+        }
+
+        function copyLink() {
+            const link = document.getElementById('downloadLink').textContent;
+            navigator.clipboard.writeText(link);
+            
+            const btn = document.getElementById('copyBtn');
+            btn.textContent = '✓ Copied';
+            btn.classList.add('copied');
+            
+            document.getElementById('copySuccess').classList.add('show');
+            
+            setTimeout(() => {
+                btn.textContent = 'Copy';
+                btn.classList.remove('copied');
+            }, 2000);
+        }
+
+        function sendEmail() {
+            const email = document.getElementById('emailInput').value;
+            if (email) {
+                // Simulate sending email
+                document.getElementById('emailSuccess').classList.add('show');
+            }
+        }
+
+        // Close modal when clicking background
+        document.getElementById('downloadModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDownloadFlow();
+            }
+        });
+    </script>
+</body>
+</html>
