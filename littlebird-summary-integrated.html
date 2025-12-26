@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Your First Summary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            color: #1a1a1a;
+        }
+
+        /* Sidebar - matching LittleBird's design */
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            border-right: 1px solid #e8e7e5;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding: 8px;
+        }
+
+        .logo-icon {
+            font-size: 16px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.15s;
+        }
+
+        .menu-item:hover {
+            background: #f5f4f2;
+        }
+
+        .menu-item.active {
+            background: #f0efed;
+            color: #1a1a1a;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .recents {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .recents-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 8px;
+            padding: 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recent-item {
+            padding: 8px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .recent-item:hover {
+            background: #f5f4f2;
+        }
+
+        /* Context Status in Sidebar */
+        .context-status {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .context-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .context-complete-text {
+            font-size: 11px;
+            color: #15803d;
+            margin-top: 4px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #bbf7d0;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            font-size: 10px;
+            color: #6b6b6b;
+            background: #f0efed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .content-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 48px 40px;
+            width: 100%;
+        }
+
+        /* Summary Header */
+        .summary-header {
+            margin-bottom: 32px;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b6b6b;
+            margin-bottom: 8px;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+        }
+
+        .summary-subtitle {
+            font-size: 13px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        /* Content Sections */
+        .section {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .section-icon {
+            font-size: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        /* Bullet Lists */
+        .bullet-list {
+            list-style: none;
+        }
+
+        .bullet-item {
+            margin-bottom: 16px;
+            padding-left: 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #2d3748;
+        }
+
+        .bullet-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .bullet-bold {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        /* Feature Links */
+        .feature-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #1a1a1a;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: #f5f4f2;
+            transition: all 0.15s;
+            font-size: 13px;
+            margin: 0 2px;
+            border: 1px solid #e8e7e5;
+        }
+
+        .feature-link:hover {
+            background: #e8e7e5;
+            border-color: #d4d3d1;
+        }
+
+        .feature-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-left: 4px;
+        }
+
+        .badge-chat {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .badge-routine {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-journal {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Apps Grid */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .app-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #fafafa;
+            border: 1px solid #e8e7e5;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #1a1a1a;
+            transition: all 0.15s;
+        }
+
+        .app-item:hover {
+            background: #f5f4f2;
+        }
+
+        .app-icon {
+            font-size: 16px;
+        }
+
+        /* Bottom Notice */
+        .bottom-notice {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .bottom-notice p {
+            font-size: 13px;
+            color: #78350f;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .bottom-notice strong {
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bullet-item {
+            animation: fadeInUp 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        .bullet-item:nth-child(1) { animation-delay: 0.05s; }
+        .bullet-item:nth-child(2) { animation-delay: 0.1s; }
+        .bullet-item:nth-child(3) { animation-delay: 0.15s; }
+        .bullet-item:nth-child(4) { animation-delay: 0.2s; }
+        .bullet-item:nth-child(5) { animation-delay: 0.25s; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .content-wrapper {
+                padding: 32px 24px;
+            }
+
+            .summary-title {
+                font-size: 18px;
+            }
+
+            .section {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">▶</span>
+            <span>Littlebird</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">💬</span>
+            <span>New Chat</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔍</span>
+            <span>Search</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📝</span>
+            <span>Meeting Notes</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📔</span>
+            <span>Daily Journal</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔄</span>
+            <span>Routines</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">✓</span>
+            <span>Todos</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🪵</span>
+            <span>Request Logger</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Extras</span>
+        </div>
+
+        <div class="recents">
+            <div class="recents-title">Recents</div>
+            <div class="recent-item">LittleBird Summary Prompt</div>
+            <div class="recent-item">LittleBird Persona Framework</div>
+            <div class="recent-item">Venture Studio Workflow Audit</div>
+        </div>
+
+        <!-- Context Status -->
+        <div class="context-status">
+            <div class="context-indicator">
+                <span class="status-dot"></span>
+                <span>Context ready!</span>
+            </div>
+            <div class="context-complete-text">
+                LittleBird knows you now
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Chandan Luthra</div>
+                <div class="user-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <!-- Summary Header -->
+            <div class="summary-header">
+                <div class="summary-label">Your First 2 Hours</div>
+                <h1 class="summary-title">You're a technical CPO who analyzed Lucene similarity scores, defined LittleBird's 2-routine freemium limit, and debugged live issues</h1>
+                <p class="summary-subtitle">All while guiding two different product teams</p>
+            </div>
+
+            <!-- What I Saw Section -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">👁️</span>
+                    <h2 class="section-title">What I Saw You Doing</h2>
+                </div>
+                <ul class="bullet-list">
+                    <li class="bullet-item">
+                        <span class="bullet-bold">Deep-dived into EmailZap's FTSO logic</span>, specifically analyzing Lucene similarity scores to drive down false positives—I noticed you debating the specific "send to zapped" flow with Partho to get it just right
+                    </li>
+                    <li class="bullet-item">
+                        <span class="bullet-bold">Context-switched to LittleBird strategy</span>, where you defined the strict 2-routine limit for the new freemium model and simultaneously guided Sibi on the Referral UI copy
+                    </li>
+                    <li class="bullet-item">
+                        <span class="bullet-bold">Wrestled with data between PostHog and Google Sheets</span>, using Claude to refine SQL queries for cohort analysis, but then having to manually reconcile those CSV exports to see the full picture
+                    </li>
+                    <li class="bullet-item">
+                        <span class="bullet-bold">Got pulled out of strategy mode to troubleshoot the "context icon bug"</span> on Slack and track the memory leak issue—interruptions that forced you to trade high-level thinking for nitty-gritty debugging
+                    </li>
+                </ul>
+            </div>
+
+            <!-- How I'll Help Section -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">✨</span>
+                    <h2 class="section-title">How I'll Help You</h2>
+                </div>
+                <ul class="bullet-list">
+                    <li class="bullet-item">
+                        <span class="bullet-bold">I've captured the exact logic you settled on for the "send to zapped" flow</span>—<a href="#" class="feature-link">ask me about the FTSO decision<span class="feature-badge badge-chat">Chat</span></a> anytime Partho needs a reminder, instead of hunting through Slack threads
+                    </li>
+                    <li class="bullet-item">
+                        <span class="bullet-bold">Those freemium limits and referral specs you explained to Sibi?</span> I'm turning them into a structured summary so the engineering team has a single source of truth without you needing to write a formal spec doc
+                    </li>
+                    <li class="bullet-item">
+                        <span class="bullet-bold">Instead of you manually juggling CSVs between PostHog and Sheets</span>, <a href="#" class="feature-link">set up a weekly Conversion Metrics routine<span class="feature-badge badge-routine">Routine</span></a> that automatically surfaces the cohort trends you care about every Monday morning
+                    </li>
+                    <li class="bullet-item">
+                        <span class="bullet-bold">I'll keep a "Bug Watch" list for things like the memory leak and context icon</span>, so you can close those Slack threads and get back to product strategy with the confidence that nothing is slipping through the cracks
+                    </li>
+                    <li class="bullet-item">
+                        <span class="bullet-bold">All of today's strategic decisions—from FTSO logic to freemium limits—are captured.</span> <a href="#" class="feature-link">Read tonight's journal<span class="feature-badge badge-journal">Journal</span></a> to see your full strategic arc and how these pieces connect
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Apps Section -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">💻</span>
+                    <h2 class="section-title">Apps You Used Most</h2>
+                </div>
+                <div class="apps-grid">
+                    <div class="app-item">
+                        <span class="app-icon">🌐</span>
+                        <span>Chrome</span>
+                    </div>
+                    <div class="app-item">
+                        <span class="app-icon">💬</span>
+                        <span>Slack</span>
+                    </div>
+                    <div class="app-item">
+                        <span class="app-icon">📊</span>
+                        <span>PostHog</span>
+                    </div>
+                    <div class="app-item">
+                        <span class="app-icon">📈</span>
+                        <span>Google Sheets</span>
+                    </div>
+                    <div class="app-item">
+                        <span class="app-icon">📝</span>
+                        <span>Notion</span>
+                    </div>
+                    <div class="app-item">
+                        <span class="app-icon">🎨</span>
+                        <span>Figma</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Notice -->
+            <div class="bottom-notice">
+                <p><strong>This is what LittleBird learned in just 2 hours.</strong> Imagine how valuable it will get over time for you—the more you work, the better it understands your patterns, priorities, and how to truly multiply your impact.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add click handlers for feature links
+        document.querySelectorAll('.feature-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const badge = link.querySelector('.feature-badge');
+                const feature = badge.textContent.toLowerCase();
+                console.log(`Navigate to ${feature} feature`);
+                // Add your navigation logic here
+            });
+        });
+
+        // Add click handlers for menu items
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
