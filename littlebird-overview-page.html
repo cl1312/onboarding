@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littlebird - Overview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            color: #1a1a1a;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            border-right: 1px solid #e8e7e5;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            padding: 8px;
+        }
+
+        .logo-icon {
+            font-size: 16px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.15s;
+        }
+
+        .menu-item:hover {
+            background: #f5f4f2;
+        }
+
+        .menu-item.active {
+            background: #f0efed;
+            color: #1a1a1a;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .recents {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e7e5;
+        }
+
+        .recents-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 8px;
+            padding: 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recent-item {
+            padding: 8px 12px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            color: #6b6b6b;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .recent-item:hover {
+            background: #f5f4f2;
+        }
+
+        .context-status {
+            margin-top: auto;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .context-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .context-complete-text {
+            font-size: 11px;
+            color: #15803d;
+            margin-top: 4px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #bbf7d0;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            font-size: 10px;
+            color: #6b6b6b;
+            background: #f0efed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .content-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px;
+            width: 100%;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b6b6b;
+            margin-bottom: 8px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+        }
+
+        .page-subtitle {
+            font-size: 13px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        /* Grid Layout */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        /* Section Card */
+        .section {
+            background: white;
+            border: 1px solid #e8e7e5;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-icon {
+            font-size: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .section-action {
+            font-size: 12px;
+            color: #6b6b6b;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+
+        .section-action:hover {
+            color: #1a1a1a;
+        }
+
+        /* Profile Card */
+        .profile-info {
+            display: flex;
+            align-items: start;
+            gap: 16px;
+        }
+
+        .profile-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .profile-details {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .profile-role {
+            font-size: 13px;
+            color: #6b6b6b;
+            margin-bottom: 12px;
+        }
+
+        .profile-description {
+            font-size: 13px;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        /* Projects List */
+        .project-item {
+            padding: 12px;
+            background: #fafafa;
+            border: 1px solid #e8e7e5;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+
+        .project-item:hover {
+            background: #f5f4f2;
+            border-color: #d4d3d1;
+        }
+
+        .project-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .project-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .project-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .project-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-planning {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .project-description {
+            font-size: 12px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        /* People List */
+        .person-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: #fafafa;
+            border: 1px solid #e8e7e5;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+
+        .person-item:hover {
+            background: #f5f4f2;
+            border-color: #d4d3d1;
+        }
+
+        .person-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .person-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .person-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .person-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+
+        .person-role {
+            font-size: 11px;
+            color: #6b6b6b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Chat Recommendations */
+        .chat-recommendations {
+            grid-column: 1 / -1;
+        }
+
+        .chat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .chat-card {
+            padding: 16px;
+            background: #fafafa;
+            border: 1px solid #e8e7e5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .chat-card:hover {
+            background: #f5f4f2;
+            border-color: #d4d3d1;
+            transform: translateY(-1px);
+        }
+
+        .chat-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .chat-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .chat-description {
+            font-size: 12px;
+            color: #6b6b6b;
+            line-height: 1.5;
+        }
+
+        .chat-arrow {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 14px;
+            color: #6b6b6b;
+            opacity: 0;
+            transition: all 0.15s;
+        }
+
+        .chat-card:hover .chat-arrow {
+            opacity: 1;
+            transform: translateX(2px);
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #6b6b6b;
+            font-size: 13px;
+        }
+
+        .empty-state-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .content-wrapper {
+                padding: 32px 24px;
+            }
+
+            .page-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">▶</span>
+            <span>Littlebird</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">💬</span>
+            <span>New Chat</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔍</span>
+            <span>Search</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📝</span>
+            <span>Meeting Notes</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">📔</span>
+            <span>Daily Journal</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">🔄</span>
+            <span>Routines</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">✓</span>
+            <span>Todos</span>
+        </div>
+
+        <div class="menu-item active">
+            <span class="menu-icon">👤</span>
+            <span>Overview</span>
+        </div>
+
+        <div class="menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Settings</span>
+        </div>
+
+        <div class="recents">
+            <div class="recents-title">Recents</div>
+            <div class="recent-item">EmailZap Ad Strategy</div>
+            <div class="recent-item">LittleBird Onboarding Flow</div>
+            <div class="recent-item">Q1 Metrics Discussion</div>
+        </div>
+
+        <div class="context-status">
+            <div class="context-indicator">
+                <span class="status-dot"></span>
+                <span>Context active</span>
+            </div>
+            <div class="context-complete-text">
+                Learning from 87 hours
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Chandan Luthra</div>
+                <div class="user-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-label">Overview</div>
+                <h1 class="page-title">What LittleBird knows about you</h1>
+                <p class="page-subtitle">Your profile, projects, and people—all updated as you work</p>
+            </div>
+
+            <!-- Profile Section - Full Width -->
+            <div class="section" style="margin-bottom: 16px;">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <span class="section-icon">👤</span>
+                        <h2 class="section-title">About You</h2>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-avatar">C</div>
+                    <div class="profile-details">
+                        <div class="profile-name">Chandan Luthra</div>
+                        <div class="profile-role">Venture Partner</div>
+                        <div class="profile-description">
+                            You're building two products simultaneously: EmailZap (a Chrome extension for inbox management) and LittleBird (an AI assistant with screen context). You move fluidly between code-level implementation and business strategy, handling product strategy, user acquisition, analytics, feature design, and often coding initial versions yourself. Based in India, exploring expansion into US markets for higher revenue potential.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects and People Grid -->
+            <div class="grid-2col">
+                <!-- Projects Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title-wrapper">
+                            <span class="section-icon">📁</span>
+                            <h2 class="section-title">Active Projects</h2>
+                        </div>
+                        <span class="section-action">View all →</span>
+                    </div>
+                    
+                    <div class="project-item">
+                        <div class="project-header">
+                            <div class="project-name">EmailZap</div>
+                            <span class="project-status status-active">Active</span>
+                        </div>
+                        <div class="project-description">
+                            Chrome extension for unified inbox management. Currently focused on ad campaigns, FTSO logic refinement, and user acquisition strategies.
+                        </div>
+                    </div>
+
+                    <div class="project-item">
+                        <div class="project-header">
+                            <div class="project-name">LittleBird</div>
+                            <span class="project-status status-active">Active</span>
+                        </div>
+                        <div class="project-description">
+                            AI assistant with screen context capture. Working on onboarding experience, freemium conversion, and memory features.
+                        </div>
+                    </div>
+
+                    <div class="project-item">
+                        <div class="project-header">
+                            <div class="project-name">Meta Ads Campaign</div>
+                            <span class="project-status status-planning">Planning</span>
+                        </div>
+                        <div class="project-description">
+                            Marketing strategy for EmailZap targeting busy professionals and small business owners.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- People Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title-wrapper">
+                            <span class="section-icon">👥</span>
+                            <h2 class="section-title">Key People</h2>
+                        </div>
+                        <span class="section-action">View all →</span>
+                    </div>
+                    
+                    <div class="person-item">
+                        <div class="person-avatar">P</div>
+                        <div class="person-details">
+                            <div class="person-name">Partho</div>
+                            <div class="person-role">Engineering lead for EmailZap FTSO logic</div>
+                        </div>
+                    </div>
+
+                    <div class="person-item">
+                        <div class="person-avatar">S</div>
+                        <div class="person-details">
+                            <div class="person-name">Sibi</div>
+                            <div class="person-role">Engineering contact for LittleBird features</div>
+                        </div>
+                    </div>
+
+                    <div class="person-item">
+                        <div class="person-avatar">M</div>
+                        <div class="person-details">
+                            <div class="person-name">Michael</div>
+                            <div class="person-role">Product sync partner</div>
+                        </div>
+                    </div>
+
+                    <div class="person-item">
+                        <div class="person-avatar">👥</div>
+                        <div class="person-details">
+                            <div class="person-name">Engineering Team</div>
+                            <div class="person-role">Regular Slack coordination and updates</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Recommendations - Full Width -->
+            <div class="section chat-recommendations">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <span class="section-icon">💡</span>
+                        <h2 class="section-title">Start a conversation</h2>
+                    </div>
+                </div>
+                
+                <div class="chat-grid">
+                    <div class="chat-card">
+                        <span class="chat-icon">📊</span>
+                        <div class="chat-title">Review EmailZap metrics</div>
+                        <div class="chat-description">Get insights on conversion rates, user activation patterns, and cohort analysis from PostHog data</div>
+                        <span class="chat-arrow">→</span>
+                    </div>
+
+                    <div class="chat-card">
+                        <span class="chat-icon">🎯</span>
+                        <div class="chat-title">Plan next sprint priorities</div>
+                        <div class="chat-description">Discuss feature priorities across EmailZap and LittleBird based on recent user feedback and metrics</div>
+                        <span class="chat-arrow">→</span>
+                    </div>
+
+                    <div class="chat-card">
+                        <span class="chat-icon">🔍</span>
+                        <div class="chat-title">Find that FTSO discussion</div>
+                        <div class="chat-description">Recall the Lucene similarity logic and "send to zapped" flow details from your chat with Partho</div>
+                        <span class="chat-arrow">→</span>
+                    </div>
+
+                    <div class="chat-card">
+                        <span class="chat-icon">📝</span>
+                        <div class="chat-title">Draft team update</div>
+                        <div class="chat-description">Create a summary of recent decisions on freemium limits, referral UI, and bug fixes for the team</div>
+                        <span class="chat-arrow">→</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add click handlers
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.chat-card').forEach(card => {
+            card.addEventListener('click', () => {
+                console.log('Start chat:', card.querySelector('.chat-title').textContent);
+                // Add your chat navigation logic here
+            });
+        });
+
+        document.querySelectorAll('.project-item, .person-item').forEach(item => {
+            item.addEventListener('click', () => {
+                console.log('View details:', item);
+                // Add your detail view logic here
+            });
+        });
+    </script>
+</body>
+</html>
