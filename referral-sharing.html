@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LittleBird Referrals - Share Buttons Mock</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+        "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+      background-color: #f5f5f5;
+      padding: 40px 20px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: #ffffff;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      padding: 32px 32px 24px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .modal-title {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .modal-subtitle {
+      font-size: 16px;
+      color: #666666;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666666;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .close-btn:hover {
+      background-color: #f0f0f0;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 32px;
+      margin-top: 16px;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 8px;
+      color: #666666;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: #f0f0f0;
+      color: #1a1a1a;
+    }
+
+    .modal-content {
+      padding: 32px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hero-text h2 {
+      font-size: 32px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .hero-text p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 16px;
+    }
+
+    .hero-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+    }
+
+    .how-it-works {
+      margin-bottom: 32px;
+    }
+
+    .how-it-works h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .step-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666666;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .step-text {
+      flex: 1;
+    }
+
+    .step-text strong {
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .step-text span {
+      color: #666666;
+    }
+
+    .share-buttons-section {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .share-buttons-section h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
+
+    .share-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .share-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 20px;
+      background: #ffffff;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #1a1a1a;
+    }
+
+    .share-button:hover {
+      border-color: #1a1a1a;
+      background: #fafafa;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .share-button:active {
+      transform: translateY(0);
+    }
+
+    .share-button svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .share-button.twitter:hover {
+      border-color: #1da1f2;
+      background: #f0f9ff;
+    }
+
+    .share-button.slack:hover {
+      border-color: #4a154b;
+      background: #faf5ff;
+    }
+
+    .share-button.imessage:hover {
+      border-color: #34c759;
+      background: #f0fdf4;
+    }
+
+    .divider {
+      height: 1px;
+      background: #e5e5e5;
+      margin: 32px 0;
+    }
+
+    .referral-code-section {
+      margin-bottom: 24px;
+    }
+
+    .referral-code-section h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+
+    .code-input-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .code-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1.5px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      background: #f9f9f9;
+    }
+
+    .copy-btn {
+      padding: 12px 24px;
+      background: #1a1a1a;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #333333;
+    }
+
+    .email-section {
+      margin-bottom: 24px;
+    }
+
+    .email-section h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+
+    .email-input-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .email-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1.5px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .send-btn {
+      padding: 12px 24px;
+      background: #666666;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .send-btn:hover {
+      background: #555555;
+    }
+
+    .footnote {
+      font-size: 13px;
+      color: #666666;
+      line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      z-index: 2000;
+    }
+
+    .toast.show {
+      display: flex;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .share-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="close-btn" onclick="closeModal()">×</button>
+        <h1 class="modal-title">Get 2 months free</h1>
+        <p class="modal-subtitle">Get $40 in credit for each person you refer</p>
+        <div class="tabs">
+          <button class="tab active">Refer</button>
+          <button class="tab">Status</button>
+        </div>
+      </div>
+
+      <div class="modal-content">
+        <div class="hero-card">
+          <div class="hero-text">
+            <h2>2 months free*</h2>
+            <p>for you and everyone you refer</p>
+            <div class="hero-badge">
+              <span>✨</span>
+              <span>Unlimited referrals</span>
+            </div>
+          </div>
+          <div class="hero-icon">🐦</div>
+        </div>
+
+        <div class="how-it-works">
+          <h3>How it works</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-icon">📤</div>
+              <div class="step-text">
+                <strong>Share your code</strong> <span>with others</span>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-icon">👤</div>
+              <div class="step-text">
+                <span>They sign up and get</span>
+                <strong>2 free months*</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-icon">🎁</div>
+              <div class="step-text">
+                <strong>Get 2 months free*</strong>
+                <span>when they upgrade</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="share-buttons-section">
+          <h3>Share with friends</h3>
+          <div class="share-buttons">
+            <button class="share-button twitter" onclick="shareOnTwitter()">
+              <svg viewBox="0 0 24 24" fill="#1DA1F2" aria-hidden="true">
+                <path
+                  d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+                />
+              </svg>
+              Twitter
+            </button>
+            <button class="share-button slack" onclick="shareOnSlack()">
+              <svg viewBox="0 0 24 24" fill="#4A154B" aria-hidden="true">
+                <path
+                  d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"
+                />
+              </svg>
+              Slack
+            </button>
+            <button class="share-button imessage" onclick="shareOnIMessage()">
+              <svg viewBox="0 0 24 24" fill="#34C759" aria-hidden="true">
+                <path
+                  d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.546 20.2A1 1 0 0 0 3.8 21.454l3.032-.892A9.957 9.957 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.957 7.957 0 0 1-4.243-1.214l-.285-.174-2.24.658.658-2.24-.174-.285A7.957 7.957 0 0 1 4 12a8 8 0 1 1 8 8z"
+                />
+              </svg>
+              iMessage
+            </button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="referral-code-section">
+          <h3>Share your referral code</h3>
+          <div class="code-input-group">
+            <input
+              type="text"
+              class="code-input"
+              value="VZD2Y78N"
+              readonly
+            />
+            <button class="copy-btn" onclick="copyCode()">Copy</button>
+          </div>
+        </div>
+
+        <div class="email-section">
+          <h3>Send invites</h3>
+          <div class="email-input-group">
+            <input
+              type="email"
+              class="email-input"
+              placeholder="email@example.com"
+            />
+            <button class="send-btn">Send</button>
+          </div>
+        </div>
+
+        <p class="footnote">
+          *$40 in credits, applied towards your next subscription payment
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span id="toastMessage"></span>
+  </div>
+
+  <script>
+    const referralCode = "VZD2Y78N";
+
+    function shareOnTwitter() {
+      const message = `I've been using Littlebird to boost my productivity and it's been a game-changer! 🚀\n\nGet 2 months free ($40 credit) when you sign up with my code: ${referralCode}\n\nSign up here: https://littlebird.ai/download?ref=${referralCode}&utm_source=twitter&utm_medium=referral&utm_campaign=referral_program`;
+      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        message
+      )}`;
+      window.open(url, "_blank");
+      showToast("Opening Twitter...");
+      console.log("Event: referral_share_button_clicked", {
+        platform: "twitter",
+        referral_code: referralCode,
+      });
+    }
+
+    function shareOnSlack() {
+      const message = `Hey! I've been using Littlebird for productivity and wanted to share it with you.\n\nYou can get 2 months free (worth $40) when you sign up using my referral code: ${referralCode}\n\nSign up here: https://littlebird.ai/download?ref=${referralCode}&utm_source=slack&utm_medium=referral&utm_campaign=referral_program\n\nLet me know if you have any questions about it!`;
+      const url = `https://slack.com/intl/en-in/share?text=${encodeURIComponent(
+        message
+      )}`;
+      window.open(url, "_blank");
+      showToast("Opening Slack...");
+      console.log("Event: referral_share_button_clicked", {
+        platform: "slack",
+        referral_code: referralCode,
+      });
+    }
+
+    function shareOnIMessage() {
+      const message = `Hey! Check out Littlebird - it's helped me stay super productive.\n\nYou get 2 months free ($40 credit) when you sign up with my code: ${referralCode}\n\nSign up: https://littlebird.ai/download?ref=${referralCode}&utm_source=imessage&utm_medium=referral&utm_campaign=referral_program`;
+      const url = `sms:&body=${encodeURIComponent(message)}`;
+      window.location.href = url;
+      showToast("Opening iMessage...");
+      console.log("Event: referral_share_button_clicked", {
+        platform: "imessage",
+        referral_code: referralCode,
+      });
+    }
+
+    function copyCode() {
+      const codeInput = document.querySelector(".code-input");
+      codeInput.select();
+      document.execCommand("copy");
+      showToast("Referral code copied!");
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const toastMessage = document.getElementById("toastMessage");
+      toastMessage.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+
+    function closeModal() {
+      alert("Modal would close here");
+    }
+  </script>
+</body>
+</html>
+
