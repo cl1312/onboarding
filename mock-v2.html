@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emailzap — New UI</title>
+<style>
+/* ═══════════════════════════
+   DESIGN TOKENS
+═══════════════════════════ */
+:root {
+  --blue:       #1967d2;
+  --blue-lt:    #d3e3fd;
+  --blue-mid:   #1558b0;
+  --text:       #202124;
+  --text2:      #5f6368;
+  --text3:      #80868b;
+  --bg:         #ffffff;
+  --surface:    #f8f9fa;
+  --hover:      #f1f3f4;
+  --border:     #e0e0e0;
+  --border-lt:  #dadce0;
+  --danger:     #ea4335;
+  --danger-dk:  #d33426;
+  --important:  #fbbc04;
+  --success:    #34a853;
+  --nimp-bg:    #fce8e6;
+  --nimp-bd:    #f5c6c0;
+  --a1: #1a73e8; --a2: #34a853; --a3: #f9ab00;
+  --a4: #ea4335; --a5: #a142f4; --a6: #00bcd4;
+  /* AI accent */
+  --ai:    #6366f1;
+  --ai-lt: #f5f3ff;
+  --ai-mid:#4f46e5;
+  /* shadows */
+  --sh-sm: 0 1px 3px rgba(60,64,67,.15), 0 1px 2px rgba(60,64,67,.10);
+  --sh-md: 0 4px 16px rgba(0,0,0,.12);
+  --sh-lg: 0 8px 28px rgba(0,0,0,.18);
+  /* radii */
+  --r-xl:  20px;
+  --r-lg:  16px;
+  --r-md:  12px;
+  --r-sm:   8px;
+  --r-xs:   6px;
+  --r-pill: 24px;
+  --r-nav:  0 20px 20px 0;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Google Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* ═══════════════════════════
+   APP SHELL
+═══════════════════════════ */
+.app { display:flex; height:100vh; }
+
+/* ═══════════════════════════
+   SIDEBAR
+═══════════════════════════ */
+.sidebar {
+  width: 256px;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  overflow-y: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar { display:none; }
+
+.sb-head {
+  display: flex; align-items: center;
+  padding: 4px 14px 8px; gap: 10px;
+}
+.sb-hamburger {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--text2); cursor: pointer;
+}
+.sb-hamburger:hover { background: var(--hover); }
+.sb-logo { font-size: 20px; font-weight: 400; color: var(--text2); }
+.sb-logo .r { color: var(--danger); }
+.sb-logo .b { color: var(--a1); }
+.sb-logo .y { color: var(--a3); }
+.sb-logo .g { color: var(--success); }
+
+.compose-btn {
+  margin: 0 8px 8px;
+  background: var(--surface);
+  border: none; border-radius: var(--r-lg);
+  padding: 12px 20px 12px 16px;
+  font-size: 14px; font-weight: 500;
+  color: var(--text); cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  font-family: inherit;
+  transition: background 150ms, box-shadow 150ms;
+}
+.compose-btn:hover { background: #e8eaf6; box-shadow: var(--sh-sm); }
+
+.nav-item {
+  display: flex; align-items: center;
+  height: 36px; padding: 0 12px;
+  margin: 1px 0;
+  border-radius: var(--r-nav);
+  cursor: pointer; font-size: 14px;
+  color: var(--text); user-select: none;
+  transition: background 100ms; gap: 16px;
+}
+.nav-item:hover { background: var(--hover); }
+.nav-item.active { background: var(--blue-lt); font-weight: 700; }
+.ni-icon { font-size: 17px; color: var(--text2); width: 20px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+.nav-item.active .ni-icon { color: var(--blue); }
+.ni-label { flex: 1; }
+.ni-count { font-size: 13px; color: var(--text2); font-weight: 500; }
+
+.ai-row {
+  display: flex; align-items: center;
+  height: 36px; padding: 0 12px;
+  margin: 1px 0; border-radius: var(--r-nav);
+  cursor: pointer; font-size: 14px;
+  color: var(--text); user-select: none;
+  transition: background 100ms; gap: 16px;
+}
+.ai-row:hover { background: var(--hover); }
+.ai-row.active { background: var(--blue-lt); font-weight: 700; }
+.ai-row.active .ni-icon { color: var(--blue); }
+.ai-label { flex: 1; }
+.ai-count { font-size: 13px; color: var(--text2); font-weight: 500; }
+.ai-chev {
+  font-size: 11px; color: var(--text2);
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 200ms ease; flex-shrink: 0;
+}
+.ai-chev.open { transform: rotate(90deg); }
+
+.submenu { overflow: hidden; max-height: 0; transition: max-height 250ms ease; }
+.submenu.open { max-height: 400px; }
+.sub-item {
+  display: flex; align-items: center;
+  height: 34px; padding: 0 12px 0 44px;
+  margin: 1px 0; border-radius: var(--r-nav);
+  cursor: pointer; font-size: 13px;
+  color: var(--text); user-select: none;
+  transition: background 100ms; gap: 12px; position: relative;
+}
+.sub-item:hover { background: var(--hover); }
+.sub-item.active { background: var(--blue-lt); font-weight: 700; }
+.sub-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.sub-count { margin-left: auto; font-size: 13px; color: var(--text2); font-weight: 500; }
+.sub-x {
+  display: none; font-size: 13px; color: var(--text3);
+  padding: 2px 5px; border-radius: 4px; cursor: pointer;
+}
+.sub-item:hover .sub-x { display: flex; align-items: center; }
+.sub-x:hover { background: var(--border); color: var(--danger); }
+
+.add-acct-row {
+  display: flex; align-items: center;
+  height: 34px; padding: 0 12px 0 44px;
+  margin: 1px 0; border-radius: var(--r-nav);
+  cursor: pointer; font-size: 13px;
+  color: var(--blue); gap: 8px; transition: background 100ms;
+}
+.add-acct-row:hover { background: var(--hover); }
+
+.nav-divider { height: 1px; background: var(--border); margin: 6px 0; }
+
+/* ═══════════════════════════
+   CONTENT PANE
+═══════════════════════════ */
+.content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── TOP BAR (list mode) ── */
+.top-bar {
+  height: 56px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0;
+  transition: height 200ms ease;
+}
+/* email-open mode: back button visible, bar height unchanged */
+.top-bar-back {
+  display: none; align-items: center; gap: 6px;
+  font-size: 14px; font-weight: 500; color: var(--text2);
+  cursor: pointer; padding: 6px 12px; border-radius: var(--r-pill);
+  transition: background 100ms; white-space: nowrap; flex-shrink: 0;
+}
+.top-bar-back:hover { background: var(--hover); color: var(--text); }
+.top-bar.email-open .top-bar-back { display: flex; }
+
+/* Detail pane subject header — Gmail-style: back · subject · label/nimp */
+.detail-header {
+  display: flex; align-items: center;
+  padding: 14px 24px 0; gap: 12px; flex-shrink: 0;
+}
+.detail-header-subj {
+  font-size: 20px; font-weight: 600; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  flex: 1; min-width: 0;
+}
+/* Not-important badge in detail header */
+.dh-nimp {
+  display: none;
+  align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  background: var(--nimp-bg); border: 1px solid var(--nimp-bd);
+  font-size: 12px; font-weight: 500; color: var(--danger);
+  cursor: pointer; transition: background 100ms; flex-shrink: 0;
+}
+.dh-nimp:hover { background: #f5c6c0; }
+.dh-nimp.on { display: inline-flex; }
+.dh-add-nimp {
+  display: none;
+  align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  background: var(--surface); border: 1px solid var(--border-lt);
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  cursor: pointer; transition: background 100ms; flex-shrink: 0;
+}
+.dh-add-nimp:hover { background: var(--hover); }
+.dh-add-nimp.on { display: inline-flex; }
+
+.search-wrap {
+  flex: 1; max-width: 720px;
+  display: flex; align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border-lt);
+  border-radius: var(--r-pill);
+  height: 44px; padding: 0 16px; gap: 10px;
+  transition: border-color 150ms, box-shadow 150ms, max-width 200ms;
+}
+/* search bar is unchanged when email is open */
+.search-wrap:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(25,103,210,.10);
+}
+.search-icon { font-size: 15px; color: var(--text2); flex-shrink: 0; }
+.search-input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 14px; color: var(--text); font-family: inherit;
+}
+.search-input::placeholder { color: var(--text3); }
+.search-clear {
+  display: none; font-size: 16px; color: var(--text3);
+  cursor: pointer; width: 22px; height: 22px;
+  align-items: center; justify-content: center;
+  border-radius: 50%; transition: background 100ms;
+}
+.search-clear:hover { background: var(--hover); color: var(--text2); }
+.search-clear.on { display: flex; }
+
+/* Settings pill button */
+.settings-btn {
+  display: flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border-lt);
+  border-radius: var(--r-pill);
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  font-family: inherit; transition: background 100ms, border-color 100ms;
+}
+.settings-btn:hover { background: var(--hover); border-color: var(--text3); color: var(--text); }
+.settings-btn .sb-gear { font-size: 14px; }
+
+/* Toolbar */
+.toolbar {
+  height: 42px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px; flex-shrink: 0;
+}
+.tl-left { display: flex; align-items: center; gap: 8px; }
+.tl-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+.tl-btn {
+  font-size: 13px; color: var(--text2);
+  cursor: pointer; padding: 4px 8px;
+  border-radius: var(--r-xs);
+  transition: background 100ms, color 100ms; user-select: none;
+}
+.tl-btn:hover { background: var(--hover); color: var(--text); }
+.tl-btn.armed { color: var(--blue); font-weight: 500; }
+.tl-right { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+.pag-lbl { font-size: 13px; color: var(--text2); margin-right: 4px; }
+.pag-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text2); cursor: pointer;
+  transition: background 100ms;
+}
+.pag-btn:hover { background: var(--hover); }
+
+/* Filter bar */
+.filter-tabs {
+  height: 40px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: stretch;
+  padding: 0 12px; flex-shrink: 0;
+  position: relative;
+}
+
+/* Filter tabs — All | Important | Not Important */
+.ftab {
+  padding: 0 16px; font-size: 13px; font-weight: 500;
+  color: var(--text2); cursor: pointer;
+  display: flex; align-items: center; gap: 6px; user-select: none;
+  height: 100%;
+  border-bottom: 2.5px solid transparent;
+  transition: color 150ms, border-color 150ms;
+  white-space: nowrap;
+}
+.ftab:hover { color: var(--text); }
+.ftab.fa { color: var(--blue);   border-bottom-color: var(--blue);   font-weight: 600; }
+.ftab.fi { color: #b45309;       border-bottom-color: #b45309;       font-weight: 600; }
+.ftab.fn { color: var(--danger); border-bottom-color: var(--danger); font-weight: 600; }
+
+.ftab-badge {
+  font-size: 11px; font-weight: 700;
+  background: var(--danger); color: #fff;
+  border-radius: 10px; padding: 1px 6px; line-height: 1.4;
+}
+
+/* Labels dropdown trigger */
+.labels-trigger {
+  padding: 0 14px; font-size: 13px; font-weight: 500;
+  color: var(--text2); cursor: pointer;
+  display: flex; align-items: center; gap: 5px; user-select: none;
+  border-bottom: 2.5px solid transparent;
+  transition: color 150ms; white-space: nowrap;
+}
+.labels-trigger:hover { color: var(--text); }
+.labels-trigger.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+.labels-trigger .lbl-clear {
+  font-size: 14px; line-height: 1; margin-left: 2px;
+  color: var(--text3); transition: color 100ms;
+}
+.labels-trigger .lbl-clear:hover { color: var(--danger); }
+
+/* Labels popover */
+.labels-popover {
+  position: absolute; top: calc(100% + 4px); right: 0;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--r-md); box-shadow: var(--sh-md);
+  min-width: 200px; max-height: 280px; overflow-y: auto;
+  z-index: 50; padding: 8px;
+  display: none;
+}
+.labels-popover.on { display: block; }
+.lp-header {
+  font-size: 11px; font-weight: 500; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .08em;
+  padding: 4px 8px 8px;
+}
+.lp-item {
+  display: flex; align-items: center; gap: 8px;
+  height: 34px; padding: 0 8px; border-radius: var(--r-xs);
+  cursor: pointer; font-size: 13px; color: var(--text);
+  transition: background 100ms;
+}
+.lp-item:hover { background: var(--hover); }
+.lp-item.active { background: var(--blue-lt); color: var(--blue); font-weight: 600; }
+.lp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.lp-more { font-size: 12px; color: var(--text2); padding: 4px 8px; cursor: pointer; }
+.lp-more:hover { text-decoration: underline; }
+
+/* CTA bar */
+.cta-bar {
+  display: none; height: 42px;
+  background: var(--nimp-bg); border-bottom: 1px solid var(--nimp-bd);
+  align-items: center; padding: 0 20px; gap: 12px; flex-shrink: 0;
+}
+.cta-bar.on { display: flex; }
+.cta-txt { font-size: 13px; color: var(--danger-dk); font-weight: 500; flex: 1; }
+.cta-btn {
+  height: 30px; padding: 0 14px; border-radius: var(--r-sm);
+  background: var(--danger); color: #fff;
+  border: none; font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: background 100ms;
+}
+.cta-btn:hover { background: var(--danger-dk); }
+
+/* ═══════════════════════════
+   SPLIT PANE
+═══════════════════════════ */
+.split { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+
+/* EMAIL LIST */
+.list-pane {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; min-width: 0;
+}
+.email-list { flex: 1; overflow-y: auto; padding: 0; }
+
+/* Gmail-style compact rows */
+.erow {
+  display: flex; align-items: center;
+  height: 40px; padding: 0 16px 0 8px;
+  cursor: pointer;
+  gap: 0; position: relative;
+  transition: background 100ms;
+}
+.erow:hover {
+  background: var(--hover);
+  box-shadow: inset 1px 0 0 var(--border-lt), inset -1px 0 0 var(--border-lt),
+              0 1px 3px rgba(60,64,67,.12);
+  z-index: 1;
+}
+.erow.sel  { background: var(--blue-lt); }
+.erow.open { background: var(--blue-lt); border-left: 3px solid var(--blue); }
+.erow.read .er-sender { font-weight: 400; color: var(--text2); }
+.erow.read .er-subj   { font-weight: 400; }
+.erow.read .er-subj-text   { font-weight: 400; }
+
+/* Left action icons: star and importance marker */
+.er-star {
+  font-size: 15px; color: var(--border-lt); cursor: pointer;
+  flex-shrink: 0; transition: color 150ms; line-height: 1;
+  width: 24px; text-align: center; margin-right: 2px;
+}
+.er-star.on { color: var(--important); }
+.erow:hover .er-star { color: var(--text3); }
+
+.er-imp-marker {
+  font-size: 13px; color: var(--important); flex-shrink: 0;
+  width: 20px; text-align: center; margin-right: 2px;
+}
+.er-imp-marker.hidden-marker { visibility: hidden; }
+
+/* Avatar */
+.er-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+  margin-right: 10px;
+}
+
+/* Sender col — fixed width like Gmail */
+.er-sender {
+  font-size: 13.5px; font-weight: 700; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  width: 160px; flex-shrink: 0; margin-right: 8px;
+}
+.erow.read .er-sender { font-weight: 400; }
+
+/* Middle: nimp badge + subject + preview */
+.er-body { flex: 1; min-width: 0; overflow: hidden; display: flex; align-items: baseline; gap: 6px; }
+
+.nimp-badge {
+  font-size: 11px; font-weight: 600;
+  background: var(--danger); color: #fff;
+  border-radius: 20px; padding: 2px 8px; white-space: nowrap;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+.er-subj-text {
+  font-size: 13.5px; font-weight: 600; white-space: nowrap;
+  flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 340px;
+}
+.erow.read .er-subj-text { font-weight: 400; }
+
+.er-sep { color: var(--text3); font-size: 13px; flex-shrink: 0; margin: 0 1px; }
+.er-prev {
+  font-size: 13px; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+
+/* Right: time + hover toggle */
+.er-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-left: 12px; position: relative; }
+.er-time { font-size: 12px; color: var(--text2); white-space: nowrap; }
+
+/* Hover importance toggle button — replaces/overlays time on hover */
+.er-label-toggle {
+  display: none;
+  align-items: center; gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 80ms;
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+}
+.erow:hover .er-label-toggle { display: flex; }
+.erow:hover .er-time { visibility: hidden; }
+
+/* "Mark not important" — outlined red (for important/neutral emails) */
+.er-label-toggle.mark-nimp {
+  background: #fff;
+  border: 1.5px solid var(--danger);
+  color: var(--danger);
+}
+.er-label-toggle.mark-nimp:hover { background: var(--nimp-bg); }
+
+/* "Mark important" — outlined green (for not-important emails) */
+.er-label-toggle.mark-imp {
+  background: #fff;
+  border: 1.5px solid var(--success);
+  color: #1e6b35;
+}
+.er-label-toggle.mark-imp:hover { background: #e6f4ea; }
+
+/* ═══════════════════════════
+   EMAIL DETAIL — full pane
+═══════════════════════════ */
+.detail-pane {
+  flex: 1; display: none; flex-direction: column;
+  background: var(--bg); overflow: hidden;
+}
+.detail-pane.on { display: flex; }
+
+/* Detail body area + AI sidebar side by side */
+.detail-body-wrap { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+
+/* Scrollable email content */
+.detail-scroll { flex: 1; overflow-y: auto; }
+
+.detail-meta {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.meta-av {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.meta-info { flex: 1; min-width: 0; }
+.meta-name  { font-size: 15px; font-weight: 700; }
+.meta-email { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.meta-to    { font-size: 13px; color: var(--text3); margin-top: 2px; }
+.meta-time  { font-size: 12px; color: var(--text2); white-space: nowrap; flex-shrink: 0; }
+
+.detail-body {
+  padding: 24px; font-size: 14px;
+  line-height: 1.75; color: var(--text);
+}
+.detail-body p { margin-bottom: 14px; }
+.detail-body p:last-child { margin-bottom: 0; }
+
+/* Reply + action bar */
+.reply-bar {
+  height: 54px; background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 8px; flex-shrink: 0;
+}
+.action-btn {
+  height: 32px; padding: 0 12px;
+  border: 1.5px solid var(--border-lt);
+  border-radius: var(--r-sm); background: var(--bg);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: inherit; color: var(--text2);
+  display: flex; align-items: center; gap: 5px;
+  transition: background 100ms, color 100ms;
+}
+.action-btn:hover { background: var(--hover); color: var(--text); }
+.action-btn.danger:hover { background: var(--nimp-bg); color: var(--danger); border-color: var(--danger); }
+.bar-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; margin: 0 4px; }
+.reply-btn {
+  height: 34px; padding: 0 18px;
+  border: 1.5px solid var(--border-lt);
+  border-radius: var(--r-sm); background: var(--bg);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  font-family: inherit; color: var(--text);
+  transition: background 100ms;
+}
+.reply-btn:hover { background: var(--hover); }
+.reply-btn.primary {
+  background: var(--blue); border-color: var(--blue); color: #fff;
+}
+.reply-btn.primary:hover { background: var(--blue-mid); }
+
+/* ═══════════════════════════
+   AI SIDEBAR — indigo personality
+═══════════════════════════ */
+.ai-side {
+  width: 300px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden; flex-shrink: 0;
+  position: relative;
+}
+/* Gradient top accent bar */
+.ai-side::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #0066ff);
+  z-index: 1;
+}
+
+.ai-head {
+  height: 52px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 16px; flex-shrink: 0; gap: 8px;
+  background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%);
+  margin-top: 3px; /* below accent bar */
+}
+.ai-head-title {
+  font-size: 14px; font-weight: 600; flex: 1;
+  display: flex; align-items: center; gap: 6px;
+  color: var(--ai);
+}
+.ai-spark { font-size: 16px; }
+
+/* Quick action pills */
+.ai-pills {
+  padding: 14px 14px 10px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+.ai-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px;
+  background: var(--bg);
+  border: 1.5px solid var(--border-lt);
+  border-radius: var(--r-md);
+  font-size: 13px; font-weight: 500; color: var(--text);
+  cursor: pointer;
+  transition: background 100ms, border-color 100ms, box-shadow 100ms;
+}
+.ai-pill:hover {
+  background: var(--ai-lt);
+  border-color: var(--ai);
+  color: var(--ai);
+  box-shadow: var(--sh-sm);
+}
+.ai-pill-icon { font-size: 15px; flex-shrink: 0; }
+.ai-pill.fired {
+  background: var(--ai-lt);
+  border-color: var(--ai);
+  color: var(--ai);
+}
+
+/* Chat area */
+.ai-chat { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.chat-msgs {
+  flex: 1; overflow-y: auto;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.chat-msg { display: flex; flex-direction: column; gap: 4px; }
+.chat-lbl { font-size: 10px; color: var(--text3); padding: 0 4px; letter-spacing: .04em; }
+.chat-lbl.r { text-align: right; }
+.chat-bubble {
+  padding: 9px 12px; border-radius: 14px;
+  font-size: 13px; line-height: 1.5; max-width: 92%;
+}
+.chat-bubble.ai {
+  background: var(--bg); border: 1px solid var(--border-lt);
+  color: var(--text); align-self: flex-start;
+  border-radius: 4px 14px 14px 14px;
+}
+.chat-bubble.user {
+  background: var(--ai); color: #fff;
+  align-self: flex-end;
+  border-radius: 14px 14px 4px 14px;
+}
+
+/* Reply editor (after generate reply) */
+.reply-editor {
+  background: var(--bg); border: 1.5px solid var(--border-lt);
+  border-radius: var(--r-sm); padding: 10px 12px; margin-top: 6px;
+}
+.reply-editor textarea {
+  width: 100%; border: none; outline: none;
+  font-size: 13px; line-height: 1.5; resize: vertical;
+  min-height: 80px; font-family: inherit; color: var(--text);
+  background: transparent;
+}
+.reply-editor-actions {
+  display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px;
+}
+.re-btn {
+  height: 28px; padding: 0 12px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit;
+  transition: background 100ms;
+}
+.re-btn.ghost { background: none; border: none; color: var(--text2); }
+.re-btn.ghost:hover { background: var(--hover); color: var(--text); }
+.re-btn.outlined { background: var(--bg); border: 1.5px solid var(--border-lt); color: var(--text2); }
+.re-btn.outlined:hover { background: var(--hover); }
+.re-btn.primary { background: var(--ai); border: none; color: #fff; }
+.re-btn.primary:hover { background: var(--ai-mid); }
+
+/* Reminder options */
+.reminder-opts {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 8px 0; margin-top: 4px;
+}
+.rm-chip {
+  height: 28px; padding: 0 12px; border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  background: var(--surface); border: 1.5px solid var(--border-lt);
+  color: var(--text2); font-family: inherit;
+  transition: background 100ms, border-color 100ms, color 100ms;
+}
+.rm-chip:hover { background: var(--ai-lt); border-color: var(--ai); color: var(--ai); }
+.rm-custom-wrap { width: 100%; margin-top: 4px; }
+.rm-custom-wrap input[type="datetime-local"] {
+  width: 100%; height: 34px; padding: 0 10px;
+  border: 1.5px solid var(--border-lt); border-radius: var(--r-sm);
+  font-size: 12px; font-family: inherit; outline: none; background: var(--bg);
+  transition: border-color 150ms;
+}
+.rm-custom-wrap input:focus { border-color: var(--ai); }
+
+/* Delete scope options */
+.delete-opts { display: flex; gap: 8px; padding: 8px 0; margin-top: 4px; }
+.del-scope-btn {
+  flex: 1; height: 32px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  background: var(--bg); border: 1.5px solid var(--border-lt);
+  color: var(--text2); font-family: inherit;
+  transition: background 100ms, border-color 100ms, color 100ms;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 8px;
+}
+.del-scope-btn:hover { background: var(--nimp-bg); border-color: var(--danger); color: var(--danger); }
+
+/* Compose workflow input */
+.chat-compose {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.chat-compose-lbl {
+  font-size: 11px; color: var(--text3); margin-bottom: 6px;
+  letter-spacing: .04em; text-transform: uppercase; font-weight: 500;
+}
+.chat-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.chat-input {
+  flex: 1; height: 36px; padding: 0 14px;
+  background: var(--bg); border: 1.5px solid var(--border-lt);
+  border-radius: var(--r-pill); font-size: 13px;
+  color: var(--text); font-family: inherit; outline: none;
+  transition: border-color 150ms;
+}
+.chat-input:focus { border-color: var(--ai); }
+.chat-input::placeholder { color: var(--text3); }
+.chat-send {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--ai); border: none; cursor: pointer;
+  font-size: 15px; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 100ms; flex-shrink: 0;
+}
+.chat-send:hover { background: var(--ai-mid); }
+
+/* ═══════════════════════════
+   SEARCH VIEW — full overlay
+═══════════════════════════ */
+.search-view {
+  flex: 1; display: none; flex-direction: column;
+  overflow: hidden; min-height: 0;
+}
+.search-view.on { display: flex; }
+
+.sv-inner {
+  flex: 1; overflow-y: auto; padding: 20px 24px;
+}
+
+/* AI answer card */
+.ai-answer-card {
+  background: var(--ai-lt);
+  border: 1.5px solid #c7d2fe;
+  border-radius: var(--r-md);
+  padding: 16px 20px; margin-bottom: 20px;
+  position: relative;
+}
+.ai-answer-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: var(--r-md) var(--r-md) 0 0;
+}
+.aac-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.aac-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; color: var(--ai);
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.aac-query {
+  font-size: 13px; color: var(--text3);
+  font-style: italic;
+}
+.aac-answer {
+  font-size: 14px; line-height: 1.7; color: var(--text);
+  margin-bottom: 10px;
+}
+.aac-footer {
+  font-size: 12px; color: var(--text3);
+}
+
+/* Citations list */
+.sv-section-lbl {
+  font-size: 11px; font-weight: 500; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .08em;
+  margin-bottom: 8px;
+}
+.citation-row {
+  display: flex; align-items: center;
+  min-height: 52px; padding: 8px 12px;
+  border-radius: var(--r-xs); cursor: pointer;
+  gap: 10px; position: relative;
+  transition: background 100ms;
+  margin-bottom: 1px;
+}
+.citation-row:hover { background: var(--hover); }
+.cit-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--ai-lt); border: 1px solid #c7d2fe;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--ai);
+  flex-shrink: 0;
+}
+.cit-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.cit-body { flex: 1; min-width: 0; }
+.cit-top { display: flex; align-items: baseline; gap: 5px; overflow: hidden; }
+.cit-sender {
+  font-size: 13px; font-weight: 600; white-space: nowrap;
+  flex-shrink: 0;
+}
+.cit-subj {
+  font-size: 13px; font-weight: 400; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  color: var(--text2);
+}
+.cit-time { font-size: 12px; color: var(--text2); white-space: nowrap; flex-shrink: 0; }
+
+/* ═══════════════════════════
+   GMAIL NATIVE VIEW
+═══════════════════════════ */
+.gmail-view { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.gmail-hd {
+  height: 64px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 24px; gap: 14px;
+}
+.gmail-search {
+  flex: 1; max-width: 720px;
+  display: flex; align-items: center;
+  background: var(--surface); border-radius: var(--r-pill);
+  height: 44px; padding: 0 18px; gap: 10px;
+}
+.gmail-search input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 15px; font-family: inherit;
+}
+.gmail-tabs {
+  display: flex; border-bottom: 1px solid var(--border); padding: 0 24px;
+}
+.gtab {
+  padding: 0 18px; height: 52px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; color: var(--text2); cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+.gtab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.gtab-badge { font-size: 12px; padding: 1px 7px; border-radius: 10px; font-weight: 600; color: #fff; }
+.gmail-row {
+  display: flex; align-items: center; height: 52px;
+  padding: 0 24px; gap: 14px; cursor: pointer;
+  border-bottom: 1px solid var(--border-lt); font-size: 14px;
+}
+.gmail-row:hover { background: var(--hover); }
+.gsender { width: 170px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.gsubj { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.gtime { font-size: 12px; color: var(--text2); flex-shrink: 0; }
+
+/* ═══════════════════════════
+   SETTINGS PANEL
+═══════════════════════════ */
+.sp-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.18);
+  z-index: 100; opacity: 0; pointer-events: none;
+  transition: opacity 150ms;
+}
+.sp-backdrop.on { opacity: 1; pointer-events: all; }
+
+.sp-panel {
+  position: fixed; top: 12px; right: 12px; bottom: 12px;
+  width: 400px; background: var(--bg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-lg);
+  z-index: 101; display: flex; flex-direction: column;
+  transform: translateX(calc(100% + 20px));
+  transition: transform 250ms ease-out; overflow: hidden;
+}
+.sp-panel.on { transform: translateX(0); }
+
+.sp-head {
+  height: 56px; display: flex; align-items: center;
+  padding: 0 16px; border-bottom: 1px solid var(--border);
+  gap: 10px; flex-shrink: 0;
+}
+.sp-back {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; color: var(--text2); cursor: pointer;
+}
+.sp-back:hover { background: var(--hover); }
+.sp-title { font-size: 16px; font-weight: 600; flex: 1; }
+.sp-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; color: var(--text2); cursor: pointer;
+}
+.sp-close:hover { background: var(--hover); }
+
+.sp-body { flex: 1; overflow-y: auto; padding: 8px 16px 24px; }
+
+.sp-sec { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin: 20px 0 8px; }
+.sp-sec:first-child { margin-top: 8px; }
+.sp-sec.red { color: var(--danger); }
+
+.sp-row {
+  display: flex; align-items: center;
+  padding: 11px 10px; gap: 12px; cursor: pointer;
+  border-radius: var(--r-xs);
+  border-bottom: 1px solid var(--border-lt);
+  transition: background 100ms;
+}
+.sp-row:last-child { border-bottom: none; }
+.sp-row:hover { background: var(--hover); }
+.sp-icon { font-size: 18px; width: 24px; flex-shrink: 0; }
+.sp-content { flex: 1; min-width: 0; }
+.sp-label { font-size: 14px; font-weight: 500; }
+.sp-label.red { color: var(--danger); }
+.sp-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.sp-chev { font-size: 14px; color: var(--text3); }
+
+.toggle {
+  width: 38px; height: 22px; background: var(--border);
+  border-radius: 11px; position: relative;
+  cursor: pointer; transition: background 200ms; flex-shrink: 0;
+}
+.toggle.on { background: var(--blue); }
+.toggle::after {
+  content: ''; position: absolute;
+  width: 18px; height: 18px; border-radius: 50%; background: #fff;
+  top: 2px; left: 2px; transition: transform 200ms;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.toggle.on::after { transform: translateX(16px); }
+
+.acct-card {
+  background: var(--surface); border-radius: var(--r-xs);
+  padding: 12px 14px; display: flex; align-items: center;
+  gap: 10px; margin-bottom: 8px;
+}
+.acct-card:hover .remove-lnk { opacity: 1; }
+.acct-av {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.acct-info { flex: 1; min-width: 0; }
+.acct-em { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.primary-tag {
+  font-size: 11px; font-weight: 500; color: var(--blue);
+  background: var(--blue-lt); border-radius: 10px;
+  padding: 2px 8px; white-space: nowrap;
+}
+.remove-lnk { opacity: 0; font-size: 12px; color: var(--danger); cursor: pointer; padding: 3px 8px; border-radius: 4px; transition: opacity 100ms; }
+.remove-lnk:hover { background: #fce8e6; }
+.add-acct {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; color: var(--blue); cursor: pointer;
+  padding: 10px 0; background: none; border: none;
+  font-family: inherit; font-weight: 500;
+}
+.add-acct:hover { text-decoration: underline; }
+
+.sp-view { display: none; flex-direction: column; }
+.sp-view.on { display: flex; }
+
+.auto-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--r-xs); padding: 14px; margin-bottom: 10px;
+  border-left: 3px solid var(--border);
+  transition: box-shadow 150ms;
+}
+.auto-card.a { border-left-color: var(--blue); }
+.auto-card.i { opacity: .6; }
+.auto-card:hover { box-shadow: var(--sh-sm); }
+.auto-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+.auto-ic { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.auto-title { font-size: 14px; font-weight: 600; flex: 1; }
+.auto-desc { font-size: 13px; color: var(--text2); line-height: 1.4; margin-bottom: 6px; }
+.auto-rule { font-size: 12px; color: var(--text3); }
+.auto-foot { display: flex; justify-content: flex-end; margin-top: 10px; }
+.auto-sec {
+  font-size: 11px; font-weight: 500; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .08em;
+  margin: 14px 0 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.new-auto { font-size: 13px; color: var(--blue); cursor: pointer; background: none; border: none; font-family: inherit; font-weight: 500; }
+.new-auto:hover { text-decoration: underline; }
+
+/* Dialogs */
+.dlg-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.4);
+  z-index: 200; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 150ms;
+}
+.dlg-bg.on { opacity: 1; pointer-events: all; }
+.dlg {
+  background: var(--bg); border-radius: var(--r-lg);
+  box-shadow: var(--sh-lg); width: 460px; padding: 28px;
+  transform: scale(.96); transition: transform 200ms ease-out;
+}
+.dlg-bg.on .dlg { transform: scale(1); }
+.dlg-icon { font-size: 28px; margin-bottom: 12px; }
+.dlg-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.dlg-body { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 24px; }
+.dlg-body ul { padding-left: 18px; margin: 8px 0; }
+.dlg-body li { margin-bottom: 4px; }
+.dlg-notice { margin-top: 12px; padding: 10px 14px; background: var(--surface); border-radius: var(--r-xs); font-size: 13px; color: var(--text); }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.btn-cancel {
+  height: 36px; padding: 0 16px; border-radius: var(--r-sm);
+  background: var(--hover); color: var(--text);
+  border: none; font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: background 100ms;
+}
+.btn-cancel:hover { background: var(--border); }
+.btn-danger {
+  height: 36px; padding: 0 16px; border-radius: var(--r-sm);
+  background: var(--danger); color: #fff; border: none;
+  font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit;
+  transition: background 100ms;
+}
+.btn-danger:hover { background: var(--danger-dk); }
+.btn-danger:disabled { background: var(--hover); color: var(--text3); cursor: not-allowed; }
+.btn-next {
+  height: 36px; padding: 0 16px; border-radius: var(--r-sm);
+  background: var(--danger); color: #fff; border: none;
+  font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit;
+  transition: background 100ms;
+}
+.btn-next:hover { background: var(--danger-dk); }
+.conf-lbl { font-size: 14px; margin-bottom: 8px; }
+.conf-lbl strong { color: var(--danger); }
+.conf-inp {
+  width: 100%; height: 40px; padding: 0 14px;
+  border: 1.5px solid var(--border-lt); border-radius: var(--r-sm);
+  font-size: 14px; font-family: inherit; outline: none; margin-bottom: 24px;
+  transition: border-color 150ms;
+}
+.conf-inp:focus { border-color: var(--danger); }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-head">
+    <div class="sb-hamburger">☰</div>
+    <div class="sb-logo"><span class="r">G</span><span class="b">m</span><span class="y">a</span><span class="g">il</span></div>
+  </div>
+
+  <button class="compose-btn">
+    <span style="font-size:17px">✏</span> Compose
+  </button>
+
+  <div class="nav-item" id="nav-inbox" onclick="go('inbox')">
+    <span class="ni-icon">📥</span><span class="ni-label">Inbox</span><span class="ni-count">24</span>
+  </div>
+
+  <!-- Emailzap injection -->
+  <div class="ai-row active" id="nav-all" onclick="handleAll()">
+    <span class="ni-icon" style="color:var(--blue)">⊞</span>
+    <span class="ai-label">All Inboxes</span>
+    <span class="ai-count" id="ai-total">1,320</span>
+    <span class="ai-chev open" id="ai-chev" onclick="event.stopPropagation();toggleSub()">›</span>
+  </div>
+
+  <div class="submenu open" id="ai-sub">
+    <div class="sub-item" id="s0" onclick="go('a0')">
+      <div class="sub-dot" style="background:var(--a1)"></div>
+      <span style="flex:1">Studiomgmt</span>
+      <span class="sub-count">1,057</span>
+      <span class="sub-x" onclick="event.stopPropagation();showRm('studiomgmt@gmail.com')">✕</span>
+    </div>
+    <div class="sub-item" id="s1" onclick="go('a1')">
+      <div class="sub-dot" style="background:var(--a2)"></div>
+      <span style="flex:1">Littlebird</span>
+      <span class="sub-count">89</span>
+      <span class="sub-x" onclick="event.stopPropagation();showRm('hi@littlebird.ai')">✕</span>
+    </div>
+    <div class="sub-item" id="s2" onclick="go('a2')">
+      <div class="sub-dot" style="background:var(--a4)"></div>
+      <span style="flex:1">Zenset</span>
+      <span class="sub-count">42</span>
+      <span class="sub-x" onclick="event.stopPropagation();showRm('me@zenset.co')">✕</span>
+    </div>
+    <div class="sub-item" id="s3" onclick="go('a3')">
+      <div class="sub-dot" style="background:var(--a3)"></div>
+      <span style="flex:1">Shah.naman</span>
+      <span class="sub-count">96</span>
+      <span class="sub-x" onclick="event.stopPropagation();showRm('naman@shah.com')">✕</span>
+    </div>
+    <div class="sub-item" id="s4" onclick="go('a4')">
+      <div class="sub-dot" style="background:var(--a5)"></div>
+      <span style="flex:1">Amiravoyages</span>
+      <span class="sub-count">23</span>
+      <span class="sub-x" onclick="event.stopPropagation();showRm('hi@amiravoyages.com')">✕</span>
+    </div>
+    <div class="add-acct-row"><span>＋</span><span>Add / manage accounts</span></div>
+  </div>
+
+  <div class="nav-divider"></div>
+  <div class="nav-item"><span class="ni-icon">★</span><span class="ni-label">Starred</span></div>
+  <div class="nav-item"><span class="ni-icon">⏰</span><span class="ni-label">Snoozed</span></div>
+  <div class="nav-item"><span class="ni-icon">📤</span><span class="ni-label">Sent</span></div>
+  <div class="nav-item"><span class="ni-icon">📝</span><span class="ni-label">Drafts</span><span class="ni-count">20</span></div>
+  <div class="nav-item"><span class="ni-icon">⋯</span><span class="ni-label">More</span></div>
+</nav>
+
+<!-- ══════════ EMAILZAP CONTENT ══════════ -->
+<div class="content" id="ez-content">
+
+  <!-- Top bar — context-aware (list vs email-open) -->
+  <div class="top-bar" id="top-bar">
+    <!-- Back button — visible only in email-open mode -->
+    <div class="top-bar-back" id="tb-back" onclick="closeEmail()">← Back to Inbox</div>
+
+    <!-- Search bar (always visible, resizes in email-open mode) -->
+    <div class="search-wrap" id="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="search-input" type="text"
+        placeholder="Search all inboxes…"
+        oninput="onSearchInput(this.value)"
+        onkeydown="if(event.key==='Enter')doSearch(this.value)">
+      <span class="search-clear" id="search-clear" onclick="clearSearch()">✕</span>
+    </div>
+
+    <!-- Settings button (always visible) -->
+    <button class="settings-btn" onclick="openSP()">
+      <span class="sb-gear">⚙</span> Settings
+    </button>
+  </div>
+
+  <!-- Toolbar (hidden when email open) -->
+  <div class="toolbar" id="toolbar">
+    <div class="tl-left">
+      <input type="checkbox" id="cb-all" style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer" onchange="selAll(this)">
+      <span class="tl-btn" onclick="clickSelAll()">Select All</span>
+      <div class="tl-sep"></div>
+      <span class="tl-btn" id="mark-read" onclick="markRead()">Mark as Read</span>
+    </div>
+    <div class="tl-right">
+      <span class="pag-lbl">1–20 of 1,320</span>
+      <div class="pag-btn">‹</div>
+      <div class="pag-btn">›</div>
+    </div>
+  </div>
+
+  <!-- Filter bar (hidden when email open) -->
+  <div class="filter-tabs" id="ftabs-wrap">
+    <div class="ftab fa" id="tab-all"  onclick="setF('all')">All</div>
+    <div class="ftab"    id="tab-imp"  onclick="setF('imp')">Important</div>
+    <div class="ftab"    id="tab-nimp" onclick="setF('nimp')">Not Important</div>
+    <!-- Labels dropdown -->
+    <div class="labels-trigger" id="labels-trigger" onclick="toggleLabels()">
+      <span id="lbl-trigger-text">Labels ▾</span>
+    </div>
+    <!-- Labels popover -->
+    <div class="labels-popover" id="labels-popover">
+      <div class="lp-header">Your Labels</div>
+      <div class="lp-item" onclick="setLabel('Work')"><span class="lp-dot" style="background:#1a73e8"></span>Work</div>
+      <div class="lp-item" onclick="setLabel('Personal')"><span class="lp-dot" style="background:#34a853"></span>Personal</div>
+      <div class="lp-item" onclick="setLabel('Finance')"><span class="lp-dot" style="background:#f9ab00"></span>Finance</div>
+      <div class="lp-item" onclick="setLabel('Travel')"><span class="lp-dot" style="background:#a142f4"></span>Travel</div>
+      <div class="lp-item" onclick="setLabel('Receipts')"><span class="lp-dot" style="background:#00bcd4"></span>Receipts</div>
+      <div class="lp-item" onclick="setLabel('-Zapped')"><span class="lp-dot" style="background:#ea4335"></span>-Zapped</div>
+      <div class="lp-item" onclick="setLabel('Newsletters')"><span class="lp-dot" style="background:#5f6368"></span>Newsletters</div>
+      <div class="lp-item" onclick="setLabel('Invoices')"><span class="lp-dot" style="background:#1558b0"></span>Invoices</div>
+    </div>
+  </div>
+
+  <!-- CTA bar (hidden — replaced by inline CTA in filter bar) -->
+  <div class="cta-bar hidden" id="cta-bar">
+    <span class="cta-txt">⚠ Move all not important emails out of inbox</span>
+    <button class="cta-btn">Move</button>
+  </div>
+
+  <!-- Split: list OR detail (full width) -->
+  <div class="split" id="split-area">
+
+    <!-- EMAIL LIST -->
+    <div class="list-pane" id="list-pane">
+      <div class="email-list" id="email-list"></div>
+    </div>
+
+    <!-- EMAIL DETAIL — full width, hides list -->
+    <div class="detail-pane" id="detail-pane">
+
+      <div class="detail-body-wrap">
+        <!-- Email content -->
+        <div class="detail-scroll">
+
+          <!-- Subject header — Gmail-style: subject + nimp pill, scoped to email column only -->
+          <div class="detail-header">
+            <div class="detail-header-subj" id="det-subj"></div>
+            <div class="dh-nimp" id="dh-nimp" onclick="toggleNimpFromDetail()">🔴 Not Important ✕</div>
+            <div class="dh-add-nimp" id="dh-add-nimp" onclick="toggleNimpFromDetail()">+ Mark not important</div>
+          </div>
+
+          <div class="detail-meta">
+            <div class="meta-av" id="det-av">S</div>
+            <div class="meta-info">
+              <div class="meta-name"  id="det-name">Sender</div>
+              <div class="meta-email" id="det-email">sender@email.com</div>
+              <div class="meta-to">to me</div>
+            </div>
+            <div class="meta-time" id="det-time">2:30 PM</div>
+          </div>
+          <div class="detail-body" id="det-body"><p>Loading…</p></div>
+        </div>
+
+        <!-- AI sidebar -->
+        <div class="ai-side">
+          <div class="ai-head">
+            <div class="ai-head-title">
+              <span class="ai-spark">✨</span> EmailZap AI
+            </div>
+          </div>
+
+          <!-- Quick-action pills -->
+          <div class="ai-pills">
+            <div class="ai-pill" id="pill-reply"  onclick="firePill('reply')">
+              <span class="ai-pill-icon">↩</span> Generate a reply
+            </div>
+            <div class="ai-pill" id="pill-remind" onclick="firePill('remind')">
+              <span class="ai-pill-icon">⏰</span> Remind me
+            </div>
+            <div class="ai-pill" id="pill-delete" onclick="firePill('delete')">
+              <span class="ai-pill-icon">🗑</span> Auto-delete all future emails
+            </div>
+          </div>
+
+          <!-- Chat -->
+          <div class="ai-chat">
+            <div class="chat-msgs" id="chat-msgs">
+              <div class="chat-msg">
+                <div class="chat-lbl">EmailZap AI</div>
+                <div class="chat-bubble ai">Hi! I've read this email. Use the actions above or describe any workflow in your own words below.</div>
+              </div>
+            </div>
+            <div class="chat-compose">
+              <div class="chat-compose-lbl">Define a custom workflow</div>
+              <div class="chat-row">
+                <input class="chat-input" id="chat-in" type="text" placeholder="e.g. forward this to my team…"
+                  onkeydown="if(event.key==='Enter')sendChat()">
+                <button class="chat-send" onclick="sendChat()">→</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- /ai-side -->
+
+      </div><!-- /detail-body-wrap -->
+
+      <!-- Reply + actions bar -->
+      <div class="reply-bar">
+        <button class="action-btn danger" title="Delete">🗑 Delete</button>
+        <button class="action-btn" title="Archive">📥 Archive</button>
+        <button class="action-btn" title="Mark as unread">✉ Mark unread</button>
+        <button class="action-btn" title="Move to label">📁 Move to…</button>
+        <div class="bar-sep"></div>
+        <button class="reply-btn primary">↩ Reply</button>
+        <button class="reply-btn">↩↩ Reply All</button>
+        <button class="reply-btn">→ Forward</button>
+      </div>
+
+    </div><!-- /detail-pane -->
+
+    <!-- SEARCH VIEW — full overlay -->
+    <div class="search-view" id="search-view">
+      <div class="sv-inner" id="sv-inner">
+        <div style="font-size:32px;color:var(--border);text-align:center;margin-top:80px">🔍</div>
+        <div style="text-align:center;font-size:14px;color:var(--text3);margin-top:12px">Search your inboxes…</div>
+      </div>
+    </div>
+
+  </div><!-- /split -->
+</div><!-- /ez-content -->
+
+<!-- Gmail native inbox -->
+<div class="gmail-view hidden" id="gmail-view">
+  <div class="gmail-hd">
+    <div class="gmail-search">
+      <span style="font-size:16px;color:var(--text2)">🔍</span>
+      <input type="text" placeholder="Search mail">
+    </div>
+  </div>
+  <div class="gmail-tabs">
+    <div class="gtab active">📌 Primary <span class="gtab-badge" style="background:var(--danger)">5</span></div>
+    <div class="gtab">👥 Social <span class="gtab-badge" style="background:#1877f2">1</span></div>
+    <div class="gtab">🏷 Promotions <span class="gtab-badge" style="background:var(--a3)">5</span></div>
+  </div>
+  <div id="gmail-rows"></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- SETTINGS PANEL -->
+<div class="sp-backdrop" id="sp-bd" onclick="closeSP()"></div>
+<div class="sp-panel" id="sp-panel">
+  <div class="sp-head">
+    <div class="sp-back" id="sp-back" onclick="spBack()" style="visibility:hidden">←</div>
+    <div class="sp-title" id="sp-title">Settings</div>
+    <div class="sp-close" onclick="closeSP()">✕</div>
+  </div>
+
+  <div class="sp-view on" id="sp-main">
+    <div class="sp-body">
+      <div class="sp-sec">Preferences</div>
+      <div class="sp-row" style="cursor:default">
+        <span class="sp-icon">🛡</span>
+        <div class="sp-content"><div class="sp-label">First-Time Sender Detection</div><div class="sp-sub">Flags emails from senders you've never replied to</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="sp-row" style="cursor:default">
+        <span class="sp-icon">⚡</span>
+        <div class="sp-content"><div class="sp-label">Aggressive Mode</div><div class="sp-sub">Also flags senders with low reply rate</div></div>
+        <div class="toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+      <div class="sp-sec">Accounts</div>
+      <div class="acct-card">
+        <div class="acct-av" style="background:var(--a1)">S</div>
+        <div class="acct-info"><div class="acct-em">studiomgmt@gmail.com</div></div>
+        <div class="primary-tag">Primary</div>
+      </div>
+      <div class="acct-card">
+        <div class="acct-av" style="background:var(--a2)">L</div>
+        <div class="acct-info"><div class="acct-em">hi@littlebird.ai</div></div>
+        <span class="remove-lnk">Remove</span>
+      </div>
+      <div class="acct-card">
+        <div class="acct-av" style="background:var(--a4)">Z</div>
+        <div class="acct-info"><div class="acct-em">me@zenset.co</div></div>
+        <span class="remove-lnk">Remove</span>
+      </div>
+      <div class="acct-card">
+        <div class="acct-av" style="background:var(--a3)">N</div>
+        <div class="acct-info"><div class="acct-em">naman@shah.com</div></div>
+        <span class="remove-lnk">Remove</span>
+      </div>
+      <button class="add-acct"><span style="font-size:16px">+</span> Add account</button>
+
+      <div class="sp-sec">Automations</div>
+      <div class="sp-row" onclick="spGo('automations')">
+        <span class="sp-icon" style="color:var(--important)">⚡</span>
+        <div class="sp-content"><div class="sp-label">View automations</div><div class="sp-sub">3 active rules running</div></div>
+        <span class="sp-chev">›</span>
+      </div>
+
+      <div class="sp-sec">Support</div>
+      <div class="sp-row">
+        <span class="sp-icon" style="color:var(--blue)">💬</span>
+        <div class="sp-content"><div class="sp-label">Contact support</div><div class="sp-sub">We usually respond within a few hours</div></div>
+        <span class="sp-chev">›</span>
+      </div>
+
+      <div class="sp-sec red">Danger Zone</div>
+      <div class="sp-row" onclick="showDel1()">
+        <span class="sp-icon" style="color:var(--danger)">🗑</span>
+        <div class="sp-content"><div class="sp-label red">Delete my Emailzap account</div><div class="sp-sub">Permanently removes all data and settings</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sp-view" id="sp-automations">
+    <div class="sp-body">
+      <div class="auto-sec"><span>Active</span><button class="new-auto">+ New</button></div>
+      <div class="auto-card a">
+        <div class="auto-top"><span class="auto-ic" style="color:var(--important)">⚡</span><span class="auto-title">First-time sender filter</span></div>
+        <div class="auto-desc">Moves emails from senders you've never replied to out of your inbox</div>
+        <div class="auto-rule">→ Label: -Zapped</div>
+        <div class="auto-foot"><div class="toggle on" onclick="toggleAuto(this)"></div></div>
+      </div>
+      <div class="auto-card a">
+        <div class="auto-top"><span class="auto-ic" style="color:var(--important)">⚡</span><span class="auto-title">Promotions auto-archive</span></div>
+        <div class="auto-desc">Emails matching promotional patterns are archived immediately</div>
+        <div class="auto-rule">→ Archive immediately</div>
+        <div class="auto-foot"><div class="toggle on" onclick="toggleAuto(this)"></div></div>
+      </div>
+      <div class="auto-sec"><span>Inactive</span></div>
+      <div class="auto-card i">
+        <div class="auto-top"><span class="auto-ic" style="color:var(--text3)">⚡</span><span class="auto-title">Newsletter digest</span></div>
+        <div class="auto-desc">Batches newsletters into a weekly digest so they don't clutter your inbox</div>
+        <div class="auto-rule">→ Weekly digest label</div>
+        <div class="auto-foot"><div class="toggle" onclick="toggleAuto(this)"></div></div>
+      </div>
+      <div class="auto-card i">
+        <div class="auto-top"><span class="auto-ic" style="color:var(--text3)">⚡</span><span class="auto-title">Cold outreach filter</span></div>
+        <div class="auto-desc">Detects sales outreach and labels for review</div>
+        <div class="auto-rule">→ Label: -Cold Outreach</div>
+        <div class="auto-foot"><div class="toggle" onclick="toggleAuto(this)"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Remove account dialog -->
+<div class="dlg-bg" id="dlg-rm">
+  <div class="dlg">
+    <div class="dlg-title">Remove account?</div>
+    <div class="dlg-body" id="dlg-rm-body">This account will no longer appear in your unified inbox.</div>
+    <div class="dlg-actions">
+      <button class="btn-cancel" onclick="closeDlg('dlg-rm')">Cancel</button>
+      <button class="btn-danger">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete step 1 -->
+<div class="dlg-bg" id="dlg-d1">
+  <div class="dlg">
+    <div class="dlg-icon">⚠️</div>
+    <div class="dlg-title">Delete your Emailzap account?</div>
+    <div class="dlg-body">
+      This will permanently:
+      <ul>
+        <li>Remove all connected accounts</li>
+        <li>Delete your preferences and settings</li>
+        <li>Stop all automations</li>
+      </ul>
+      <div class="dlg-notice">✓ Your emails will <strong>not</strong> be deleted from Gmail. This only removes Emailzap.</div>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn-cancel" onclick="closeDlg('dlg-d1')">Cancel</button>
+      <button class="btn-next" onclick="showDel2()">Yes, delete my account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete step 2 -->
+<div class="dlg-bg" id="dlg-d2">
+  <div class="dlg">
+    <div class="dlg-title">Final confirmation</div>
+    <div class="dlg-body">This cannot be undone.</div>
+    <div class="conf-lbl">Type <strong>DELETE</strong> to confirm:</div>
+    <input class="conf-inp" id="conf-in" type="text" placeholder="DELETE" oninput="chkDel(this)">
+    <div class="dlg-actions">
+      <button class="btn-cancel" onclick="closeDlg('dlg-d2')">Cancel</button>
+      <button class="btn-danger" id="del-btn" disabled>Delete permanently</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ DATA ══ */
+const ACCTS = [
+  {col:'var(--a1)',i:'S',em:'studiomgmt@gmail.com'},
+  {col:'var(--a2)',i:'L',em:'hi@littlebird.ai'},
+  {col:'var(--a4)',i:'Z',em:'me@zenset.co'},
+  {col:'var(--a3)',i:'N',em:'naman@shah.com'},
+  {col:'var(--a5)',i:'A',em:'hi@amiravoyages.com'},
+];
+const EMAILS = [
+  {id:1, a:0,unread:true, imp:false,nimp:false,from:'Rishi, Anup',   subj:'Invoices for AI Engineer Success Fee',         prev:'Please find attached the invoices…',                   time:'10:02 PM',body:'Hi team,\n\nPlease find attached the invoices for the AI Engineer Success Fee and FSD Retainer.\n\nLet me know if you need any changes.\n\nBest,\nRishi'},
+  {id:2, a:1,unread:true, imp:false,nimp:true, from:'Roger',         subj:'Re: Trouble figuring out EmailZap?',           prev:'I seem to have six accounts — summaries confusing me…', time:'6:33 PM', body:'Hi,\n\nI seem to have six accounts and the summaries are confusing me. Could you help clarify how the "All Inboxes" view works?\n\nThanks,\nRoger'},
+  {id:3, a:2,unread:true, imp:true, nimp:false,from:'Liz',           subj:'Re: Just Checking In – Wish to Disable?',     prev:'Thank you — I did not like the sorting…',              time:'6:07 PM', body:'Hi,\n\nThank you for reaching out. I did not like the way emails were sorted. Can we revert to default settings?\n\nBest,\nLiz'},
+  {id:4, a:0,unread:true, imp:false,nimp:true, from:'Steven, me',    subj:'Re: Trouble figuring out EmailZap?',           prev:'Six accounts — pagination off on mobile…',             time:'5:12 PM', body:'Hey,\n\nI have six accounts and pagination is off on mobile. Any fix coming soon?\n\nThanks'},
+  {id:5, a:1,unread:false,imp:true, nimp:false,from:'Johnny',        subj:'Re: $5.00 payment unsuccessful again',         prev:'👍 Johnny reacted. Payment method needs updating.',     time:'2:06 PM', body:'Hi,\n\n👍 Just confirming I received the notification. Please update your payment method.\n\nJohnny'},
+  {id:6, a:3,unread:false,imp:false,nimp:false,from:'EmailZap',      subj:'Your digest for February 10, 2026',           prev:'Emailzap moved 11 emails to Zapped…',                  time:'12:00 PM',body:'Here is your daily digest.\n\nEmailzap moved 11 emails to Zapped today.\n\nHave a great day!'},
+  {id:7, a:2,unread:false,imp:false,nimp:true, from:'Google Cloud',  subj:'[Update] New OpenTelemetry ingestion API',    prev:'Automatic enablement on your account…',                time:'8:50 AM', body:'Dear customer,\n\nWe\'re writing to inform you about the automatic enablement of the new OpenTelemetry ingestion API on your account.\n\nNo action required.\n\nThe Google Cloud Team'},
+  {id:8, a:4,unread:true, imp:false,nimp:false,from:'Amiravoyages',  subj:'Your trip confirmation #AV-2026-1982',        prev:'Your booking has been confirmed…',                     time:'Feb 9',   body:'Dear Traveler,\n\nYour trip is confirmed!\n\nBooking: #AV-2026-1982\nDeparture: March 15, 2026\nReturn: March 22, 2026\n\nHave a great trip!'},
+  {id:9, a:0,unread:false,imp:false,nimp:true, from:'Partho Paul',   subj:'Accepted: Tech Standup @ Weekly 7:30–8pm',   prev:'Calendar acceptance notification…',                    time:'Feb 9',   body:'Partho Paul has accepted the invitation to Tech Standup @ Weekly from 7:30pm to 8pm on Wednesday (IST).'},
+  {id:10,a:1,unread:true, imp:true, nimp:false,from:'Mark, me',      subj:'I want to remove your service',              prev:'Hi Mark — apologies for the bad experience…',          time:'Feb 8',   body:'Hi Mark,\n\nI want to remove your service. The experience hasn\'t met my expectations.\n\n---\n\nHi,\n\nApologies for the bad experience. We\'d love to help resolve this. Could you share what went wrong?\n\nBest, the Emailzap team'},
+];
+const GMAIL_EMAILS = [
+  {from:'Google',   subj:'Security alert — New sign-in on Chrome',    time:'2:10 PM'},
+  {from:'LinkedIn', subj:'Chandan, 5 new connection suggestions',      time:'1:30 PM'},
+  {from:'GitHub',   subj:'Your weekly digest — 12 new issues',         time:'11:00 AM'},
+  {from:'Notion',   subj:'Your workspace summary for February',         time:'9:00 AM'},
+  {from:'Stripe',   subj:'Your February statement is ready',            time:'Feb 9'},
+];
+
+const MOCK_SEARCH = {
+  'invoice': {
+    answer: 'You have 2 emails about invoices. Rishi and Anup sent invoices for the AI Engineer Success Fee and FSD Retainer on February 28. No action appears to have been taken yet.',
+    ids: [1, 6]
+  },
+  'emailzap': {
+    answer: 'Multiple users have contacted you about EmailZap. Roger is confused about the multi-account view, Steven reports pagination issues on mobile, and Mark wants to remove the service. There are also automated digest emails from EmailZap.',
+    ids: [2, 4, 6, 10]
+  },
+  'payment': {
+    answer: 'There is one email about a payment issue. Johnny confirmed that a $5.00 payment was unsuccessful and the payment method needs to be updated.',
+    ids: [5]
+  },
+  'trip': {
+    answer: 'Your trip confirmation #AV-2026-1982 is confirmed with Amiravoyages. Departure is March 15, 2026 and return is March 22, 2026.',
+    ids: [8]
+  },
+};
+
+/* ══ STATE ══ */
+let curView    = 'all';
+let curFilter  = 'all';
+let curLabel   = null;
+let openId     = null;
+let subOpen    = true;
+let selected   = new Set();
+let starred    = new Set();
+let important  = new Set([3,5,10]);
+let labelsOpen = false;
+let searchMode = false;
+
+/* ══ RENDER ══ */
+function visible() {
+  let L = EMAILS;
+  if (curView.startsWith('a') && curView !== 'all') {
+    const i = parseInt(curView.slice(1));
+    L = L.filter(e => e.a === i);
+  }
+  if (curFilter === 'imp')  L = L.filter(e => e.imp || important.has(e.id));
+  if (curFilter === 'nimp') L = L.filter(e => e.nimp);
+  if (curLabel) L = L.filter(e => e.a % 2 === (curLabel.length % 2)); // mock label filter
+  return L;
+}
+
+function renderList() {
+  const el = document.getElementById('email-list');
+  const list = visible();
+  el.innerHTML = list.map(e => {
+    const ac = ACCTS[e.a];
+    const isImp  = e.imp || important.has(e.id);
+    const isStar = starred.has(e.id);
+    let cls = 'erow';
+    if (!e.unread)          cls += ' read';
+    if (selected.has(e.id)) cls += ' sel';
+    if (openId === e.id)    cls += ' open';
+
+    // Hover toggle: "Mark not important" for normal/important, "Mark important" for nimp
+    const toggleCls = e.nimp ? 'er-label-toggle mark-imp' : 'er-label-toggle mark-nimp';
+    const toggleTxt = e.nimp ? 'Mark important' : 'Mark not important';
+
+    // Importance marker: ▶ arrow for important, invisible placeholder otherwise
+    const impMarker = isImp
+      ? `<span class="er-imp-marker" title="Important">▶</span>`
+      : `<span class="er-imp-marker hidden-marker">▶</span>`;
+
+    return `<div class="${cls}" id="r${e.id}" onclick="openEmail(${e.id})">
+      <span class="er-star ${isStar?'on':''}" onclick="event.stopPropagation();toggleStar(${e.id})">${isStar?'★':'☆'}</span>
+      ${impMarker}
+      <div class="er-av" style="background:${ac.col}">${ac.i}</div>
+      <span class="er-sender">${e.from}</span>
+      <div class="er-body">
+        ${e.nimp ? `<span class="nimp-badge">Not Important</span>` : ''}
+        <span class="er-subj-text">${e.subj}</span>
+        <span class="er-sep"> - </span>
+        <span class="er-prev">${e.prev}</span>
+      </div>
+      <div class="er-right">
+        <span class="er-time">${e.time}</span>
+        <div class="${toggleCls}" onclick="event.stopPropagation();toggleImp(${e.id})">${toggleTxt}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  updFilterTabs();
+}
+
+function renderGmail() {
+  document.getElementById('gmail-rows').innerHTML = GMAIL_EMAILS.map(e =>
+    `<div class="gmail-row">
+      <input type="checkbox" style="width:18px;height:18px;accent-color:var(--blue);flex-shrink:0">
+      <span class="gsender">${e.from}</span>
+      <span class="gsubj">${e.subj}</span>
+      <span class="gtime">${e.time}</span>
+    </div>`
+  ).join('');
+}
+
+/* ══ NAVIGATION ══ */
+function go(v) {
+  curView = v; openId = null;
+  if (v === 'inbox') {
+    document.getElementById('ez-content').classList.add('hidden');
+    document.getElementById('gmail-view').classList.remove('hidden');
+    document.getElementById('nav-inbox').classList.add('active');
+    document.getElementById('nav-all').classList.remove('active');
+    clearSubs(); renderGmail(); return;
+  }
+  document.getElementById('gmail-view').classList.add('hidden');
+  document.getElementById('ez-content').classList.remove('hidden');
+  document.getElementById('nav-inbox').classList.remove('active');
+  document.getElementById('nav-all').classList.add('active');
+  clearSubs();
+  if (v.startsWith('a')) { const s = document.getElementById('s'+v.slice(1)); if(s) s.classList.add('active'); }
+  closeEmailPane(); renderList();
+}
+function handleAll() {
+  curView='all'; openId=null;
+  if (!subOpen) { subOpen=true; updSub(); }
+  document.getElementById('nav-all').classList.add('active');
+  document.getElementById('nav-inbox').classList.remove('active');
+  document.getElementById('gmail-view').classList.add('hidden');
+  document.getElementById('ez-content').classList.remove('hidden');
+  clearSubs(); closeEmailPane(); renderList();
+}
+function clearSubs() { for(let i=0;i<5;i++){const s=document.getElementById('s'+i);if(s)s.classList.remove('active');} }
+function toggleSub() { subOpen=!subOpen; updSub(); }
+function updSub() {
+  document.getElementById('ai-sub').classList.toggle('open',subOpen);
+  document.getElementById('ai-chev').classList.toggle('open',subOpen);
+}
+
+/* ══ FILTERS ══ */
+function setF(f) {
+  curFilter = f; curLabel = null;
+  updLabelTrigger();
+  openId = null; closeEmailPane(); renderList();
+}
+
+function updFilterTabs() {
+  const f = curFilter;
+  document.getElementById('tab-all').className  = 'ftab' + (f==='all'  ? ' fa' : '');
+  document.getElementById('tab-imp').className  = 'ftab' + (f==='imp'  ? ' fi' : '');
+  document.getElementById('tab-nimp').className = 'ftab' + (f==='nimp' ? ' fn' : '');
+}
+
+/* ══ LABELS ══ */
+function toggleLabels() {
+  labelsOpen = !labelsOpen;
+  document.getElementById('labels-popover').classList.toggle('on', labelsOpen);
+}
+function setLabel(l) {
+  curLabel = (curLabel === l) ? null : l;
+  labelsOpen = false;
+  document.getElementById('labels-popover').classList.remove('on');
+  updLabelTrigger();
+  openId = null; closeEmailPane(); renderList();
+}
+function updLabelTrigger() {
+  const t = document.getElementById('labels-trigger');
+  const txt = document.getElementById('lbl-trigger-text');
+  if (curLabel) {
+    t.classList.add('active');
+    txt.innerHTML = `${curLabel} <span class="lbl-clear" onclick="event.stopPropagation();setLabel(null)">✕</span>`;
+  } else {
+    t.classList.remove('active');
+    txt.textContent = 'Labels ▾';
+  }
+}
+// Close labels popover on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('#ftabs-wrap')) {
+    labelsOpen = false;
+    const p = document.getElementById('labels-popover');
+    if (p) p.classList.remove('on');
+  }
+});
+
+/* ══ SELECT / MARK READ ══ */
+function toggleSel(id,cb) { cb.checked?selected.add(id):selected.delete(id); updMR(); renderList(); }
+function selAll(cb) { visible().forEach(e=>cb.checked?selected.add(e.id):selected.delete(e.id)); updMR(); renderList(); }
+function clickSelAll() { const cb=document.getElementById('cb-all'); cb.checked=!cb.checked; selAll(cb); }
+function updMR() { document.getElementById('mark-read').classList.toggle('armed',selected.size>0); }
+function markRead() {
+  selected.forEach(id=>{const e=EMAILS.find(e=>e.id===id);if(e)e.unread=false;});
+  selected.clear(); document.getElementById('cb-all').checked=false; updMR(); renderList();
+}
+
+/* ══ STAR / IMP / NIMP ══ */
+function toggleStar(id) { starred.has(id)?starred.delete(id):starred.add(id); renderList(); }
+function toggleImp(id) {
+  // In the new design, the hover button toggles "not important" state
+  const e=EMAILS.find(e=>e.id===id); if(!e) return;
+  e.nimp = !e.nimp;
+  if (e.nimp) { important.delete(id); e.imp = false; }
+  renderList();
+  if (openId===id) syncTopBarNimp(e);
+}
+function toggleNimp(id) {
+  const e=EMAILS.find(e=>e.id===id); if(!e) return;
+  e.nimp=!e.nimp;
+  renderList();
+  if (openId===id) syncTopBarNimp(e);
+}
+
+/* ══ EMAIL OPEN / CLOSE ══ */
+function openEmail(id) {
+  const e=EMAILS.find(e=>e.id===id); if(!e) return;
+  e.unread=false; openId=id;
+  const ac=ACCTS[e.a];
+  document.getElementById('det-av').textContent        = ac.i;
+  document.getElementById('det-av').style.background   = ac.col;
+  document.getElementById('det-name').textContent      = e.from;
+  document.getElementById('det-email').textContent     = ac.em;
+  document.getElementById('det-time').textContent      = e.time;
+  document.getElementById('det-body').innerHTML        = e.body.split('\n').map(l=>l?`<p>${l}</p>`:'<p>&nbsp;</p>').join('');
+  // Detail header: subject + nimp
+  document.getElementById('det-subj').textContent      = e.subj;
+  syncTopBarNimp(e);
+  resetChat();
+  // Layout switches
+  document.getElementById('top-bar').classList.add('email-open');
+  document.getElementById('toolbar').classList.add('hidden');
+  document.getElementById('ftabs-wrap').classList.add('hidden');
+  document.getElementById('list-pane').classList.add('hidden');
+  document.getElementById('search-view').classList.remove('on');
+  document.getElementById('detail-pane').classList.add('on');
+  renderList();
+}
+
+function syncTopBarNimp(e) {
+  document.getElementById('dh-nimp').classList.toggle('on', !!e.nimp);
+  document.getElementById('dh-add-nimp').classList.toggle('on', !e.nimp);
+}
+
+function toggleNimpFromDetail() {
+  if (!openId) return;
+  const e=EMAILS.find(e=>e.id===openId); if(!e) return;
+  e.nimp=!e.nimp;
+  syncTopBarNimp(e);
+  renderList();
+}
+
+function closeEmail() {
+  openId=null;
+  closeEmailPane();
+  renderList();
+}
+function closeEmailPane() {
+  document.getElementById('top-bar').classList.remove('email-open');
+  document.getElementById('toolbar').classList.remove('hidden');
+  document.getElementById('ftabs-wrap').classList.remove('hidden');
+  document.getElementById('list-pane').classList.remove('hidden');
+  document.getElementById('detail-pane').classList.remove('on');
+  // close search view if it was open
+  if (searchMode) {
+    document.getElementById('list-pane').classList.add('hidden');
+    document.getElementById('search-view').classList.add('on');
+  }
+}
+
+/* ══ SEARCH ══ */
+function onSearchInput(v) {
+  document.getElementById('search-clear').classList.toggle('on', v.length > 0);
+}
+function doSearch(q) {
+  q = q.trim().toLowerCase(); if (!q) return;
+  searchMode = true;
+  // Hide list, show search view
+  document.getElementById('list-pane').classList.add('hidden');
+  document.getElementById('detail-pane').classList.remove('on');
+  document.getElementById('toolbar').classList.add('hidden');
+  document.getElementById('ftabs-wrap').classList.add('hidden');
+  // Find best mock match
+  let data = null;
+  for (const k of Object.keys(MOCK_SEARCH)) {
+    if (q.includes(k) || k.includes(q)) { data = MOCK_SEARCH[k]; break; }
+  }
+  if (!data) {
+    data = { answer: `No results found matching "${q}". Try searching for "invoice", "payment", "trip", or "emailzap".`, ids: [] };
+  }
+  const citations = data.ids.map(id => EMAILS.find(e=>e.id===id)).filter(Boolean);
+  const sv = document.getElementById('sv-inner');
+  sv.innerHTML = `
+    <div class="ai-answer-card">
+      <div class="aac-head">
+        <span class="aac-badge">✨ AI Summary</span>
+        <span class="aac-query">for "${q}"</span>
+      </div>
+      <div class="aac-answer">${data.answer}</div>
+      <div class="aac-footer">Derived from ${citations.length} email${citations.length!==1?'s':''}</div>
+    </div>
+    ${citations.length ? `<div class="sv-section-lbl">Source emails</div>` : ''}
+    ${citations.map((e,i)=>{
+      const ac=ACCTS[e.a];
+      return `<div class="citation-row" onclick="openSearchEmail(${e.id})">
+        <div class="cit-num">${i+1}</div>
+        <div class="cit-av" style="background:${ac.col}">${ac.i}</div>
+        <div class="cit-body">
+          <div class="cit-top">
+            <span class="cit-sender">${e.from}</span>
+            <span style="color:var(--text2);font-size:13px"> — </span>
+            <span class="cit-subj">${e.subj}</span>
+          </div>
+        </div>
+        <div class="cit-time">${e.time}</div>
+      </div>`;
+    }).join('')}
+  `;
+  document.getElementById('search-view').classList.add('on');
+}
+function openSearchEmail(id) {
+  // Open email but change back button label
+  openEmail(id);
+  document.getElementById('tb-back').textContent = '← Back to Search';
+  document.getElementById('tb-back').onclick = function() {
+    closeEmail();
+    // restore search view state
+    searchMode = true;
+    document.getElementById('list-pane').classList.add('hidden');
+    document.getElementById('toolbar').classList.add('hidden');
+    document.getElementById('ftabs-wrap').classList.add('hidden');
+    document.getElementById('search-view').classList.add('on');
+    // reset back button
+    document.getElementById('tb-back').textContent = '← Back to Inbox';
+    document.getElementById('tb-back').onclick = closeEmail;
+  };
+}
+function clearSearch() {
+  searchMode = false;
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-clear').classList.remove('on');
+  document.getElementById('search-view').classList.remove('on');
+  document.getElementById('list-pane').classList.remove('hidden');
+  document.getElementById('toolbar').classList.remove('hidden');
+  document.getElementById('ftabs-wrap').classList.remove('hidden');
+  document.getElementById('detail-pane').classList.remove('on');
+  openId = null;
+  renderList();
+}
+
+/* ══ AI CHAT ══ */
+function firePill(type) {
+  document.getElementById('pill-'+type).classList.add('fired');
+  const labels = {reply:'Generate a reply', remind:'Remind me', delete:'Auto-delete all future emails from this sender'};
+  appendChat('user', labels[type]);
+  setTimeout(() => {
+    if (type === 'reply') {
+      const draft = 'Hi,\n\nThank you for reaching out. I\'ll look into this and get back to you shortly.\n\nBest regards';
+      const bubble = appendChat('ai', 'Here\'s a draft reply — you can edit it below before sending:');
+      appendReplyEditor(draft);
+    } else if (type === 'remind') {
+      appendChat('ai', 'I\'ll send you a reminder email in 24 hours. Would you like to be reminded at a specific time instead?');
+      appendReminderOptions();
+    } else if (type === 'delete') {
+      const e = openId ? EMAILS.find(em=>em.id===openId) : null;
+      const senderName = e ? e.from : 'this sender';
+      const acct = e ? ACCTS[e.a] : null;
+      const domain = acct ? acct.em.split('@')[1] : 'sender.com';
+      appendChat('ai', 'I\'ll permanently delete all future emails. Choose the scope:');
+      appendDeleteOptions(senderName, domain);
+    }
+  }, 600);
+}
+
+function appendReplyEditor(draft) {
+  const el = document.getElementById('chat-msgs');
+  const d = document.createElement('div');
+  d.className = 'chat-msg';
+  const uid = 're-' + Date.now();
+  d.innerHTML = `
+    <div class="reply-editor" id="${uid}">
+      <textarea>${draft}</textarea>
+      <div class="reply-editor-actions">
+        <button class="re-btn ghost" onclick="reSave('${uid}')">Save draft</button>
+        <button class="re-btn outlined" onclick="reReplyAll('${uid}')">↩↩ Reply all</button>
+        <button class="re-btn primary" onclick="reSend('${uid}')">↩ Send reply</button>
+      </div>
+    </div>`;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+function reSend(uid) {
+  document.getElementById(uid).remove();
+  appendChat('ai', 'Reply sent ✓');
+}
+function reReplyAll(uid) {
+  document.getElementById(uid).remove();
+  appendChat('ai', 'Reply sent to all ✓');
+}
+function reSave(uid) {
+  document.getElementById(uid).remove();
+  appendChat('ai', 'Draft saved ✓');
+}
+
+function appendReminderOptions() {
+  const el = document.getElementById('chat-msgs');
+  const d = document.createElement('div');
+  d.className = 'chat-msg';
+  const uid = 'rm-' + Date.now();
+  d.innerHTML = `
+    <div class="reminder-opts" id="${uid}">
+      <button class="rm-chip" onclick="pickReminder('In 1 hour', '${uid}')">In 1 hour</button>
+      <button class="rm-chip" onclick="pickReminder('In 3 hours', '${uid}')">In 3 hours</button>
+      <button class="rm-chip" onclick="pickReminder('Tomorrow 9am', '${uid}')">Tomorrow 9am</button>
+      <button class="rm-chip" onclick="showCustomReminder('${uid}')">Custom…</button>
+      <div class="rm-custom-wrap" id="rc-${uid}" style="display:none">
+        <input type="datetime-local" id="rci-${uid}" onchange="pickReminderCustom('${uid}')">
+      </div>
+    </div>`;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+function pickReminder(t, uid) {
+  document.getElementById(uid).remove();
+  appendChat('ai', `Reminder set for ${t}. I'll email you then. ✓`);
+}
+function showCustomReminder(uid) {
+  const wrap = document.getElementById('rc-'+uid);
+  if (wrap) { wrap.style.display = 'block'; }
+}
+function pickReminderCustom(uid) {
+  const inp = document.getElementById('rci-'+uid);
+  if (!inp || !inp.value) return;
+  const dt = new Date(inp.value).toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  document.getElementById(uid).remove();
+  appendChat('ai', `Reminder set for ${dt}. I'll email you then. ✓`);
+}
+
+function appendDeleteOptions(senderName, domain) {
+  const el = document.getElementById('chat-msgs');
+  const d = document.createElement('div');
+  d.className = 'chat-msg';
+  const uid = 'do-' + Date.now();
+  d.innerHTML = `
+    <div class="delete-opts" id="${uid}">
+      <button class="del-scope-btn" onclick="pickDelete('From ${senderName}','${uid}')">From ${senderName}</button>
+      <button class="del-scope-btn" onclick="pickDelete('From *@${domain}','${uid}')">From *@${domain}</button>
+    </div>`;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+function pickDelete(scope, uid) {
+  document.getElementById(uid).remove();
+  appendChat('ai', `Done. All future emails ${scope} will be auto-deleted. ✓`);
+}
+
+function resetChat() {
+  document.getElementById('chat-msgs').innerHTML = `<div class="chat-msg">
+    <div class="chat-lbl">EmailZap AI</div>
+    <div class="chat-bubble ai">Hi! I've read this email. Use the actions above or describe any workflow in your own words below.</div>
+  </div>`;
+  ['reply','remind','delete'].forEach(p=>document.getElementById('pill-'+p).classList.remove('fired'));
+}
+
+function sendChat() {
+  const inp=document.getElementById('chat-in'); const msg=inp.value.trim(); if(!msg)return;
+  inp.value=''; appendChat('user',msg);
+  setTimeout(()=>appendChat('ai','Understood! I\'ve set up that workflow for this email. It will be applied automatically going forward.'),700);
+}
+
+function appendChat(role, text) {
+  const el=document.getElementById('chat-msgs');
+  const d=document.createElement('div'); d.className='chat-msg';
+  d.innerHTML=`<div class="chat-lbl ${role==='user'?'r':''}">${role==='user'?'You':'EmailZap AI'}</div>
+    <div class="chat-bubble ${role==='user'?'user':'ai'}">${text.replace(/\n/g,'<br>')}</div>`;
+  el.appendChild(d); el.scrollTop=el.scrollHeight;
+  return d;
+}
+
+/* ══ SETTINGS ══ */
+function openSP() { document.getElementById('sp-bd').classList.add('on'); document.getElementById('sp-panel').classList.add('on'); }
+function closeSP() { document.getElementById('sp-bd').classList.remove('on'); document.getElementById('sp-panel').classList.remove('on'); setTimeout(spBack,300); }
+function spGo(v) {
+  document.getElementById('sp-main').classList.remove('on');
+  document.getElementById('sp-'+v).classList.add('on');
+  document.getElementById('sp-title').textContent = v[0].toUpperCase()+v.slice(1);
+  document.getElementById('sp-back').style.visibility='visible';
+}
+function spBack() {
+  ['automations'].forEach(v=>document.getElementById('sp-'+v).classList.remove('on'));
+  document.getElementById('sp-main').classList.add('on');
+  document.getElementById('sp-title').textContent='Settings';
+  document.getElementById('sp-back').style.visibility='hidden';
+}
+function toggleAuto(t) {
+  t.classList.toggle('on');
+  const c=t.closest('.auto-card');
+  c.classList.toggle('a',t.classList.contains('on'));
+  c.classList.toggle('i',!t.classList.contains('on'));
+  c.querySelector('.auto-ic').style.color=t.classList.contains('on')?'var(--important)':'var(--text3)';
+}
+
+/* ══ DIALOGS ══ */
+function showRm(em) { document.getElementById('dlg-rm-body').textContent=`Remove ${em}? It will no longer appear in your unified inbox.`; document.getElementById('dlg-rm').classList.add('on'); }
+function closeDlg(id) { document.getElementById(id).classList.remove('on'); }
+function showDel1() { closeSP(); document.getElementById('dlg-d1').classList.add('on'); }
+function showDel2() { closeDlg('dlg-d1'); document.getElementById('conf-in').value=''; document.getElementById('del-btn').disabled=true; document.getElementById('dlg-d2').classList.add('on'); }
+function chkDel(el) { document.getElementById('del-btn').disabled=el.value!=='DELETE'; }
+
+/* ══ INIT ══ */
+renderList();
+</script>
+</body>
+</html>
