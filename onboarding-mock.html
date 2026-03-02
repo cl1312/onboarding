@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap — Onboarding Journey</title>
+<style>
+/* ═══════════════════════════════════════════════════
+   DESIGN TOKENS (matches mock-v3 / design-language)
+═══════════════════════════════════════════════════ */
+:root {
+  --blue:       #0066ff;
+  --blue-lt:    #e8f0fe;
+  --blue-mid:   #0050cc;
+  --blue-deep:  #003ea3;
+  --text:       #202124;
+  --text2:      #5f6368;
+  --text3:      #80868b;
+  --bg:         #ffffff;
+  --surface:    #f8f9fa;
+  --hover:      #f1f3f4;
+  --border:     #e0e0e0;
+  --border-lt:  #dadce0;
+  --danger:     #ea4335;
+  --success:    #34a853;
+  --important:  #f5a623;
+  --nimp-bg:    #fce8e6;
+  --a1: #1a73e8; --a2: #34a853; --a3: #f9ab00;
+  --a4: #ea4335; --a5: #a142f4; --a6: #00bcd4;
+  --ai:    #6366f1;
+  --ai-lt: #f5f3ff;
+  --sh-md: 0 4px 24px rgba(0,0,0,0.14);
+  --sh-lg: 0 8px 32px rgba(0,0,0,0.20);
+  --r-lg: 16px; --r-md: 12px; --r-sm: 8px; --r-pill: 24px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Google Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  background: #e8eaf6;
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════
+   GMAIL SHELL (background)
+═══════════════════════════════════════════════════ */
+.gmail-shell {
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg);
+  display: flex;
+  position: relative;
+  filter: blur(0px);
+  transition: filter 400ms ease;
+}
+.gmail-shell.blurred { filter: blur(3px); }
+
+/* Gmail top bar */
+.g-topbar {
+  position: absolute; top:0; left:0; right:0; height:64px;
+  background:#fff; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 16px; gap:16px; z-index:1;
+}
+.g-menu-icon { font-size:20px; color:var(--text2); cursor:pointer; padding:8px; border-radius:50%; }
+.g-menu-icon:hover { background:var(--hover); }
+.g-logo { font-size:22px; font-weight:400; color:var(--text2); }
+.g-logo .r { color:#ea4335; }
+.g-logo .b { color:#1a73e8; }
+.g-logo .y { color:#f9ab00; }
+.g-logo .g2 { color:#34a853; }
+.g-search {
+  flex:1; max-width:720px; height:46px; background:var(--surface);
+  border-radius:24px; display:flex; align-items:center; padding:0 20px; gap:8px;
+}
+.g-search-icon { color:var(--text2); font-size:18px; }
+.g-search-placeholder { color:var(--text3); font-size:16px; }
+.g-avatar { width:32px; height:32px; border-radius:50%; background:var(--a1); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; margin-left:auto; }
+
+/* Gmail left sidebar */
+.g-sidebar {
+  width:256px; padding:8px 0; border-right:1px solid var(--border);
+  margin-top:64px; flex-shrink:0;
+}
+.g-compose {
+  margin:0 8px 8px; padding:12px 20px; background:var(--surface);
+  border-radius:16px; font-size:14px; color:var(--text); display:flex;
+  align-items:center; gap:12px; cursor:pointer;
+}
+.g-nav-item {
+  display:flex; align-items:center; height:36px; padding:0 12px;
+  margin:1px 0; border-radius:0 20px 20px 0; cursor:pointer; font-size:14px;
+  color:var(--text); gap:16px; transition:background 100ms;
+}
+.g-nav-item:hover { background:var(--hover); }
+.g-nav-item.g-inbox { font-weight:700; }
+.g-ni-icon { font-size:17px; color:var(--text2); width:20px; }
+.g-ni-label { flex:1; }
+.g-ni-count { font-size:13px; color:var(--text2); font-weight:500; }
+
+/* EmailZap injection into Gmail sidebar */
+.ez-nav-section { margin-top:4px; }
+.ez-nav-item {
+  display:flex; align-items:center; height:36px; padding:0 12px;
+  margin:1px 0; border-radius:0 20px 20px 0; cursor:pointer; font-size:14px;
+  font-weight:700; gap:16px; transition:background 100ms;
+  background:var(--blue-lt); color:var(--blue);
+  position: relative;
+}
+.ez-nav-item:hover { background:#d3e3fd; }
+.ez-icon { font-size:16px; width:20px; display:flex; align-items:center; justify-content:center; }
+.ez-label { flex:1; color:var(--blue); font-weight:700; }
+.ez-count { font-size:13px; color:var(--blue); font-weight:600; }
+.ez-chev { font-size:11px; color:var(--blue); }
+.ez-submenu { padding-left:0; }
+.ez-sub-item {
+  display:flex; align-items:center; height:34px; padding:0 12px 0 44px;
+  margin:1px 0; border-radius:0 20px 20px 0; cursor:pointer; font-size:13px;
+  color:var(--text); gap:12px; transition:background 100ms;
+}
+.ez-sub-item:hover { background:var(--hover); }
+.ez-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.ez-sub-count { margin-left:auto; font-size:13px; color:var(--text2); }
+.ez-add-acct {
+  display:flex; align-items:center; height:34px; padding:0 12px 0 44px;
+  margin:1px 0; border-radius:0 20px 20px 0; cursor:pointer; font-size:13px;
+  color:var(--blue); gap:8px; transition:background 100ms;
+}
+.ez-add-acct:hover { background:var(--hover); }
+
+/* Gmail email area placeholder */
+.g-email-area {
+  flex:1; margin-top:64px; overflow-y:auto; padding:0;
+}
+.g-email-row {
+  display:flex; align-items:center; padding:0 16px; height:52px;
+  border-bottom:1px solid #f1f3f4; cursor:pointer; gap:12px;
+}
+.g-email-row:hover { background:var(--hover); box-shadow: inset 1px 0 0 #dadce0; }
+.g-row-avatar { width:32px; height:32px; border-radius:50%; background:var(--text3); color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.g-row-sender { width:160px; font-size:13px; font-weight:600; color:var(--text); flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.g-row-content { flex:1; font-size:13px; color:var(--text2); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.g-row-time { font-size:12px; color:var(--text2); flex-shrink:0; }
+
+/* ═══════════════════════════════════════════════════
+   BACKDROP OVERLAY
+═══════════════════════════════════════════════════ */
+.backdrop {
+  position: fixed; inset:0; z-index: 100;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
+  opacity:0; pointer-events:none;
+  transition: opacity 350ms ease;
+}
+.backdrop.visible { opacity:1; pointer-events:all; }
+.backdrop.no-dim { background: transparent; backdrop-filter: none; }
+
+/* ═══════════════════════════════════════════════════
+   MODAL BASE
+═══════════════════════════════════════════════════ */
+.modal {
+  position: fixed; z-index: 200;
+  top:50%; left:50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  opacity:0; pointer-events:none;
+  transition: transform 250ms ease-out, opacity 250ms ease-out;
+  width: 520px;
+  background: var(--bg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-lg);
+  overflow: hidden;
+}
+.modal.visible {
+  transform: translate(-50%, -50%) scale(1);
+  opacity:1; pointer-events:all;
+}
+.modal.summary-mode {
+  /* floats over visible inbox — offset slightly */
+  top: 50%;
+  left: 50%;
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 3px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--ai));
+  transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+
+/* Modal header zone */
+.modal-close {
+  position: absolute; top:16px; right:16px;
+  width:32px; height:32px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; color:var(--text2); cursor:pointer;
+  transition: background 100ms; border:none; background:transparent;
+  z-index:10;
+}
+.modal-close:hover { background:var(--hover); }
+.modal-close.hidden { display:none; }
+
+/* Modal body */
+.modal-body {
+  padding: 36px 40px 32px;
+}
+
+/* Screen states */
+.screen { display:none; }
+.screen.active { display:block; }
+
+/* Eyebrow */
+.eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 12px;
+}
+.eyebrow.blue { color: var(--blue); }
+.eyebrow.purple { color: var(--ai); }
+.eyebrow.green { color: var(--success); }
+
+/* Headline */
+.headline {
+  font-size: 24px; font-weight: 700; color: var(--text);
+  line-height: 1.25; margin-bottom: 12px;
+}
+.headline.center { text-align:center; }
+
+/* Sub-copy */
+.subcopy {
+  font-size: 14px; font-weight: 400; color: var(--text2);
+  line-height: 1.6; margin-bottom: 24px;
+}
+.subcopy.center { text-align:center; }
+
+/* Trust bullets */
+.trust-bullets {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.trust-bullet {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text2); font-weight: 500;
+}
+.trust-bullet .tb-icon { color: var(--success); font-size:13px; }
+
+/* Primary CTA button */
+.btn-primary {
+  width: 100%; padding: 14px 24px;
+  background: var(--blue); color: #fff;
+  border: none; border-radius: var(--r-sm);
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  font-family: inherit; letter-spacing: 0.01em;
+  transition: background 150ms, transform 100ms, box-shadow 150ms;
+  display: flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-primary:hover { background: var(--blue-mid); box-shadow: 0 2px 8px rgba(0,102,255,0.25); }
+.btn-primary:active { transform: scale(0.99); }
+.btn-primary.loading { background: var(--blue-mid); cursor:default; }
+.btn-primary.success { background: var(--success); }
+
+/* Google sign-in button */
+.btn-google {
+  width:100%; padding:13px 24px;
+  background:#fff; color:var(--text);
+  border: 1.5px solid var(--border-lt);
+  border-radius: var(--r-sm);
+  font-size:15px; font-weight:500; cursor:pointer;
+  font-family:inherit;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  transition: background 150ms, box-shadow 150ms;
+}
+.btn-google:hover { background:var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+/* Secondary / ghost button */
+.btn-secondary {
+  padding: 10px 20px;
+  background: transparent; color: var(--text2);
+  border: 1.5px solid var(--border-lt);
+  border-radius: var(--r-sm);
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  font-family: inherit;
+  transition: background 150ms;
+}
+.btn-secondary:hover { background:var(--hover); }
+
+/* Skip link */
+.skip-link {
+  text-align:center; margin-top:16px;
+  font-size:13px; color:var(--text3); cursor:pointer;
+}
+.skip-link:hover { color:var(--text2); text-decoration:underline; }
+.skip-link.hidden { display:none; }
+
+/* Social proof */
+.social-proof {
+  text-align:center; margin-top:14px;
+  font-size:12px; color:var(--text3);
+}
+.social-proof .stars { color:#f9ab00; letter-spacing:1px; }
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 1 — VALUE PROP
+═══════════════════════════════════════════════════ */
+.screen-1-icon {
+  width:72px; height:72px; border-radius:20px;
+  background: linear-gradient(135deg, var(--blue), var(--ai));
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px; margin:0 auto 24px; box-shadow: 0 4px 16px rgba(0,102,255,0.3);
+}
+.value-props {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:28px;
+}
+.vp-card {
+  padding: 14px 16px; border:1.5px solid var(--border-lt);
+  border-radius: var(--r-md); background:var(--surface);
+  transition: border-color 150ms;
+}
+.vp-card:hover { border-color: var(--blue-lt); }
+.vp-icon { font-size:22px; margin-bottom:6px; }
+.vp-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:3px; }
+.vp-desc { font-size:12px; color:var(--text2); line-height:1.4; }
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 2 — SIGN UP (OAuth)
+═══════════════════════════════════════════════════ */
+.auth-visual {
+  background: linear-gradient(135deg, #f0f4ff 0%, var(--ai-lt) 100%);
+  border-radius: var(--r-md); padding:24px;
+  margin-bottom:24px; text-align:center;
+}
+.auth-flow-icons {
+  display:flex; align-items:center; justify-content:center; gap:16px;
+}
+.auth-icon-box {
+  width:52px; height:52px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center; font-size:26px;
+  background:#fff; box-shadow:var(--sh-md);
+}
+.auth-arrow { font-size:18px; color:var(--text3); }
+.auth-desc { font-size:12px; color:var(--text2); margin-top:12px; }
+
+.trust-row {
+  display:flex; flex-direction:column; gap:8px; margin-bottom:28px;
+}
+.trust-item {
+  display:flex; align-items:flex-start; gap:10px; padding:10px 12px;
+  background:var(--surface); border-radius:var(--r-sm);
+}
+.trust-item-icon { font-size:16px; flex-shrink:0; }
+.trust-item-text { font-size:13px; color:var(--text2); line-height:1.4; }
+.trust-item-text strong { color:var(--text); font-weight:600; }
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 3 — ADD SECOND ACCOUNT
+═══════════════════════════════════════════════════ */
+.accounts-visual {
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  margin-bottom:24px; padding:20px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #f0fff4 100%);
+  border-radius: var(--r-md);
+}
+.acct-bubble {
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.acct-avatar {
+  width:52px; height:52px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; font-weight:700; color:#fff;
+}
+.acct-label { font-size:11px; color:var(--text2); font-weight:500; }
+.acct-merge-icon {
+  font-size:28px; color:var(--text3);
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+.acct-merge-text { font-size:10px; color:var(--text3); font-weight:500; }
+
+.account-cards { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+.account-card {
+  display:flex; align-items:center; gap:14px; padding:14px 16px;
+  border:1.5px solid var(--border-lt); border-radius: var(--r-md);
+  background:var(--bg); transition: border-color 200ms, background 200ms;
+}
+.account-card.connected { border-color: var(--success); background: #f0fff4; }
+.account-card.add-card { border-style: dashed; cursor:pointer; }
+.account-card.add-card:hover { border-color:var(--blue); background:var(--blue-lt); }
+.account-card.add-card.loading { opacity:0.7; pointer-events:none; }
+.account-card.newly-connected { border-color: var(--success); background: #f0fff4; animation: pulse-green 0.6s ease; }
+@keyframes pulse-green {
+  0% { box-shadow:0 0 0 0 rgba(52,168,83,0.4); }
+  70% { box-shadow:0 0 0 8px rgba(52,168,83,0); }
+  100% { box-shadow:0 0 0 0 rgba(52,168,83,0); }
+}
+.ac-icon { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:#fff; flex-shrink:0; }
+.ac-info { flex:1; }
+.ac-name { font-size:14px; font-weight:600; color:var(--text); }
+.ac-sub { font-size:12px; color:var(--text2); }
+.ac-status { font-size:20px; }
+.ac-badge {
+  font-size:11px; font-weight:600; color:var(--success);
+  background:#dcfce7; padding:2px 8px; border-radius:12px;
+}
+.ac-plus { font-size:22px; color:var(--blue); font-weight:300; }
+
+.trust-note {
+  font-size:12px; color:var(--text3); text-align:center; margin-bottom:4px;
+}
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 4 — ALGO + LABELS EDUCATION
+═══════════════════════════════════════════════════ */
+.algo-visual {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  margin-bottom:24px;
+}
+.algo-card {
+  padding:16px; border-radius: var(--r-md); border:1.5px solid var(--border-lt);
+}
+.algo-card.important-card { background:#fffbeb; border-color:#f5a623; }
+.algo-card.nimp-card { background:var(--nimp-bg); border-color:var(--danger); }
+.algo-card-icon { font-size:24px; margin-bottom:8px; }
+.algo-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.algo-card-desc { font-size:12px; color:var(--text2); line-height:1.4; }
+.badge-imp {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:11px; font-weight:600; color:#92400e;
+  background:#fffbeb; border:1.5px solid #f5a623;
+  padding:2px 8px; border-radius:12px; margin-top:6px;
+}
+.badge-nimp {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:11px; font-weight:600; color:var(--danger);
+  background:var(--nimp-bg); border:1.5px solid var(--danger);
+  padding:2px 8px; border-radius:12px; margin-top:6px;
+}
+.filter-tabs-preview {
+  display:flex; gap:0; margin-bottom:24px;
+  border:1.5px solid var(--border-lt); border-radius:var(--r-sm); overflow:hidden;
+}
+.ftp-tab {
+  flex:1; padding:10px 8px; text-align:center; font-size:13px; font-weight:500;
+  color:var(--text2); background:var(--bg); cursor:pointer;
+  border-right:1px solid var(--border-lt); transition:background 100ms;
+}
+.ftp-tab:last-child { border-right:none; }
+.ftp-tab.active-all { background:var(--blue-lt); color:var(--blue); font-weight:700; }
+.ftp-tab.active-imp { background:#fffbeb; color:#b45309; font-weight:700; }
+.ftp-tab.active-nimp { background:var(--nimp-bg); color:var(--danger); font-weight:700; }
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 5 — AI SIDEBAR EDUCATION
+═══════════════════════════════════════════════════ */
+.sidebar-preview {
+  border:1.5px solid var(--border-lt); border-radius:var(--r-md);
+  overflow:hidden; margin-bottom:20px; background:var(--bg);
+}
+.sp-header {
+  background: linear-gradient(135deg, #f5f3ff, #eff6ff);
+  padding:10px 14px; display:flex; align-items:center; gap:8px;
+  border-bottom:1px solid var(--border-lt);
+}
+.sp-header-title { font-size:13px; font-weight:600; color:var(--ai); }
+.sp-pills { padding:12px 14px; display:flex; flex-direction:column; gap:8px; border-bottom:1px solid var(--border-lt); }
+.sp-pill {
+  display:flex; align-items:center; gap:8px; padding:10px 12px;
+  border:1.5px solid var(--border-lt); border-radius:var(--r-sm);
+  font-size:13px; font-weight:500; color:var(--text); background:var(--bg);
+  cursor:pointer; transition: all 150ms;
+}
+.sp-pill:hover { background:var(--ai-lt); border-color:var(--ai); color:var(--ai); }
+.sp-pill.active { background:var(--ai-lt); border-color:var(--ai); color:var(--ai); }
+.sp-chat-preview {
+  padding:12px 14px; background:var(--surface);
+}
+.sp-chat-bubble {
+  background:#fff; border:1px solid var(--border-lt); border-radius:8px;
+  padding:8px 12px; font-size:12px; color:var(--text2); line-height:1.4;
+  display:inline-block; max-width:90%;
+}
+.sp-ai-label { font-size:11px; color:var(--ai); font-weight:600; margin-bottom:4px; }
+
+.sidebar-benefits { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+.sb-benefit {
+  display:flex; align-items:flex-start; gap:10px; padding:10px 12px;
+  background:var(--surface); border-radius:var(--r-sm);
+}
+.sb-benefit-icon { font-size:15px; flex-shrink:0; }
+.sb-benefit-text { font-size:13px; color:var(--text2); line-height:1.4; }
+.sb-benefit-text strong { color:var(--text); }
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 6 — GMAIL SAFETY
+═══════════════════════════════════════════════════ */
+.safety-cards {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;
+}
+.safety-card {
+  padding:20px 16px; border-radius:var(--r-md); text-align:center;
+  border:1.5px solid var(--border-lt);
+}
+.safety-card.gmail-card { background:#f8f9fa; }
+.safety-card.ez-card { background:var(--blue-lt); border-color:var(--blue); }
+.safety-card-icon { font-size:32px; margin-bottom:10px; }
+.safety-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:6px; }
+.safety-card-desc { font-size:12px; color:var(--text2); line-height:1.4; }
+.safety-card-badge {
+  display:inline-block; margin-top:10px; padding:3px 10px;
+  border-radius:12px; font-size:11px; font-weight:600;
+}
+.safety-card.gmail-card .safety-card-badge { background:#e8eaf6; color:#5c6bc0; }
+.safety-card.ez-card .safety-card-badge { background:var(--blue); color:#fff; }
+
+.how-it-works { display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+.hiw-item {
+  display:flex; align-items:center; gap:12px; padding:10px 12px;
+  background:var(--surface); border-radius:var(--r-sm);
+}
+.hiw-num {
+  width:22px; height:22px; border-radius:50%; background:var(--blue);
+  color:#fff; font-size:11px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.hiw-text { font-size:13px; color:var(--text2); }
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 7 — SUMMARY (no-dim float)
+═══════════════════════════════════════════════════ */
+.summary-header {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--ai) 100%);
+  padding: 28px 40px 24px;
+  text-align: center;
+}
+.summary-checkmark {
+  width:64px; height:64px; border-radius:50%;
+  background:rgba(255,255,255,0.2); margin:0 auto 16px;
+  display:flex; align-items:center; justify-content:center; font-size:30px;
+}
+.summary-title {
+  font-size:22px; font-weight:700; color:#fff; margin-bottom:6px;
+}
+.summary-subtitle { font-size:14px; color:rgba(255,255,255,0.8); }
+
+.summary-checklist { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+.summary-check-item {
+  display:flex; align-items:center; gap:12px; padding:12px 14px;
+  background:var(--surface); border-radius:var(--r-sm);
+  border:1px solid var(--border-lt);
+}
+.sc-icon { font-size:18px; flex-shrink:0; }
+.sc-text { font-size:14px; font-weight:500; color:var(--text); }
+.sc-sub { font-size:12px; color:var(--text2); margin-top:1px; }
+
+/* ═══════════════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════════════ */
+.confetti-container {
+  position:fixed; inset:0; pointer-events:none; z-index:300;
+  overflow:hidden;
+}
+.confetti-piece {
+  position:absolute; width:10px; height:10px;
+  opacity:0;
+  animation: confetti-fall 3s ease-in forwards;
+}
+@keyframes confetti-fall {
+  0%   { opacity:1; transform: translateY(-20px) rotate(0deg); }
+  100% { opacity:0; transform: translateY(100vh) rotate(720deg); }
+}
+
+/* ═══════════════════════════════════════════════════
+   SPINNER
+═══════════════════════════════════════════════════ */
+.spinner {
+  width:16px; height:16px; border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff; border-radius:50%;
+  animation: spin 0.6s linear infinite;
+  display:none;
+}
+.spinner.dark { border-color:rgba(0,0,0,0.1); border-top-color:var(--blue); }
+.btn-primary.loading .spinner { display:block; }
+.btn-primary.loading .btn-label { display:none; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ═══════════════════════════════════════════════════
+   STEP INDICATOR DOT (for summary modal)
+═══════════════════════════════════════════════════ */
+.step-dots {
+  display:flex; gap:6px; justify-content:center; margin-bottom:20px;
+}
+.step-dot {
+  width:6px; height:6px; border-radius:50%; background:var(--border);
+  transition: all 250ms ease;
+}
+.step-dot.active { background:var(--blue); width:20px; border-radius:3px; }
+.step-dot.done { background:var(--success); }
+
+/* ═══════════════════════════════════════════════════
+   HIGHLIGHT PULSE (for sidebar annotation)
+═══════════════════════════════════════════════════ */
+@keyframes shimmy {
+  0%,100% { transform:translateX(0); }
+  20%      { transform:translateX(-4px); }
+  40%      { transform:translateX(4px); }
+  60%      { transform:translateX(-3px); }
+  80%      { transform:translateX(3px); }
+}
+.shimmy { animation: shimmy 0.5s ease 3; }
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE CLAMP
+═══════════════════════════════════════════════════ */
+@media (max-height: 700px) {
+  .modal-body { padding:24px 32px 20px; }
+  .headline { font-size:20px; }
+  .value-props { grid-template-columns:1fr 1fr; gap:8px; }
+  .vp-card { padding:10px 12px; }
+}
+
+/* ─── UTILITY ─────────────────────────────────────── */
+.hidden { display:none !important; }
+.mt-12 { margin-top:12px; }
+.mt-16 { margin-top:16px; }
+.divider { height:1px; background:var(--border); margin:20px 0; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     GMAIL SHELL (background)
+══════════════════════════════════════════════════ -->
+<div class="gmail-shell blurred" id="gmailShell">
+
+  <!-- Gmail Top Bar -->
+  <div class="g-topbar">
+    <div class="g-menu-icon">☰</div>
+    <div class="g-logo">G<span class="r">m</span><span class="b">a</span><span class="y">i</span><span class="g2">l</span></div>
+    <div class="g-search">
+      <div class="g-search-icon">🔍</div>
+      <div class="g-search-placeholder">Search mail</div>
+    </div>
+    <div class="g-avatar">J</div>
+  </div>
+
+  <!-- Left Sidebar -->
+  <div class="g-sidebar">
+    <div class="g-compose">✏️ &nbsp;Compose</div>
+    <div class="g-nav-item g-inbox"><span class="g-ni-icon">📥</span><span class="g-ni-label">Inbox</span><span class="g-ni-count">248</span></div>
+    <div class="g-nav-item"><span class="g-ni-icon">⭐</span><span class="g-ni-label">Starred</span></div>
+    <div class="g-nav-item"><span class="g-ni-icon">🕐</span><span class="g-ni-label">Snoozed</span></div>
+    <div class="g-nav-item"><span class="g-ni-icon">📤</span><span class="g-ni-label">Sent</span></div>
+    <div class="g-nav-item"><span class="g-ni-icon">📝</span><span class="g-ni-label">Drafts</span><span class="g-ni-count">3</span></div>
+
+    <!-- EmailZap injection -->
+    <div class="ez-nav-section">
+      <div style="height:1px;background:var(--border);margin:6px 0;"></div>
+      <div class="ez-nav-item" id="ezNavItem">
+        <span class="ez-icon">⚡</span>
+        <span class="ez-label">All Inboxes</span>
+        <span class="ez-count">312</span>
+        <span class="ez-chev">▾</span>
+      </div>
+      <div class="ez-submenu">
+        <div class="ez-sub-item">
+          <div class="ez-dot" style="background:var(--a1)"></div>
+          <span>john@gmail.com</span>
+          <span class="ez-sub-count">248</span>
+        </div>
+        <div class="ez-sub-item hidden" id="secondAcctRow">
+          <div class="ez-dot" style="background:var(--a2)"></div>
+          <span>john@work.com</span>
+          <span class="ez-sub-count">64</span>
+        </div>
+        <div class="ez-add-acct" id="addAcctRow">+ Add account</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email List -->
+  <div class="g-email-area">
+    <div class="g-email-row" style="font-weight:700">
+      <div class="g-row-avatar" style="background:#1a73e8">G</div>
+      <div class="g-row-sender">Google</div>
+      <div class="g-row-content"><strong>Security alert</strong> — New sign-in on Windows · Your Google Account was just signed in to on...</div>
+      <div class="g-row-time">10:42 AM</div>
+    </div>
+    <div class="g-email-row" style="font-weight:700">
+      <div class="g-row-avatar" style="background:#34a853">S</div>
+      <div class="g-row-sender">Stripe</div>
+      <div class="g-row-content"><strong>Your invoice from Stripe for $129.00</strong> — Hello, Here's your invoice from Stripe for...</div>
+      <div class="g-row-time">9:15 AM</div>
+    </div>
+    <div class="g-email-row">
+      <div class="g-row-avatar" style="background:#a142f4">N</div>
+      <div class="g-row-sender">Newsletter Daily</div>
+      <div class="g-row-content">Your morning digest is ready — Top stories in tech, business and science curated just...</div>
+      <div class="g-row-time">8:02 AM</div>
+    </div>
+    <div class="g-email-row">
+      <div class="g-row-avatar" style="background:#f9ab00">A</div>
+      <div class="g-row-sender">Amazon</div>
+      <div class="g-row-content">Your order has been shipped — Your Amazon order #112-3456789 has been shipped and will...</div>
+      <div class="g-row-time">Yesterday</div>
+    </div>
+    <div class="g-email-row">
+      <div class="g-row-avatar" style="background:#ea4335">L</div>
+      <div class="g-row-sender">LinkedIn</div>
+      <div class="g-row-content">5 people viewed your profile — See who's been looking at your profile this week...</div>
+      <div class="g-row-time">Yesterday</div>
+    </div>
+    <div class="g-email-row">
+      <div class="g-row-avatar" style="background:#5f6368">T</div>
+      <div class="g-row-sender">Twitter / X</div>
+      <div class="g-row-content">You have new notifications — 3 people liked your tweet · 2 new followers...</div>
+      <div class="g-row-time">Mon</div>
+    </div>
+    <div class="g-email-row" style="font-weight:700">
+      <div class="g-row-avatar" style="background:#00bcd4">P</div>
+      <div class="g-row-sender">PM Weekly</div>
+      <div class="g-row-content"><strong>The Onboarding Issue: What 500 SaaS products got wrong</strong> — Inside this week's...</div>
+      <div class="g-row-time">Mon</div>
+    </div>
+    <div class="g-email-row">
+      <div class="g-row-avatar" style="background:#1a73e8">G</div>
+      <div class="g-row-sender">Google Drive</div>
+      <div class="g-row-content">Q2 Report.xlsx was shared with you — Sarah Parker shared this file with you...</div>
+      <div class="g-row-time">Sun</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     BACKDROP
+══════════════════════════════════════════════════ -->
+<div class="backdrop" id="backdrop"></div>
+
+<!-- ══════════════════════════════════════════════════
+     CONFETTI
+══════════════════════════════════════════════════ -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL
+══════════════════════════════════════════════════ -->
+<div class="modal" id="mainModal">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <button class="modal-close hidden" id="modalClose" title="Close">✕</button>
+
+  <!-- ── SCREEN 1: Value Prop ── -->
+  <div class="screen active" id="screen1">
+    <div class="modal-body">
+      <div class="screen-1-icon">⚡</div>
+      <div class="headline center">One Inbox. All Your Emails.</div>
+      <div class="subcopy center">Sign up in 30 seconds and EmailZap will start sorting your inbox so you only see what matters.</div>
+      <div class="value-props">
+        <div class="vp-card">
+          <div class="vp-icon">🧠</div>
+          <div class="vp-title">AI-sorted inbox</div>
+          <div class="vp-desc">See only what you want to read. Noise stays out of the way.</div>
+        </div>
+        <div class="vp-card">
+          <div class="vp-icon">📬</div>
+          <div class="vp-title">All accounts, one view</div>
+          <div class="vp-desc">Personal + work Gmail in a single unified list</div>
+        </div>
+        <div class="vp-card">
+          <div class="vp-icon">⚡</div>
+          <div class="vp-title">One-tap actions</div>
+          <div class="vp-desc">Reply, remind, or auto-delete with a single tap</div>
+        </div>
+        <div class="vp-card">
+          <div class="vp-icon">🔒</div>
+          <div class="vp-title">Gmail stays untouched</div>
+          <div class="vp-desc">Exit anytime — your Gmail is exactly as you left it</div>
+        </div>
+      </div>
+      <div class="trust-bullets">
+        <div class="trust-bullet"><span class="tb-icon">✓</span> No forwarding</div>
+        <div class="trust-bullet"><span class="tb-icon">✓</span> Fully reversible</div>
+        <div class="trust-bullet"><span class="tb-icon">✓</span> Secure via Google</div>
+      </div>
+      <button class="btn-primary" onclick="goToScreen(2)">
+        <span class="btn-label">Get Started — It's Free →</span>
+      </button>
+      <div class="social-proof">
+        <span class="stars">★★★★★</span> &nbsp;4.7 · Free during beta
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 2: Sign Up / OAuth ── -->
+  <div class="screen" id="screen2">
+    <div class="modal-body" style="padding-top:44px;">
+      <div class="eyebrow blue" style="text-align:center;">Step 1 of 3 · Sign in</div>
+      <div class="headline center">Create your account</div>
+      <div class="subcopy center" style="margin-bottom:32px;">We use Google's secure sign-in. EmailZap never stores your email content or sends anything without your explicit action.</div>
+
+      <button class="btn-google" id="signInBtn" onclick="simulateOAuth()" style="padding:16px 24px;font-size:16px;font-weight:600;border-radius:10px;border:1.5px solid #dadce0;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:24px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" style="flex-shrink:0"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        <span class="btn-label">Continue with Google</span>
+        <div class="spinner dark"></div>
+      </button>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);">
+          <span style="color:var(--success);font-size:15px;">✓</span>
+          <span>We never store your email content — only metadata for sorting</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);">
+          <span style="color:var(--success);font-size:15px;">✓</span>
+          <span>Google handles your password — we never see it</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);">
+          <span style="color:var(--success);font-size:15px;">✓</span>
+          <span>Disconnect anytime from Settings — Gmail reverts instantly</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 3: Add Second Account ── -->
+  <div class="screen" id="screen3">
+    <div class="modal-body">
+      <div class="eyebrow blue">Step 2 of 3 · Connect</div>
+      <div class="headline">Now, eliminate account switching.</div>
+      <div class="subcopy">Add your work or second Gmail and see everything in one place — no more jumping between tabs.</div>
+
+      <div class="account-cards" style="margin-bottom:16px;">
+        <div class="account-card connected">
+          <div class="ac-icon" style="background:var(--a1)">J</div>
+          <div class="ac-info">
+            <div class="ac-name">john@gmail.com</div>
+            <div class="ac-sub">Personal · Primary account</div>
+          </div>
+          <div class="ac-badge">✓ Connected</div>
+        </div>
+
+        <!-- Add card — styled as a prominent CTA when waiting, becomes connected after -->
+        <div id="addSecondCard" onclick="addSecondAccount()" style="
+          display:flex; align-items:center; gap:14px;
+          padding:18px 20px;
+          border:2px solid var(--blue); border-radius:var(--r-md);
+          background:var(--blue-lt); cursor:pointer;
+          transition: background 150ms, box-shadow 150ms;
+        " onmouseover="this.style.boxShadow='0 2px 12px rgba(0,102,255,0.18)'" onmouseout="this.style.boxShadow=''">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700;flex-shrink:0;">
+            <span id="addCardSpinner" style="display:none;font-size:16px;">⟳</span>
+            <span id="addCardPlus">+</span>
+          </div>
+          <div style="flex:1;">
+            <div id="addCardName" style="font-size:15px;font-weight:700;color:var(--blue);">+ Add a work or personal Gmail</div>
+            <div id="addCardSub" style="font-size:12px;color:var(--text2);margin-top:2px;">Connect via Google — takes 10 seconds</div>
+          </div>
+          <div id="addCardArrow" style="font-size:22px;color:var(--blue);">›</div>
+        </div>
+      </div>
+
+      <div class="trust-note" style="margin-bottom:16px;">Gmail accounts only · We never store email content</div>
+
+      <button class="btn-primary hidden" id="openInboxBtn" onclick="goToScreen(4)">
+        <span class="btn-label">Open My Combined Inbox →</span>
+      </button>
+
+      <div class="skip-link" id="skipLink" onclick="skipSecondAccount()">
+        Continue with one account (limited experience)
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 4: Algo & Labels Education ── -->
+  <div class="screen" id="screen4">
+    <div class="modal-body">
+      <div class="eyebrow purple">Step 3 of 3 · How it works</div>
+      <div class="headline">Your inbox, now sorted by <em>you</em>.</div>
+      <div class="subcopy">EmailZap watches your inbox and labels emails based on what you like to read — no rigid rules, just your preferences.</div>
+
+      <div class="algo-visual">
+        <div class="algo-card important-card">
+          <div class="algo-card-icon">⚡</div>
+          <div class="algo-card-title">Important</div>
+          <div class="algo-card-desc">Emails you like to read — from people, topics, and senders that matter to you.</div>
+          <div class="badge-imp">⚡ Important</div>
+        </div>
+        <div class="algo-card nimp-card">
+          <div class="algo-card-icon">🏷️</div>
+          <div class="algo-card-title">Not Important</div>
+          <div class="algo-card-desc">Emails you don't want to read right now — still in your inbox, just out of the way.</div>
+          <div class="badge-nimp">● Not Important</div>
+        </div>
+      </div>
+
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">Switch views with one tap:</div>
+      <div class="filter-tabs-preview" style="pointer-events:none;user-select:none;">
+        <div class="ftp-tab active-all" id="ftpAll">All</div>
+        <div class="ftp-tab" id="ftpImp">⚡ Important</div>
+        <div class="ftp-tab" id="ftpNimp">● Not Important</div>
+      </div>
+
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;padding:12px 14px;background:var(--surface);border-radius:var(--r-sm);">
+        💡 <strong>You teach it.</strong> Hover any email and tap "Mark important" or "Mark not important." That choice applies to all future emails from that sender — automatically.
+      </div>
+
+      <button class="btn-primary" onclick="goToScreen(5)">
+        <span class="btn-label">Got it — Show me the sidebar →</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 5: AI Sidebar Education ── -->
+  <div class="screen" id="screen5">
+    <div class="modal-body">
+      <div class="eyebrow purple">The power move</div>
+      <div class="headline">Open an email. Three instant actions appear.</div>
+      <div class="subcopy" style="margin-bottom:20px;">Every email you open shows a sidebar — no setup, no digging through menus.</div>
+
+      <!-- Compact split-pane mockup showing email + sidebar together -->
+      <div style="border:1.5px solid var(--border-lt);border-radius:var(--r-md);overflow:hidden;margin-bottom:20px;background:var(--bg);">
+        <!-- Fake email header bar -->
+        <div style="background:#1c1c1e;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;color:#8e8e93;cursor:pointer;">← Back to Inbox</span>
+          <span style="flex:1;font-size:13px;font-weight:600;color:#f5f5f5;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Re: Q3 Budget Review — can we align by Friday?</span>
+        </div>
+        <!-- Split: email body left + sidebar right -->
+        <div style="display:flex;min-height:200px;">
+          <!-- Email snippet -->
+          <div style="flex:1;padding:14px 16px;border-right:1px solid var(--border-lt);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--a1);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">S</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--text);">Sarah Parker</div>
+                <div style="font-size:11px;color:var(--text3);">sarah@company.com</div>
+              </div>
+            </div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.6;">
+              Hey, can we align on the Q3 budget before the all-hands? I've shared the doc — let me know if Friday at 2pm works for a quick sync.
+            </div>
+          </div>
+          <!-- AI Sidebar -->
+          <div style="width:190px;flex-shrink:0;background:var(--surface);display:flex;flex-direction:column;">
+            <div style="background:linear-gradient(135deg,#f5f3ff,#eff6ff);padding:8px 12px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border-lt);">
+              <span style="font-size:14px;">✨</span>
+              <span style="font-size:12px;font-weight:700;color:var(--ai);">EmailZap AI</span>
+            </div>
+            <div style="padding:10px 10px;display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border:1.5px solid var(--border-lt);border-radius:6px;font-size:12px;font-weight:500;color:var(--text);background:#fff;cursor:pointer;" onmouseover="this.style.background='var(--ai-lt)';this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.background='#fff';this.style.borderColor='var(--border-lt)';this.style.color='var(--text)'">↩ Generate a reply</div>
+              <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border:1.5px solid var(--border-lt);border-radius:6px;font-size:12px;font-weight:500;color:var(--text);background:#fff;cursor:pointer;" onmouseover="this.style.background='var(--ai-lt)';this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.background='#fff';this.style.borderColor='var(--border-lt)';this.style.color='var(--text)'">⏰ Remind me</div>
+              <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border:1.5px solid var(--border-lt);border-radius:6px;font-size:12px;font-weight:500;color:var(--text);background:#fff;cursor:pointer;" onmouseover="this.style.background='var(--ai-lt)';this.style.borderColor='var(--ai)';this.style.color='var(--ai)'" onmouseout="this.style.background='#fff';this.style.borderColor='var(--border-lt)';this.style.color='var(--text)'">🗑 Auto-delete</div>
+            </div>
+            <div style="padding:8px 10px;font-size:11px;color:var(--text3);line-height:1.4;border-top:1px solid var(--border-lt);">
+              Tap any action above or type a custom instruction below.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);">
+          <span style="font-size:16px;">↩</span> <span><strong style="color:var(--text)">Generate reply</strong> — AI drafts in your voice. Edit before you send.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);">
+          <span style="font-size:16px;">⏰</span> <span><strong style="color:var(--text)">Remind me</strong> — Snooze this thread. EmailZap sends you a reminder at the right time.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);">
+          <span style="font-size:16px;">🗑</span> <span><strong style="color:var(--text)">Auto-delete</strong> — Block all future emails from this sender or domain. One tap.</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="goToScreen(6)">
+        <span class="btn-label">One more thing →</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 6: Gmail Safety / Reversibility ── -->
+  <div class="screen" id="screen6">
+    <div class="modal-body">
+      <div class="eyebrow green">Your control</div>
+      <div class="headline">Your Gmail stays exactly the same.</div>
+      <div class="subcopy" style="margin-bottom:20px;">Two items now live in your Gmail sidebar. Here's what each one does.</div>
+
+      <!-- Gmail sidebar illustration — 3-column layout: callout | sidebar panel | callout -->
+      <div style="display:grid;grid-template-columns:1fr 176px 1fr;gap:0;align-items:start;margin-bottom:20px;">
+
+        <!-- LEFT callout: Inbox -->
+        <div style="display:flex;flex-direction:column;align-items:flex-end;padding-top:72px;">
+          <div style="
+            background:#fff;border:1.5px solid var(--border);border-radius:var(--r-sm);
+            padding:9px 11px;box-shadow:0 2px 8px rgba(0,0,0,0.08);
+            text-align:right;
+          ">
+            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px;">📥 Inbox</div>
+            <div style="font-size:11px;color:var(--text2);line-height:1.4;">Your regular Gmail — completely untouched. Nothing moved, nothing labelled.</div>
+          </div>
+          <!-- Arrow pointing right toward Inbox row -->
+          <div style="display:flex;align-items:center;margin-top:4px;">
+            <div style="width:24px;height:2px;background:var(--text3);position:relative;">
+              <div style="position:absolute;right:-1px;top:-4px;border-left:7px solid var(--text3);border-top:5px solid transparent;border-bottom:5px solid transparent;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CENTRE: fake Gmail sidebar panel -->
+        <div style="
+          border:1.5px solid var(--border-lt);border-radius:var(--r-md);
+          background:#fff;overflow:hidden;
+          box-shadow:0 2px 12px rgba(0,0,0,0.08);
+        ">
+          <div style="padding:8px 8px 4px;">
+            <div style="background:var(--surface);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;">
+              ✏️ <span>Compose</span>
+            </div>
+          </div>
+          <div style="padding:2px 0;">
+            <!-- Inbox -->
+            <div style="display:flex;align-items:center;height:32px;padding:0 8px;margin:1px 0;border-radius:0 16px 16px 0;font-size:12px;font-weight:700;gap:10px;background:var(--hover);color:var(--text);">
+              <span style="font-size:14px;width:16px;">📥</span><span style="flex:1;">Inbox</span><span style="font-size:11px;color:var(--text2);">248</span>
+            </div>
+            <div style="display:flex;align-items:center;height:30px;padding:0 8px;margin:1px 0;border-radius:0 16px 16px 0;font-size:12px;gap:10px;color:var(--text2);">
+              <span style="font-size:13px;width:16px;">⭐</span><span>Starred</span>
+            </div>
+            <div style="display:flex;align-items:center;height:30px;padding:0 8px;margin:1px 0;border-radius:0 16px 16px 0;font-size:12px;gap:10px;color:var(--text2);">
+              <span style="font-size:13px;width:16px;">📤</span><span>Sent</span>
+            </div>
+            <div style="display:flex;align-items:center;height:30px;padding:0 8px;margin:1px 0;border-radius:0 16px 16px 0;font-size:12px;gap:10px;color:var(--text2);">
+              <span style="font-size:13px;width:16px;">📝</span><span>Drafts</span>
+            </div>
+            <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+            <!-- All Inboxes -->
+            <div style="display:flex;align-items:center;height:32px;padding:0 8px;margin:1px 0;border-radius:0 16px 16px 0;font-size:12px;font-weight:700;gap:10px;background:var(--blue-lt);color:var(--blue);">
+              <span style="font-size:13px;width:16px;">⚡</span><span style="flex:1;">All Inboxes</span><span style="font-size:11px;font-weight:600;">312</span>
+            </div>
+            <div style="display:flex;align-items:center;height:26px;padding:0 8px 0 30px;font-size:11px;gap:7px;color:var(--text2);">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--a1);flex-shrink:0;"></div>
+              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">john@gmail.com</span>
+            </div>
+            <div style="display:flex;align-items:center;height:26px;padding:0 8px 0 30px;font-size:11px;gap:7px;color:var(--text2);">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--a2);flex-shrink:0;"></div>
+              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">john@work.com</span>
+            </div>
+            <div style="height:6px;"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT callout: All Inboxes -->
+        <div style="display:flex;flex-direction:column;align-items:flex-start;padding-top:192px;">
+          <!-- Arrow pointing left toward All Inboxes row -->
+          <div style="display:flex;align-items:center;margin-bottom:4px;">
+            <div style="width:24px;height:2px;background:var(--blue);position:relative;">
+              <div style="position:absolute;left:-1px;top:-4px;border-right:7px solid var(--blue);border-top:5px solid transparent;border-bottom:5px solid transparent;"></div>
+            </div>
+          </div>
+          <div style="
+            background:var(--blue-lt);border:1.5px solid var(--blue);border-radius:var(--r-sm);
+            padding:9px 11px;box-shadow:0 2px 8px rgba(0,102,255,0.12);
+          ">
+            <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:3px;">⚡ All Inboxes</div>
+            <div style="font-size:11px;color:var(--text2);line-height:1.4;">EmailZap view — unified, AI-sorted. Click to enter, click away to exit.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;padding:12px 14px;background:var(--surface);border-radius:var(--r-sm);margin-bottom:20px;">
+        🔄 <strong>To return to Gmail:</strong> just click <strong>"Inbox"</strong> or any item in the left menu. EmailZap disappears instantly — no trace, no changes.
+      </div>
+
+      <button class="btn-primary" onclick="finishOnboarding()">
+        <span class="btn-label">🎉 &nbsp;Show Me My Inbox →</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 7: Summary (floats over inbox) ── -->
+  <div class="screen" id="screen7">
+    <div class="summary-header">
+      <div class="summary-checkmark">🎉</div>
+      <div class="summary-title">You're all set!</div>
+      <div class="summary-subtitle">You now control all your inboxes from one place.</div>
+    </div>
+    <div class="modal-body">
+      <div class="summary-checklist" id="summaryChecklist">
+        <!-- populated dynamically -->
+      </div>
+
+      <div style="font-size:13px;color:var(--text2);line-height:1.5;padding:12px;background:var(--blue-lt);border-radius:var(--r-sm);margin-bottom:20px;">
+        💡 <strong>Tip:</strong> Click any email to open the AI sidebar. Your importance labels will populate as our algorithm processes your inbox.
+      </div>
+
+      <button class="btn-primary" onclick="closeModal()">
+        <span class="btn-label">Go to All Inboxes →</span>
+      </button>
+    </div>
+  </div>
+
+</div><!-- end .modal -->
+
+
+<!-- ══════════════════════════════════════════════════
+     STEP COUNTER (outside modal, bottom of screen)
+══════════════════════════════════════════════════ -->
+<div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:250;display:flex;gap:8px;align-items:center;" id="stepDots">
+  <div class="step-dot active" id="dot1"></div>
+  <div class="step-dot" id="dot2"></div>
+  <div class="step-dot" id="dot3"></div>
+  <div class="step-dot" id="dot4"></div>
+  <div class="step-dot" id="dot5"></div>
+  <div class="step-dot" id="dot6"></div>
+</div>
+
+
+<script>
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+let currentScreen = 1;
+let secondAccountAdded = false;
+const TOTAL_SCREENS = 7; // 7 including summary
+
+const PROGRESS = {
+  1: 0,
+  2: 16,
+  3: 33,
+  4: 50,
+  5: 66,
+  6: 83,
+  7: 100
+};
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  showScreen(1);
+  document.getElementById('backdrop').classList.add('visible');
+  document.getElementById('gmailShell').classList.add('blurred');
+});
+
+/* ══════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════ */
+function goToScreen(n) {
+  showScreen(n);
+}
+
+function showScreen(n) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+
+  currentScreen = n;
+  const screen = document.getElementById('screen' + n);
+  if (screen) screen.classList.add('active');
+
+  // Progress
+  document.getElementById('progressFill').style.width = (PROGRESS[n] || 0) + '%';
+
+  // Step dots
+  updateDots(n);
+
+  // Close button visibility
+  const closeBtn = document.getElementById('modalClose');
+  if (n === 1) {
+    closeBtn.classList.add('hidden');
+  } else if (n === 7) {
+    closeBtn.classList.remove('hidden');
+  } else {
+    closeBtn.classList.remove('hidden');
+  }
+
+  // Screen 7 specific — no-dim, float over inbox
+  if (n === 7) {
+    document.getElementById('backdrop').classList.remove('visible');
+    document.getElementById('backdrop').classList.add('no-dim');
+    document.getElementById('gmailShell').classList.remove('blurred');
+    document.getElementById('stepDots').style.display = 'none';
+    buildSummaryChecklist();
+    setTimeout(fireConfetti, 300);
+  }
+
+  // Ensure modal is visible
+  document.getElementById('mainModal').classList.add('visible');
+}
+
+function updateDots(n) {
+  const dotMap = {1:1, 2:2, 3:3, 4:4, 5:5, 6:6};
+  for (let i = 1; i <= 6; i++) {
+    const dot = document.getElementById('dot' + i);
+    if (!dot) continue;
+    dot.classList.remove('active', 'done');
+    if (dotMap[n] && i === dotMap[n]) dot.classList.add('active');
+    else if (dotMap[n] && i < dotMap[n]) dot.classList.add('done');
+  }
+  if (n === 7) {
+    for (let i = 1; i <= 6; i++) {
+      const dot = document.getElementById('dot' + i);
+      if (dot) dot.classList.add('done');
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   OAUTH SIMULATION (Screen 2)
+══════════════════════════════════════════════════ */
+function simulateOAuth() {
+  const btn = document.getElementById('signInBtn');
+  btn.classList.add('loading');
+  btn.style.pointerEvents = 'none';
+  const spinner = btn.querySelector('.spinner');
+  const label = btn.querySelector('.btn-label');
+  if (spinner) spinner.style.display = 'block';
+  if (label) label.style.display = 'none';
+
+  setTimeout(() => {
+    // Reset button
+    btn.classList.remove('loading');
+    btn.style.pointerEvents = '';
+    if (spinner) spinner.style.display = 'none';
+    if (label) label.style.display = '';
+    goToScreen(3);
+  }, 1800);
+}
+
+/* ══════════════════════════════════════════════════
+   ADD SECOND ACCOUNT (Screen 3)
+══════════════════════════════════════════════════ */
+function addSecondAccount() {
+  if (secondAccountAdded) return;
+
+  const card = document.getElementById('addSecondCard');
+  const spinner = document.getElementById('addCardSpinner');
+  const plus = document.getElementById('addCardPlus');
+  const name = document.getElementById('addCardName');
+  const sub = document.getElementById('addCardSub');
+  const arrow = document.getElementById('addCardArrow');
+
+  // Loading state
+  card.style.pointerEvents = 'none';
+  card.style.opacity = '0.75';
+  if (spinner) spinner.style.display = 'inline';
+  if (plus) plus.style.display = 'none';
+  name.textContent = 'Connecting…';
+
+  setTimeout(() => {
+    secondAccountAdded = true;
+
+    // Transform card to connected state
+    card.style.opacity = '1';
+    card.style.pointerEvents = 'none';
+    card.style.cursor = 'default';
+    card.style.border = '2px solid var(--success)';
+    card.style.background = '#f0fff4';
+    card.onmouseover = null;
+    card.onmouseout = null;
+
+    // Swap icon to green avatar
+    const iconEl = card.querySelector('[id="addCardSpinner"]').parentElement;
+    iconEl.style.background = 'var(--a2)';
+    iconEl.style.color = '#fff';
+    if (spinner) spinner.style.display = 'none';
+    if (plus) { plus.style.display = 'inline'; plus.textContent = 'W'; }
+
+    name.textContent = 'john@work.com';
+    name.style.color = 'var(--text)';
+    sub.textContent = 'Work · Just connected';
+    if (arrow) arrow.innerHTML = '<span style="font-size:11px;font-weight:600;color:var(--success);background:#dcfce7;padding:2px 8px;border-radius:12px;">✓ Just connected</span>';
+
+    // Show second account in Gmail sidebar
+    document.getElementById('secondAcctRow').classList.remove('hidden');
+
+    // Hide skip, show CTA
+    document.getElementById('skipLink').classList.add('hidden');
+    document.getElementById('openInboxBtn').classList.remove('hidden');
+
+    // Confetti
+    fireConfetti();
+  }, 1600);
+}
+
+function skipSecondAccount() {
+  secondAccountAdded = false;
+  goToScreen(4);
+}
+
+/* ══════════════════════════════════════════════════
+   FILTER TAB DEMO (Screen 4)
+══════════════════════════════════════════════════ */
+function selectFilterTab(tab) {
+  document.getElementById('ftpAll').className = 'ftp-tab';
+  document.getElementById('ftpImp').className = 'ftp-tab';
+  document.getElementById('ftpNimp').className = 'ftp-tab';
+  if (tab === 'all') document.getElementById('ftpAll').className = 'ftp-tab active-all';
+  if (tab === 'imp') document.getElementById('ftpImp').className = 'ftp-tab active-imp';
+  if (tab === 'nimp') document.getElementById('ftpNimp').className = 'ftp-tab active-nimp';
+}
+
+/* ══════════════════════════════════════════════════
+   FINISH ONBOARDING → Screen 7
+══════════════════════════════════════════════════ */
+function finishOnboarding() {
+  goToScreen(7);
+}
+
+/* ══════════════════════════════════════════════════
+   BUILD SUMMARY CHECKLIST
+══════════════════════════════════════════════════ */
+function buildSummaryChecklist() {
+  const container = document.getElementById('summaryChecklist');
+  const acctCount = secondAccountAdded ? 2 : 1;
+  const items = [
+    {
+      icon: '✅',
+      text: acctCount + ' account' + (acctCount > 1 ? 's' : '') + ' connected',
+      sub: secondAccountAdded ? 'john@gmail.com + john@work.com' : 'john@gmail.com'
+    },
+    { icon: '✅', text: 'Unified inbox enabled', sub: 'All emails visible from the "All Inboxes" view' },
+    { icon: '✅', text: 'AI importance sorting active', sub: 'Emails are being classified — labels appear shortly' },
+    { icon: '✅', text: 'Gmail untouched', sub: 'Click "Inbox" anytime to return to native Gmail' }
+  ];
+  if (!secondAccountAdded) {
+    items.push({
+      icon: '➕',
+      text: 'Add a second account',
+      sub: 'Tap "+ Add account" in the sidebar when ready',
+      action: true
+    });
+  }
+  container.innerHTML = items.map(item => `
+    <div class="summary-check-item ${item.action ? 'style="border-color:var(--blue);background:var(--blue-lt);"' : ''}">
+      <div class="sc-icon">${item.icon}</div>
+      <div>
+        <div class="sc-text">${item.text}</div>
+        <div class="sc-sub">${item.sub}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   CLOSE MODAL
+══════════════════════════════════════════════════ */
+function closeModal() {
+  const modal = document.getElementById('mainModal');
+  const backdrop = document.getElementById('backdrop');
+  const stepDots = document.getElementById('stepDots');
+
+  modal.classList.remove('visible');
+  backdrop.classList.remove('visible', 'no-dim');
+  document.getElementById('gmailShell').classList.remove('blurred');
+  stepDots.style.display = 'none';
+
+  // If single account, shimmy the add account row
+  if (!secondAccountAdded) {
+    setTimeout(() => {
+      const addRow = document.getElementById('addAcctRow');
+      addRow.classList.add('shimmy');
+      setTimeout(() => addRow.classList.remove('shimmy'), 1800);
+    }, 400);
+  }
+}
+
+// Close button handler
+document.getElementById('modalClose').addEventListener('click', closeModal);
+
+/* ══════════════════════════════════════════════════
+   CONFETTI
+══════════════════════════════════════════════════ */
+function fireConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#0066ff', '#6366f1', '#34a853', '#f5a623', '#ea4335', '#a142f4', '#00bcd4'];
+  const shapes = ['●', '■', '▲', '★', '◆'];
+
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.top = '-20px';
+    piece.style.color = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.fontSize = (8 + Math.random() * 10) + 'px';
+    piece.style.animationDelay = (Math.random() * 1.5) + 's';
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+    piece.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+</script>
+</body>
+</html>
