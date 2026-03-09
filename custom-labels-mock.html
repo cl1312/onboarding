@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emailzap — Custom Labels Mock</title>
+<style>
+:root {
+  --blue:       #1967d2;
+  --blue-lt:    #d3e3fd;
+  --blue-mid:   #1558b0;
+  --text:       #202124;
+  --text2:      #5f6368;
+  --text3:      #80868b;
+  --bg:         #ffffff;
+  --surface:    #f8f9fa;
+  --hover:      #f1f3f4;
+  --border:     #e0e0e0;
+  --border-lt:  #dadce0;
+  --danger:     #ea4335;
+  --danger-dk:  #d33426;
+  --success:    #34a853;
+  --important:  #fbbc04;
+  --nimp-bg:    #fce8e6;
+  --nimp-bd:    #f5c6c0;
+  --a1: #1a73e8; --a2: #34a853; --a3: #f9ab00;
+  --ai:    #6366f1;
+  --ai-lt: #f5f3ff;
+  --ai-mid:#4f46e5;
+  --sh-sm: 0 1px 3px rgba(60,64,67,.15), 0 1px 2px rgba(60,64,67,.10);
+  --sh-md: 0 4px 16px rgba(0,0,0,.12);
+  --sh-lg: 0 8px 28px rgba(0,0,0,.18);
+  --r-xl:  20px;
+  --r-lg:  16px;
+  --r-md:  12px;
+  --r-sm:   8px;
+  --r-xs:   6px;
+  --r-pill: 24px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Google Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  background: #e8eaed;
+  color: var(--text);
+  padding: 24px;
+}
+
+/* ═══════════════════════════
+   FLOW LAYOUT
+═══════════════════════════ */
+h1 {
+  font-size: 22px; font-weight: 700; color: var(--text);
+  margin-bottom: 4px;
+}
+.subtitle { font-size: 14px; color: var(--text2); margin-bottom: 32px; }
+
+.section-divider {
+  display: flex; align-items: center; gap: 16px;
+  margin: 8px 0 24px;
+}
+.section-divider-line { flex: 1; height: 1px; background: #c8cacd; }
+.section-divider-label {
+  font-size: 11px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap;
+}
+
+.flow-row {
+  display: flex; align-items: flex-start; gap: 20px;
+  margin-bottom: 48px; flex-wrap: nowrap;
+  overflow-x: auto; padding-bottom: 8px;
+}
+
+.screen-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; flex-shrink: 0;
+}
+.screen-label {
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.screen-note {
+  font-size: 11px; color: var(--text3); max-width: 520px; text-align: center;
+  line-height: 1.5;
+}
+
+.arrow {
+  font-size: 28px; color: #9aa0a6;
+  flex-shrink: 0; align-self: center;
+}
+
+/* ═══════════════════════════
+   MOCK SHELL
+═══════════════════════════ */
+.mock-shell {
+  width: 580px; height: 520px;
+  background: var(--bg); border-radius: 12px;
+  box-shadow: var(--sh-lg);
+  position: relative; overflow: hidden;
+}
+.mock-shell.tall { height: 600px; }
+.mock-shell.settings-shell { width: 420px; height: 580px; }
+
+/* ═══════════════════════════
+   TOP BAR
+═══════════════════════════ */
+.top-bar {
+  height: 52px; background: #1c1c1e;
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0;
+}
+.search-pill {
+  flex: 1; height: 34px;
+  background: rgba(255,255,255,.08); border-radius: 24px;
+  display: flex; align-items: center;
+  padding: 0 14px; gap: 8px;
+  font-size: 13px; color: #8e8e93;
+}
+.settings-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #8e8e93; cursor: pointer;
+}
+.user-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--a1); display: flex; align-items: center;
+  justify-content: center; font-size: 11px; font-weight: 700; color: #fff;
+}
+
+/* ═══════════════════════════
+   TOOLBAR
+═══════════════════════════ */
+.toolbar {
+  height: 40px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 12px;
+  font-size: 13px; color: var(--text2); flex-shrink: 0;
+}
+.tl-cb { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 3px; }
+.tl-sep { width: 1px; height: 18px; background: var(--border); }
+.tl-btn { font-size: 13px; color: var(--text2); cursor: pointer; }
+.pag-right { margin-left: auto; font-size: 13px; color: var(--text2); }
+
+/* ═══════════════════════════
+   FILTER TABS
+═══════════════════════════ */
+.filter-tabs {
+  height: 40px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: stretch;
+  padding: 0 12px; flex-shrink: 0;
+  gap: 0;
+}
+.ftab {
+  padding: 0 16px; font-size: 13px; font-weight: 500;
+  color: var(--text2); cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  height: 100%;
+  border-bottom: 2.5px solid transparent;
+  transition: color 150ms, border-color 150ms;
+  white-space: nowrap;
+}
+.ftab:hover { color: var(--text); }
+.ftab.active-all { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+.ftab.active-imp { color: #b45309; border-bottom-color: #b45309; font-weight: 600; }
+.ftab.active-nimp { color: var(--danger); border-bottom-color: var(--danger); font-weight: 600; }
+.ftab.active-label { font-weight: 600; border-bottom-width: 2.5px; }
+
+.ftab-count {
+  font-size: 11px; font-weight: 600;
+  border-radius: 10px; padding: 1px 6px;
+}
+
+/* Custom label tabs */
+.ftab .label-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* Create Label CTA */
+.create-label-cta {
+  padding: 0 14px; font-size: 13px; font-weight: 500;
+  color: var(--blue); cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  height: 100%;
+  border-bottom: 2.5px solid transparent;
+  white-space: nowrap; margin-left: auto;
+  transition: color 150ms;
+}
+.create-label-cta:hover { color: var(--blue-mid); }
+
+/* ═══════════════════════════
+   EMAIL ROWS
+═══════════════════════════ */
+.email-rows { flex: 1; overflow: hidden; }
+.erow {
+  height: 40px; display: flex; align-items: center;
+  padding: 0 16px 0 8px; gap: 0;
+  cursor: pointer; position: relative;
+  transition: background 100ms;
+}
+.erow:hover {
+  background: var(--hover);
+  box-shadow: inset 1px 0 0 var(--border-lt), inset -1px 0 0 var(--border-lt),
+              0 1px 3px rgba(60,64,67,.12);
+  z-index: 1;
+}
+.er-star {
+  font-size: 15px; color: var(--border-lt); flex-shrink: 0;
+  width: 24px; text-align: center; margin-right: 2px;
+}
+.er-star.on { color: var(--important); }
+.er-imp {
+  font-size: 13px; color: var(--important); flex-shrink: 0;
+  width: 20px; text-align: center; margin-right: 2px;
+}
+.er-imp.off { visibility: hidden; }
+.er-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+  margin-right: 10px;
+}
+.er-sender {
+  font-size: 13.5px; font-weight: 700; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  width: 130px; flex-shrink: 0; margin-right: 8px;
+}
+.erow.read .er-sender { font-weight: 400; color: var(--text2); }
+.er-body { flex: 1; min-width: 0; overflow: hidden; display: flex; align-items: baseline; gap: 6px; }
+
+.nimp-badge {
+  font-size: 11px; font-weight: 600;
+  background: var(--danger); color: #fff;
+  border-radius: 20px; padding: 2px 8px; white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.label-badge {
+  font-size: 10px; font-weight: 600;
+  color: #fff;
+  border-radius: 20px; padding: 2px 8px; white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.er-subj {
+  font-size: 13.5px; font-weight: 600; white-space: nowrap;
+  flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 220px;
+}
+.erow.read .er-subj { font-weight: 400; }
+.er-sep { color: var(--text3); font-size: 13px; flex-shrink: 0; margin: 0 1px; }
+.er-prev {
+  font-size: 13px; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.er-time { font-size: 12px; color: var(--text2); white-space: nowrap; margin-left: auto; flex-shrink: 0; padding-left: 12px; }
+
+/* ═══════════════════════════
+   AGENTIC CHAT OVERLAY
+═══════════════════════════ */
+.agent-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  box-shadow: 0 -4px 16px rgba(0,0,0,.08);
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+}
+.agent-header {
+  display: flex; align-items: center;
+  padding: 12px 16px 8px; gap: 8px;
+}
+.agent-title {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  display: flex; align-items: center; gap: 6px;
+}
+.agent-title .ai-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ai);
+}
+.agent-close {
+  margin-left: auto;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text3); cursor: pointer;
+}
+.agent-close:hover { background: var(--hover); }
+
+.agent-messages {
+  flex: 1; overflow-y: auto; padding: 4px 16px 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.msg {
+  max-width: 90%; padding: 10px 14px;
+  border-radius: 14px; font-size: 13px; line-height: 1.55;
+}
+.msg-user {
+  align-self: flex-end;
+  background: var(--blue); color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.msg-agent {
+  align-self: flex-start;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border-lt);
+  border-bottom-left-radius: 4px;
+}
+.msg-agent .highlight { color: var(--ai); font-weight: 600; }
+
+/* Scope selector inside agent */
+.scope-options {
+  display: flex; gap: 8px; margin-top: 8px;
+}
+.scope-btn {
+  padding: 8px 14px; border-radius: var(--r-sm);
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-size: 12px; font-weight: 500; color: var(--text);
+  cursor: pointer; transition: all 150ms;
+  font-family: inherit;
+}
+.scope-btn:hover { border-color: var(--blue); color: var(--blue); }
+.scope-btn.selected {
+  border-color: var(--blue); background: var(--blue-lt); color: var(--blue);
+}
+
+/* Agent input bar */
+.agent-input-bar {
+  display: flex; align-items: center;
+  padding: 10px 16px; gap: 8px;
+  border-top: 1px solid var(--border-lt);
+  background: var(--bg);
+}
+.agent-input {
+  flex: 1; height: 36px; border: 1.5px solid var(--border);
+  border-radius: var(--r-pill); padding: 0 14px;
+  font-size: 13px; font-family: inherit; color: var(--text);
+  outline: none; transition: border-color 150ms;
+  background: var(--bg);
+}
+.agent-input:focus { border-color: var(--blue); }
+.agent-input::placeholder { color: var(--text3); }
+.agent-send {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--blue); border: none; color: #fff;
+  font-size: 15px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: background 150ms; flex-shrink: 0;
+}
+.agent-send:hover { background: var(--blue-mid); }
+
+/* Success state */
+.success-card {
+  background: #e6f4ea; border: 1px solid #a8dab5;
+  border-radius: var(--r-md); padding: 12px 14px;
+  font-size: 13px; color: #1e6b35;
+}
+.success-card .sc-title {
+  font-weight: 600; display: flex; align-items: center; gap: 6px;
+  margin-bottom: 6px;
+}
+.success-card .sc-detail {
+  font-size: 12px; color: #2d7a4a; line-height: 1.5;
+}
+
+/* ═══════════════════════════
+   SETTINGS PANEL
+═══════════════════════════ */
+.sp-panel {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+}
+.sp-head {
+  height: 56px; display: flex; align-items: center;
+  padding: 0 16px; border-bottom: 1px solid var(--border);
+  gap: 10px; flex-shrink: 0;
+}
+.sp-back {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text2); flex-shrink: 0; cursor: pointer;
+}
+.sp-title { font-size: 16px; font-weight: 600; flex: 1; }
+.sp-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text2); flex-shrink: 0;
+}
+.sp-body { flex: 1; overflow-y: auto; padding: 8px 16px 16px; }
+.sp-sec {
+  font-size: 11px; font-weight: 500; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin: 20px 0 8px;
+}
+.sp-sec:first-child { margin-top: 8px; }
+.sp-row {
+  display: flex; align-items: center;
+  padding: 11px 10px; gap: 12px;
+  border-radius: var(--r-xs); cursor: pointer;
+  border-bottom: 1px solid var(--border-lt);
+  transition: background 100ms;
+}
+.sp-row:hover { background: var(--hover); }
+.sp-icon { font-size: 18px; width: 24px; flex-shrink: 0; }
+.sp-content { flex: 1; min-width: 0; }
+.sp-label { font-size: 14px; font-weight: 500; }
+.sp-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.sp-chev { font-size: 14px; color: var(--text3); }
+
+/* ═══════════════════════════
+   MANAGE LABELS VIEW
+═══════════════════════════ */
+.label-card {
+  background: var(--bg); border: 1px solid var(--border-lt);
+  border-radius: var(--r-md); padding: 14px 16px;
+  margin-bottom: 10px; transition: box-shadow 150ms;
+}
+.label-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+.lc-top {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+}
+.lc-dot {
+  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+}
+.lc-name { font-size: 14px; font-weight: 600; flex: 1; }
+.lc-scope {
+  font-size: 11px; font-weight: 500; padding: 2px 8px;
+  border-radius: 10px; background: var(--surface); color: var(--text2);
+}
+.lc-scope.gmail { background: #e8f0fe; color: var(--blue); }
+
+.lc-conditions {
+  font-size: 12px; color: var(--text2); line-height: 1.5;
+  margin-bottom: 10px;
+}
+.lc-conditions code {
+  background: var(--surface); padding: 1px 5px;
+  border-radius: 4px; font-size: 11px; font-family: 'Roboto Mono', monospace;
+}
+
+.lc-footer {
+  display: flex; align-items: center; gap: 12px;
+}
+.lc-stat {
+  font-size: 12px; color: var(--text3);
+}
+.lc-actions {
+  margin-left: auto; display: flex; gap: 6px;
+}
+.lc-action {
+  font-size: 12px; font-weight: 500; padding: 4px 10px;
+  border-radius: var(--r-xs); cursor: pointer;
+  transition: background 100ms;
+}
+.lc-action.edit { color: var(--blue); }
+.lc-action.edit:hover { background: #e8f0fe; }
+.lc-action.delete { color: var(--danger); }
+.lc-action.delete:hover { background: var(--nimp-bg); }
+
+/* Delete confirmation */
+.delete-confirm {
+  background: var(--nimp-bg); border: 1px solid var(--nimp-bd);
+  border-radius: var(--r-md); padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.dc-text { font-size: 13px; color: var(--danger-dk); margin-bottom: 10px; line-height: 1.5; }
+.dc-actions { display: flex; gap: 8px; }
+.dc-btn {
+  padding: 6px 14px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  border: none; font-family: inherit;
+  transition: background 100ms;
+}
+.dc-btn.yes { background: var(--danger); color: #fff; }
+.dc-btn.yes:hover { background: var(--danger-dk); }
+.dc-btn.no { background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+.dc-btn.no:hover { background: var(--hover); }
+
+/* ═══════════════════════════
+   ANNOTATION CALLOUTS
+═══════════════════════════ */
+.callout {
+  position: absolute;
+  background: #fffde7; border: 1.5px solid #f9e547;
+  border-radius: 8px; padding: 6px 10px;
+  font-size: 11px; color: #5d4037; font-weight: 500;
+  white-space: nowrap; z-index: 20;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.callout::after {
+  content: ''; position: absolute;
+  width: 8px; height: 8px; background: #fffde7;
+  border-right: 1.5px solid #f9e547; border-bottom: 1.5px solid #f9e547;
+  transform: rotate(45deg);
+}
+.callout.arrow-left::after {
+  left: -5px; top: 50%; margin-top: -4px; transform: rotate(135deg);
+}
+.callout.arrow-top::after {
+  top: -5px; left: 50%; margin-left: -4px; transform: rotate(-135deg);
+}
+.callout.arrow-bottom::after {
+  bottom: -5px; left: 50%; margin-left: -4px; transform: rotate(45deg);
+}
+
+/* Pulse animation for CTA */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(25,103,210,.3); }
+  70% { box-shadow: 0 0 0 6px rgba(25,103,210,0); }
+  100% { box-shadow: 0 0 0 0 rgba(25,103,210,0); }
+}
+.pulse { animation: pulse-ring 2s ease infinite; }
+
+/* dimmed rows */
+.erow.dimmed { opacity: 0.35; }
+</style>
+</head>
+<body>
+
+<h1>Custom Labels — Interactive Mock</h1>
+<p class="subtitle">Phase I: Natural language label creation with Gmail filter conditions</p>
+
+<!-- ═══════════════════════════════════════
+     FLOW 1: ENTRY POINT — FILTER ROW
+═══════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-divider-label">Flow 1 — Entry Point: Create Label CTA in Filter Row</span>
+  <div class="section-divider-line"></div>
+</div>
+
+<div class="flow-row">
+  <div class="screen-wrap">
+    <span class="screen-label">EmailZap View — Default State</span>
+    <div class="mock-shell">
+      <div class="top-bar">
+        <div class="search-pill">&#128269; Search all inboxes...</div>
+        <div class="settings-icon">&#9881;</div>
+        <div class="user-av">CL</div>
+      </div>
+      <div class="toolbar">
+        <div class="tl-cb"></div>
+        <div class="tl-sep"></div>
+        <span class="tl-btn">Mark as Read</span>
+        <span class="pag-right">1–50 of 234</span>
+      </div>
+      <div class="filter-tabs">
+        <div class="ftab active-all">All</div>
+        <div class="ftab">Important</div>
+        <div class="ftab">Not Important <span class="ftab-count" style="background:var(--danger);color:#fff;">12</span></div>
+        <div class="create-label-cta pulse" style="border-radius:6px;">+ Create Label</div>
+        <!-- Callout annotation -->
+        <div class="callout arrow-bottom" style="top:-36px; right:10px;">New CTA — entry point for custom labels</div>
+      </div>
+      <div class="email-rows">
+        <div class="erow">
+          <span class="er-star on">&#9733;</span>
+          <span class="er-imp">&#9889;</span>
+          <div class="er-av" style="background:var(--a1);">JD</div>
+          <span class="er-sender">John Doe</span>
+          <div class="er-body">
+            <span class="er-subj">Q1 Revenue Report</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Here are the numbers for...</span>
+          </div>
+          <span class="er-time">10:32 AM</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a2);">AM</div>
+          <span class="er-sender">Amazon</span>
+          <div class="er-body">
+            <span class="nimp-badge">Not Important</span>
+            <span class="er-subj">Your order has shipped</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Track your package...</span>
+          </div>
+          <span class="er-time">9:15 AM</span>
+        </div>
+        <div class="erow">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp">&#9889;</span>
+          <div class="er-av" style="background:var(--a3);">SJ</div>
+          <span class="er-sender">Sarah Jones</span>
+          <div class="er-body">
+            <span class="er-subj">Meeting tomorrow at 3pm</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Can we move it to 4?</span>
+          </div>
+          <span class="er-time">8:45 AM</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:#7c4dff;">LI</div>
+          <span class="er-sender">LinkedIn</span>
+          <div class="er-body">
+            <span class="nimp-badge">Not Important</span>
+            <span class="er-subj">5 new job matches</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Based on your profile...</span>
+          </div>
+          <span class="er-time">Yesterday</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a1);">FZ</div>
+          <span class="er-sender">Freshbooks</span>
+          <div class="er-body">
+            <span class="nimp-badge">Not Important</span>
+            <span class="er-subj">Invoice #4521 is overdue</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Reminder: payment due...</span>
+          </div>
+          <span class="er-time">Yesterday</span>
+        </div>
+        <div class="erow">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp">&#9889;</span>
+          <div class="er-av" style="background:var(--a2);">MK</div>
+          <span class="er-sender">Mike Kim</span>
+          <div class="er-body">
+            <span class="er-subj">Design review feedback</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Looks great overall, just a...</span>
+          </div>
+          <span class="er-time">Mar 7</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:#e91e63;">NF</div>
+          <span class="er-sender">Netflix</span>
+          <div class="er-body">
+            <span class="nimp-badge">Not Important</span>
+            <span class="er-subj">New arrivals this week</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Check out what's trending...</span>
+          </div>
+          <span class="er-time">Mar 7</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FLOW 2: AGENTIC CONVERSATION
+═══════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-divider-label">Flow 2 — Agentic Conversation: User Describes Label</span>
+  <div class="section-divider-line"></div>
+</div>
+
+<div class="flow-row">
+  <!-- Step 1: User types instruction -->
+  <div class="screen-wrap">
+    <span class="screen-label">Step 1 — User Types Instruction</span>
+    <div class="mock-shell tall">
+      <div class="top-bar">
+        <div class="search-pill">&#128269; Search all inboxes...</div>
+        <div class="settings-icon">&#9881;</div>
+        <div class="user-av">CL</div>
+      </div>
+      <div class="toolbar">
+        <div class="tl-cb"></div>
+        <div class="tl-sep"></div>
+        <span class="tl-btn">Mark as Read</span>
+        <span class="pag-right">1–50 of 234</span>
+      </div>
+      <div class="filter-tabs">
+        <div class="ftab active-all">All</div>
+        <div class="ftab">Important</div>
+        <div class="ftab">Not Important</div>
+        <div class="create-label-cta" style="color:var(--ai);font-weight:600;">+ Create Label</div>
+      </div>
+      <div class="email-rows">
+        <div class="erow dimmed">
+          <span class="er-star on">&#9733;</span>
+          <span class="er-imp">&#9889;</span>
+          <div class="er-av" style="background:var(--a1);">JD</div>
+          <span class="er-sender">John Doe</span>
+          <div class="er-body"><span class="er-subj">Q1 Revenue Report</span></div>
+          <span class="er-time">10:32 AM</span>
+        </div>
+        <div class="erow dimmed read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a2);">AM</div>
+          <span class="er-sender">Amazon</span>
+          <div class="er-body"><span class="er-subj">Your order has shipped</span></div>
+          <span class="er-time">9:15 AM</span>
+        </div>
+        <div class="erow dimmed">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp">&#9889;</span>
+          <div class="er-av" style="background:var(--a3);">SJ</div>
+          <span class="er-sender">Sarah Jones</span>
+          <div class="er-body"><span class="er-subj">Meeting tomorrow</span></div>
+          <span class="er-time">8:45 AM</span>
+        </div>
+      </div>
+      <!-- Agent overlay -->
+      <div class="agent-overlay" style="height: 280px;">
+        <div class="agent-header">
+          <div class="agent-title"><span class="ai-dot"></span> Create Label</div>
+          <div class="agent-close">&#10005;</div>
+        </div>
+        <div class="agent-messages">
+          <div class="msg msg-agent">
+            Describe the label you'd like to create. For example:<br>
+            <em style="color:var(--text3);">"Label all emails from Amazon as Shopping"</em>
+          </div>
+          <div class="msg msg-user">
+            Label all emails with subject containing "invoice" as Invoices
+          </div>
+        </div>
+        <div class="agent-input-bar">
+          <input class="agent-input" placeholder="Describe your label..." disabled>
+          <button class="agent-send">&#8593;</button>
+        </div>
+      </div>
+    </div>
+    <span class="screen-note">Chat panel slides up from bottom. Email list dims behind it.</span>
+  </div>
+
+  <div class="arrow">&#8594;</div>
+
+  <!-- Step 2: Agent confirms + scope selection -->
+  <div class="screen-wrap">
+    <span class="screen-label">Step 2 — Agent Confirms + Scope Selection</span>
+    <div class="mock-shell tall">
+      <div class="top-bar">
+        <div class="search-pill">&#128269; Search all inboxes...</div>
+        <div class="settings-icon">&#9881;</div>
+        <div class="user-av">CL</div>
+      </div>
+      <div class="toolbar">
+        <div class="tl-cb"></div>
+        <div class="tl-sep"></div>
+        <span class="tl-btn">Mark as Read</span>
+        <span class="pag-right">1–50 of 234</span>
+      </div>
+      <div class="filter-tabs">
+        <div class="ftab active-all">All</div>
+        <div class="ftab">Important</div>
+        <div class="ftab">Not Important</div>
+        <div class="create-label-cta" style="color:var(--ai);font-weight:600;">+ Create Label</div>
+      </div>
+      <div class="email-rows">
+        <div class="erow dimmed">
+          <span class="er-star on">&#9733;</span>
+          <span class="er-imp">&#9889;</span>
+          <div class="er-av" style="background:var(--a1);">JD</div>
+          <span class="er-sender">John Doe</span>
+          <div class="er-body"><span class="er-subj">Q1 Revenue Report</span></div>
+          <span class="er-time">10:32 AM</span>
+        </div>
+      </div>
+      <!-- Agent overlay -->
+      <div class="agent-overlay" style="height: 380px;">
+        <div class="agent-header">
+          <div class="agent-title"><span class="ai-dot"></span> Create Label</div>
+          <div class="agent-close">&#10005;</div>
+        </div>
+        <div class="agent-messages">
+          <div class="msg msg-agent">
+            Describe the label you'd like to create.
+          </div>
+          <div class="msg msg-user">
+            Label all emails with subject containing "invoice" as Invoices
+          </div>
+          <div class="msg msg-agent">
+            Got it! I'll create a label called <span class="highlight">"Invoices"</span> for emails where:<br><br>
+            <strong>Subject contains:</strong> "invoice"<br><br>
+            Should this label apply to:
+            <div class="scope-options">
+              <button class="scope-btn">EmailZap only</button>
+              <button class="scope-btn selected">EmailZap + Gmail</button>
+            </div>
+          </div>
+        </div>
+        <div class="agent-input-bar">
+          <input class="agent-input" placeholder="Type to adjust..." disabled>
+          <button class="agent-send">&#8593;</button>
+        </div>
+      </div>
+    </div>
+    <span class="screen-note">Agent extracts conditions and asks for scope. User picks one.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FLOW 3: VALIDATION EDGE CASES
+═══════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-divider-label">Flow 3 — Validation: Unsupported Condition & Ambiguity</span>
+  <div class="section-divider-line"></div>
+</div>
+
+<div class="flow-row">
+  <!-- Unsupported -->
+  <div class="screen-wrap">
+    <span class="screen-label">Unsupported Condition</span>
+    <div class="mock-shell" style="height:340px;">
+      <div class="agent-overlay" style="height:100%; border-radius: 12px;">
+        <div class="agent-header">
+          <div class="agent-title"><span class="ai-dot"></span> Create Label</div>
+          <div class="agent-close">&#10005;</div>
+        </div>
+        <div class="agent-messages">
+          <div class="msg msg-user">
+            Label all emails about project deadlines as Deadlines
+          </div>
+          <div class="msg msg-agent">
+            I can't filter by email content meaning yet — that's not a supported condition right now.<br><br>
+            I can filter by: <strong>sender, recipient, subject keywords, body keywords, size, attachments,</strong> or <strong>date</strong>.<br><br>
+            Would you like to try a different condition? For example, you could filter by subject containing "deadline."
+          </div>
+          <div class="msg msg-user">
+            Ok, label emails with subject containing "deadline" as Deadlines
+          </div>
+          <div class="msg msg-agent">
+            Perfect! I'll create <span class="highlight">"Deadlines"</span> for emails where <strong>Subject contains:</strong> "deadline."
+          </div>
+        </div>
+        <div class="agent-input-bar">
+          <input class="agent-input" placeholder="Type to adjust..." disabled>
+          <button class="agent-send">&#8593;</button>
+        </div>
+      </div>
+    </div>
+    <span class="screen-note">Agent explains what's not supported and suggests alternatives.</span>
+  </div>
+
+  <div class="arrow" style="align-self:center;">&#8226;&#8226;&#8226;</div>
+
+  <!-- Ambiguous -->
+  <div class="screen-wrap">
+    <span class="screen-label">Ambiguous Instruction</span>
+    <div class="mock-shell" style="height:340px;">
+      <div class="agent-overlay" style="height:100%; border-radius: 12px;">
+        <div class="agent-header">
+          <div class="agent-title"><span class="ai-dot"></span> Create Label</div>
+          <div class="agent-close">&#10005;</div>
+        </div>
+        <div class="agent-messages">
+          <div class="msg msg-user">
+            Label marketing emails
+          </div>
+          <div class="msg msg-agent">
+            I'd love to help! Could you be more specific? For example:<br><br>
+            &#8226; From specific senders? <em style="color:var(--text3);">(e.g., from mailchimp.com)</em><br>
+            &#8226; Subject contains certain words? <em style="color:var(--text3);">(e.g., "newsletter" or "promo")</em><br>
+            &#8226; What should the label be called?
+          </div>
+          <div class="msg msg-user">
+            From mailchimp.com or hubspot.com, call it Marketing
+          </div>
+          <div class="msg msg-agent">
+            Got it! <span class="highlight">"Marketing"</span> for emails from <strong>mailchimp.com</strong> or <strong>hubspot.com</strong>.
+          </div>
+        </div>
+        <div class="agent-input-bar">
+          <input class="agent-input" placeholder="Type to adjust..." disabled>
+          <button class="agent-send">&#8593;</button>
+        </div>
+      </div>
+    </div>
+    <span class="screen-note">Agent asks clarifying questions when instruction is vague.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FLOW 4: SUCCESS — LABEL CREATED + BACKFILL
+═══════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-divider-label">Flow 4 — Success: Label Created + Backfill + Filter Row Update</span>
+  <div class="section-divider-line"></div>
+</div>
+
+<div class="flow-row">
+  <!-- Success message -->
+  <div class="screen-wrap">
+    <span class="screen-label">Label Created — Success</span>
+    <div class="mock-shell tall">
+      <div class="top-bar">
+        <div class="search-pill">&#128269; Search all inboxes...</div>
+        <div class="settings-icon">&#9881;</div>
+        <div class="user-av">CL</div>
+      </div>
+      <div class="toolbar">
+        <div class="tl-cb"></div>
+        <div class="tl-sep"></div>
+        <span class="tl-btn">Mark as Read</span>
+        <span class="pag-right">1–50 of 234</span>
+      </div>
+      <div class="filter-tabs">
+        <div class="ftab active-all">All</div>
+        <div class="ftab">Important</div>
+        <div class="ftab">Not Important</div>
+        <!-- New label tab appears -->
+        <div class="ftab" style="gap:6px;">
+          <span class="label-dot" style="background:#8e24aa;"></span>
+          Invoices
+        </div>
+        <div class="create-label-cta">+ Create Label</div>
+        <div class="callout arrow-bottom" style="top:-36px; right:140px;">New label tab appears here</div>
+      </div>
+      <div class="email-rows">
+        <div class="erow">
+          <span class="er-star on">&#9733;</span>
+          <span class="er-imp">&#9889;</span>
+          <div class="er-av" style="background:var(--a1);">JD</div>
+          <span class="er-sender">John Doe</span>
+          <div class="er-body"><span class="er-subj">Q1 Revenue Report</span></div>
+          <span class="er-time">10:32 AM</span>
+        </div>
+      </div>
+      <!-- Agent overlay with success -->
+      <div class="agent-overlay" style="height: 320px;">
+        <div class="agent-header">
+          <div class="agent-title"><span class="ai-dot"></span> Create Label</div>
+          <div class="agent-close">&#10005;</div>
+        </div>
+        <div class="agent-messages">
+          <div class="msg msg-user">
+            Label all emails with subject containing "invoice" as Invoices
+          </div>
+          <div class="msg msg-agent">
+            <div class="success-card">
+              <div class="sc-title">&#10003; Label "Invoices" created</div>
+              <div class="sc-detail">
+                <strong>Condition:</strong> Subject contains "invoice"<br>
+                <strong>Scope:</strong> EmailZap + Gmail<br>
+                <strong>Backfill:</strong> Applied to 7 matching emails<br>
+                <strong>Future emails:</strong> Will be labeled automatically
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="agent-input-bar">
+          <input class="agent-input" placeholder="Create another label or close..." disabled>
+          <button class="agent-send">&#8593;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">&#8594;</div>
+
+  <!-- View with labels applied -->
+  <div class="screen-wrap">
+    <span class="screen-label">Filtered by "Invoices" Label</span>
+    <div class="mock-shell">
+      <div class="top-bar">
+        <div class="search-pill">&#128269; Search all inboxes...</div>
+        <div class="settings-icon">&#9881;</div>
+        <div class="user-av">CL</div>
+      </div>
+      <div class="toolbar">
+        <div class="tl-cb"></div>
+        <div class="tl-sep"></div>
+        <span class="tl-btn">Mark as Read</span>
+        <span class="pag-right">1–7 of 7</span>
+      </div>
+      <div class="filter-tabs">
+        <div class="ftab">All</div>
+        <div class="ftab">Important</div>
+        <div class="ftab">Not Important</div>
+        <div class="ftab active-label" style="color:#8e24aa; border-bottom-color:#8e24aa; gap:6px;">
+          <span class="label-dot" style="background:#8e24aa;"></span>
+          Invoices
+        </div>
+        <div class="create-label-cta">+ Create Label</div>
+      </div>
+      <div class="email-rows">
+        <div class="erow">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a1);">FZ</div>
+          <span class="er-sender">Freshbooks</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#8e24aa;">Invoices</span>
+            <span class="er-subj">Invoice #4521 is overdue</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Reminder: payment...</span>
+          </div>
+          <span class="er-time">Yesterday</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a2);">QB</div>
+          <span class="er-sender">QuickBooks</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#8e24aa;">Invoices</span>
+            <span class="er-subj">Invoice #3892 paid</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Payment received for...</span>
+          </div>
+          <span class="er-time">Mar 5</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a3);">ST</div>
+          <span class="er-sender">Stripe</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#8e24aa;">Invoices</span>
+            <span class="er-subj">Invoice for February</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Your monthly invoice is...</span>
+          </div>
+          <span class="er-time">Mar 2</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:#607d8b;">AW</div>
+          <span class="er-sender">AWS</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#8e24aa;">Invoices</span>
+            <span class="er-subj">AWS Invoice Available</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Your February invoice...</span>
+          </div>
+          <span class="er-time">Mar 1</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:#00897b;">GC</div>
+          <span class="er-sender">Google Cloud</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#8e24aa;">Invoices</span>
+            <span class="er-subj">Invoice for GCP</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Cloud billing statement...</span>
+          </div>
+          <span class="er-time">Feb 28</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a1);">FZ</div>
+          <span class="er-sender">Freshbooks</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#8e24aa;">Invoices</span>
+            <span class="er-subj">Invoice #4210 sent</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">New invoice created...</span>
+          </div>
+          <span class="er-time">Feb 20</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a2);">QB</div>
+          <span class="er-sender">QuickBooks</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#8e24aa;">Invoices</span>
+            <span class="er-subj">Invoice #3741 overdue</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Reminder: amount due...</span>
+          </div>
+          <span class="er-time">Feb 15</span>
+        </div>
+      </div>
+    </div>
+    <span class="screen-note">Clicking the label tab shows only matching emails with badge.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FLOW 5: MULTIPLE LABELS ON EMAILS
+═══════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-divider-label">Flow 5 — Multiple Labels: All View with Mixed Labels</span>
+  <div class="section-divider-line"></div>
+</div>
+
+<div class="flow-row">
+  <div class="screen-wrap">
+    <span class="screen-label">All View — Emails with Multiple Labels</span>
+    <div class="mock-shell">
+      <div class="top-bar">
+        <div class="search-pill">&#128269; Search all inboxes...</div>
+        <div class="settings-icon">&#9881;</div>
+        <div class="user-av">CL</div>
+      </div>
+      <div class="toolbar">
+        <div class="tl-cb"></div>
+        <div class="tl-sep"></div>
+        <span class="tl-btn">Mark as Read</span>
+        <span class="pag-right">1–50 of 234</span>
+      </div>
+      <div class="filter-tabs">
+        <div class="ftab active-all">All</div>
+        <div class="ftab">Important</div>
+        <div class="ftab">Not Important</div>
+        <div class="ftab" style="gap:6px;">
+          <span class="label-dot" style="background:#8e24aa;"></span>
+          Invoices
+        </div>
+        <div class="ftab" style="gap:6px;">
+          <span class="label-dot" style="background:#00897b;"></span>
+          Shopping
+        </div>
+        <div class="create-label-cta">+ Create Label</div>
+      </div>
+      <div class="email-rows">
+        <div class="erow">
+          <span class="er-star on">&#9733;</span>
+          <span class="er-imp">&#9889;</span>
+          <div class="er-av" style="background:var(--a1);">JD</div>
+          <span class="er-sender">John Doe</span>
+          <div class="er-body">
+            <span class="er-subj">Q1 Revenue Report</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Here are the numbers...</span>
+          </div>
+          <span class="er-time">10:32 AM</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a2);">AM</div>
+          <span class="er-sender">Amazon</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#00897b;">Shopping</span>
+            <span class="nimp-badge">Not Important</span>
+            <span class="er-subj">Your order has shipped</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Track your package...</span>
+          </div>
+          <span class="er-time">9:15 AM</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a1);">FZ</div>
+          <span class="er-sender">Freshbooks</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#8e24aa;">Invoices</span>
+            <span class="nimp-badge">Not Important</span>
+            <span class="er-subj">Invoice #4521 overdue</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Reminder: payment...</span>
+          </div>
+          <span class="er-time">Yesterday</span>
+        </div>
+        <div class="erow">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp">&#9889;</span>
+          <div class="er-av" style="background:var(--a3);">SJ</div>
+          <span class="er-sender">Sarah Jones</span>
+          <div class="er-body">
+            <span class="er-subj">Meeting tomorrow at 3pm</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Can we move it to 4?</span>
+          </div>
+          <span class="er-time">8:45 AM</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:var(--a2);">AM</div>
+          <span class="er-sender">Amazon</span>
+          <div class="er-body">
+            <span class="label-badge" style="background:#00897b;">Shopping</span>
+            <span class="label-badge" style="background:#8e24aa;">Invoices</span>
+            <span class="er-subj">Your Amazon invoice</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">View your purchase...</span>
+          </div>
+          <span class="er-time">Mar 6</span>
+        </div>
+        <div class="erow read">
+          <span class="er-star">&#9734;</span>
+          <span class="er-imp off">&#9889;</span>
+          <div class="er-av" style="background:#e91e63;">NF</div>
+          <span class="er-sender">Netflix</span>
+          <div class="er-body">
+            <span class="nimp-badge">Not Important</span>
+            <span class="er-subj">New arrivals this week</span>
+            <span class="er-sep">—</span>
+            <span class="er-prev">Check out trending...</span>
+          </div>
+          <span class="er-time">Mar 7</span>
+        </div>
+      </div>
+    </div>
+    <span class="screen-note">Emails can have multiple label badges. Custom labels appear before "Not Important" badge.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FLOW 6: SETTINGS — MANAGE LABELS
+═══════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-divider-label">Flow 6 — Settings: Manage Labels (New Entry)</span>
+  <div class="section-divider-line"></div>
+</div>
+
+<div class="flow-row">
+  <!-- Settings main with new entry -->
+  <div class="screen-wrap">
+    <span class="screen-label">Settings — Main Menu</span>
+    <div class="mock-shell settings-shell">
+      <div class="sp-panel">
+        <div class="sp-head">
+          <div class="sp-back" style="visibility:hidden;">&#8592;</div>
+          <div class="sp-title">Settings</div>
+          <div class="sp-close">&#10005;</div>
+        </div>
+        <div class="sp-body">
+          <div class="sp-sec">Preferences</div>
+          <div class="sp-row">
+            <div class="sp-icon">&#128276;</div>
+            <div class="sp-content">
+              <div class="sp-label">Notifications</div>
+              <div class="sp-sub">Email and push preferences</div>
+            </div>
+            <div class="sp-chev">&#8250;</div>
+          </div>
+
+          <div class="sp-sec">Organization</div>
+          <div class="sp-row" style="background:#eef3fd; border: 1.5px solid var(--blue-lt); border-radius:var(--r-xs);">
+            <div class="sp-icon">&#127991;</div>
+            <div class="sp-content">
+              <div class="sp-label" style="color:var(--blue);">Manage Labels</div>
+              <div class="sp-sub">2 custom labels</div>
+            </div>
+            <div class="sp-chev" style="color:var(--blue);">&#8250;</div>
+            <div class="callout arrow-left" style="left: calc(100% + 12px); top: 50%; transform: translateY(-50%); white-space: nowrap;">New settings entry</div>
+          </div>
+          <div class="sp-row">
+            <div class="sp-icon">&#9889;</div>
+            <div class="sp-content">
+              <div class="sp-label">Manage Automations</div>
+              <div class="sp-sub">4 active automations</div>
+            </div>
+            <div class="sp-chev">&#8250;</div>
+          </div>
+
+          <div class="sp-sec">Accounts</div>
+          <div class="sp-row">
+            <div class="sp-icon">&#128231;</div>
+            <div class="sp-content">
+              <div class="sp-label">Manage Accounts</div>
+              <div class="sp-sub">2 connected accounts</div>
+            </div>
+            <div class="sp-chev">&#8250;</div>
+          </div>
+
+          <div class="sp-sec">Support</div>
+          <div class="sp-row">
+            <div class="sp-icon">&#128172;</div>
+            <div class="sp-content">
+              <div class="sp-label">Contact Support</div>
+              <div class="sp-sub">Get help or report an issue</div>
+            </div>
+            <div class="sp-chev">&#8250;</div>
+          </div>
+
+          <div class="sp-sec" style="color:var(--danger);">Danger Zone</div>
+          <div class="sp-row">
+            <div class="sp-icon">&#128465;</div>
+            <div class="sp-content">
+              <div class="sp-label" style="color:var(--danger);">Delete Account</div>
+              <div class="sp-sub">Permanently remove your data</div>
+            </div>
+            <div class="sp-chev">&#8250;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">&#8594;</div>
+
+  <!-- Manage Labels sub-view -->
+  <div class="screen-wrap">
+    <span class="screen-label">Manage Labels — List View</span>
+    <div class="mock-shell settings-shell">
+      <div class="sp-panel">
+        <div class="sp-head">
+          <div class="sp-back">&#8592;</div>
+          <div class="sp-title">Manage Labels</div>
+          <div class="sp-close">&#10005;</div>
+        </div>
+        <div class="sp-body">
+          <div class="sp-sec">2 Custom Labels</div>
+
+          <!-- Label card 1 -->
+          <div class="label-card">
+            <div class="lc-top">
+              <div class="lc-dot" style="background:#8e24aa;"></div>
+              <div class="lc-name">Invoices</div>
+              <div class="lc-scope gmail">EmailZap + Gmail</div>
+            </div>
+            <div class="lc-conditions">
+              Subject contains <code>invoice</code>
+            </div>
+            <div class="lc-footer">
+              <span class="lc-stat">7 emails labeled</span>
+              <div class="lc-actions">
+                <span class="lc-action edit">Edit</span>
+                <span class="lc-action delete">Delete</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Label card 2 -->
+          <div class="label-card">
+            <div class="lc-top">
+              <div class="lc-dot" style="background:#00897b;"></div>
+              <div class="lc-name">Shopping</div>
+              <div class="lc-scope">EmailZap only</div>
+            </div>
+            <div class="lc-conditions">
+              From <code>amazon.com</code>, <code>flipkart.com</code>, <code>myntra.com</code>
+            </div>
+            <div class="lc-footer">
+              <span class="lc-stat">23 emails labeled</span>
+              <div class="lc-actions">
+                <span class="lc-action edit">Edit</span>
+                <span class="lc-action delete">Delete</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FLOW 7: DELETE LABEL CONFIRMATION
+═══════════════════════════════════════ -->
+<div class="section-divider">
+  <span class="section-divider-label">Flow 7 — Delete Label: Confirmation with Removal Choice</span>
+  <div class="section-divider-line"></div>
+</div>
+
+<div class="flow-row">
+  <div class="screen-wrap">
+    <span class="screen-label">Delete Confirmation</span>
+    <div class="mock-shell settings-shell" style="height:480px;">
+      <div class="sp-panel">
+        <div class="sp-head">
+          <div class="sp-back">&#8592;</div>
+          <div class="sp-title">Manage Labels</div>
+          <div class="sp-close">&#10005;</div>
+        </div>
+        <div class="sp-body">
+          <div class="sp-sec">2 Custom Labels</div>
+
+          <!-- Delete confirmation for Invoices -->
+          <div class="delete-confirm">
+            <div class="dc-text">
+              <strong>Delete "Invoices" label?</strong><br>
+              This will stop labeling future emails. Should we also remove this label from the 7 previously labeled emails?
+            </div>
+            <div class="dc-actions">
+              <button class="dc-btn yes">Yes, remove from all</button>
+              <button class="dc-btn no">No, keep on past emails</button>
+            </div>
+          </div>
+
+          <!-- Label card 2 unchanged -->
+          <div class="label-card">
+            <div class="lc-top">
+              <div class="lc-dot" style="background:#00897b;"></div>
+              <div class="lc-name">Shopping</div>
+              <div class="lc-scope">EmailZap only</div>
+            </div>
+            <div class="lc-conditions">
+              From <code>amazon.com</code>, <code>flipkart.com</code>, <code>myntra.com</code>
+            </div>
+            <div class="lc-footer">
+              <span class="lc-stat">23 emails labeled</span>
+              <div class="lc-actions">
+                <span class="lc-action edit">Edit</span>
+                <span class="lc-action delete">Delete</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-note">User chooses whether to remove labels from past emails or keep them.</span>
+  </div>
+</div>
+
+</body>
+</html>
