@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap — Email Organization Settings Mock</title>
+<style>
+:root {
+  --blue:       #1967d2;
+  --blue-lt:    #d3e3fd;
+  --blue-mid:   #1558b0;
+  --text:       #202124;
+  --text2:      #5f6368;
+  --text3:      #80868b;
+  --bg:         #ffffff;
+  --surface:    #f8f9fa;
+  --hover:      #f1f3f4;
+  --border:     #e0e0e0;
+  --border-lt:  #dadce0;
+  --danger:     #ea4335;
+  --success:    #34a853;
+  --a1: #1a73e8; --a2: #34a853; --a3: #f9ab00;
+  --a4: #ea4335; --a5: #a142f4;
+  --sh-sm: 0 1px 3px rgba(60,64,67,.15), 0 1px 2px rgba(60,64,67,.10);
+  --sh-md: 0 4px 16px rgba(0,0,0,.12);
+  --sh-lg: 0 8px 28px rgba(0,0,0,.18);
+  --r-lg:  16px;
+  --r-md:  12px;
+  --r-sm:   8px;
+  --r-xs:   6px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Google Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* App shell */
+.app { display:flex; height:100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 256px;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  flex-shrink: 0;
+}
+
+.sb-head {
+  display: flex; align-items: center;
+  padding: 4px 14px 8px; gap: 10px;
+}
+.sb-hamburger {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--text2); cursor: pointer;
+}
+.sb-hamburger:hover { background: var(--hover); }
+.sb-logo { font-size: 20px; font-weight: 400; color: var(--text2); }
+.sb-logo .r { color: var(--danger); }
+.sb-logo .b { color: var(--a1); }
+.sb-logo .y { color: var(--a3); }
+.sb-logo .g { color: var(--success); }
+
+.sb-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 12px; height: 32px;
+  border-radius: 0 20px 20px 0;
+  margin: 1px 0 1px 0;
+  cursor: pointer;
+  font-size: 14px; color: var(--text2);
+}
+.sb-item:hover { background: var(--hover); }
+.sb-item.active { background: var(--blue-lt); color: var(--blue); font-weight: 500; }
+.sb-item .sb-icon { width: 20px; text-align: center; font-size: 15px; }
+.sb-item .sb-count { margin-left: auto; font-size: 12px; }
+
+.sb-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+
+.sb-section-label {
+  font-size: 11px; font-weight: 500; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .08em;
+  padding: 12px 26px 4px;
+}
+
+/* Main content */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+/* Top bar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--text); color: #fff;
+  height: 48px; flex-shrink: 0;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title { font-size: 15px; font-weight: 500; }
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.12); border-radius: 24px;
+  padding: 6px 16px; min-width: 320px;
+}
+.search-bar input {
+  background: none; border: none; outline: none; color: #fff;
+  font-size: 13px; width: 100%; font-family: inherit;
+}
+.search-bar input::placeholder { color: rgba(255,255,255,.5); }
+.settings-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: transparent; border: 1px solid var(--text3);
+  border-radius: 20px; padding: 5px 14px 5px 10px;
+  font-size: 13px; color: rgba(255,255,255,.7);
+  cursor: pointer; font-family: inherit;
+}
+.settings-btn:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.5); color: #fff; }
+
+/* Email list area (placeholder) */
+.email-list {
+  flex: 1; overflow-y: auto; padding: 0;
+}
+.filter-tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+}
+.filter-tab {
+  padding: 10px 16px; font-size: 13px; font-weight: 500;
+  color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent;
+}
+.filter-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.filter-tab:hover { background: var(--hover); }
+
+.email-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 16px; border-bottom: 1px solid var(--border-lt);
+  cursor: pointer; font-size: 13px;
+}
+.email-row:hover { background: var(--hover); }
+.email-row.unread { font-weight: 500; }
+.email-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500; color: #fff; flex-shrink: 0;
+}
+.email-content { flex: 1; min-width: 0; }
+.email-from { font-size: 13px; }
+.email-subj { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-preview { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-time { font-size: 12px; color: var(--text3); flex-shrink: 0; }
+.nimp-badge {
+  font-size: 11px; font-weight: 500; color: var(--danger);
+  background: #fce8e6; border: 1px solid #f5c6c0;
+  border-radius: 4px; padding: 1px 6px; white-space: nowrap;
+}
+
+/* Settings panel */
+.sp-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.3);
+  z-index: 100; opacity: 0; pointer-events: none;
+  transition: opacity .2s;
+}
+.sp-backdrop.on { opacity: 1; pointer-events: auto; }
+
+.sp-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 400px; background: var(--bg);
+  box-shadow: var(--sh-lg);
+  z-index: 101;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+.sp-panel.on { transform: translateX(0); }
+
+.sp-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sp-back {
+  font-size: 18px; cursor: pointer; color: var(--text2);
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+}
+.sp-back:hover { background: var(--hover); }
+.sp-title { font-size: 16px; font-weight: 500; flex: 1; }
+.sp-close {
+  font-size: 18px; cursor: pointer; color: var(--text2);
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+}
+.sp-close:hover { background: var(--hover); }
+
+.sp-body { flex: 1; overflow-y: auto; padding: 8px 16px 24px; }
+
+.sp-sec {
+  font-size: 11px; font-weight: 500; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .08em;
+  margin: 20px 0 8px;
+}
+.sp-sec:first-child { margin-top: 8px; }
+.sp-sec.red { color: var(--danger); }
+
+.sp-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 8px; border-bottom: 1px solid var(--border-lt);
+  cursor: pointer; border-radius: var(--r-xs);
+}
+.sp-row:last-child { border-bottom: none; }
+.sp-row:hover { background: var(--hover); }
+
+.sp-icon { font-size: 18px; flex-shrink: 0; }
+.sp-content { flex: 1; }
+.sp-label { font-size: 14px; font-weight: 500; }
+.sp-label.red { color: var(--danger); }
+.sp-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.sp-chev { font-size: 18px; color: var(--text3); }
+
+.sp-view { display: none; flex: 1; overflow-y: auto; }
+.sp-view.on { display: flex; flex-direction: column; }
+
+/* Account card in settings */
+.acct-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 8px; border-bottom: 1px solid var(--border-lt);
+}
+.acct-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500; color: #fff; flex-shrink: 0;
+}
+.acct-info { flex: 1; }
+.acct-em { font-size: 13px; font-weight: 500; }
+.primary-tag {
+  font-size: 11px; color: var(--blue); background: var(--blue-lt);
+  padding: 2px 8px; border-radius: 10px; font-weight: 500;
+}
+.remove-lnk { font-size: 12px; color: var(--danger); cursor: pointer; }
+.remove-lnk:hover { text-decoration: underline; }
+
+.add-acct {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 10px 8px;
+  background: none; border: none;
+  font-size: 13px; color: var(--blue); cursor: pointer;
+  font-family: inherit; font-weight: 500;
+}
+.add-acct:hover { background: var(--hover); border-radius: var(--r-xs); }
+
+/* ═══════════════════════════
+   EMAIL ORGANIZATION SUB-VIEW
+═══════════════════════════ */
+.eo-account-block {
+  margin-bottom: 20px;
+}
+.eo-account-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0 12px;
+}
+.eo-account-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 500; color: #fff; flex-shrink: 0;
+}
+.eo-account-email { font-size: 13px; font-weight: 500; color: var(--text); }
+
+.eo-options {
+  display: flex; flex-direction: column; gap: 0;
+}
+
+.eo-option {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 10px;
+  border: 1px solid var(--border-lt);
+  border-radius: 0;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.eo-option:first-child { border-radius: var(--r-sm) var(--r-sm) 0 0; }
+.eo-option:last-child { border-radius: 0 0 var(--r-sm) var(--r-sm); }
+.eo-option:not(:first-child) { border-top: none; }
+.eo-option:hover { background: var(--hover); }
+.eo-option.selected {
+  background: #e8f0fe;
+  border-color: var(--blue);
+}
+.eo-option.selected + .eo-option { border-top-color: var(--blue); }
+
+.eo-radio {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--text3); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px; transition: border-color .15s;
+}
+.eo-option.selected .eo-radio {
+  border-color: var(--blue);
+}
+.eo-radio-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--blue); transform: scale(0);
+  transition: transform .15s;
+}
+.eo-option.selected .eo-radio-dot { transform: scale(1); }
+
+.eo-text { flex: 1; }
+.eo-option-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.eo-option-desc { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+
+.eo-saved-toast {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--success); font-weight: 500;
+  opacity: 0; transition: opacity .2s;
+  margin-left: auto;
+}
+.eo-saved-toast.show { opacity: 1; }
+
+.eo-info {
+  margin-top: 4px; padding: 10px 12px;
+  background: var(--surface); border-radius: var(--r-xs);
+  font-size: 12px; color: var(--text2); line-height: 1.5;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-head">
+      <div class="sb-hamburger">☰</div>
+      <div class="sb-logo">
+        <span class="r">G</span><span class="b">m</span><span class="y">a</span><span class="r">i</span><span class="g">l</span>
+      </div>
+    </div>
+
+    <div class="sb-item" onclick="showGmail()">
+      <span class="sb-icon">📥</span> Inbox
+      <span class="sb-count">12</span>
+    </div>
+    <div class="sb-item"><span class="sb-icon">⭐</span> Starred</div>
+    <div class="sb-item"><span class="sb-icon">📤</span> Sent</div>
+    <div class="sb-item"><span class="sb-icon">📝</span> Drafts</div>
+
+    <div class="sb-divider"></div>
+
+    <div class="sb-section-label">EmailZap</div>
+    <div class="sb-item active" onclick="showEZ()">
+      <span class="sb-icon">📧</span> All Inboxes
+      <span class="sb-count">24</span>
+    </div>
+    <div class="sb-item" style="padding-left:40px; font-size:12px;">
+      <span class="sb-icon" style="font-size:12px;">●</span> studiomgmt@gmail.com
+    </div>
+    <div class="sb-item" style="padding-left:40px; font-size:12px;">
+      <span class="sb-icon" style="font-size:12px;">●</span> hi@littlebird.ai
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title">All Inboxes</div>
+      </div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" placeholder="Search all inboxes…">
+      </div>
+      <button class="settings-btn" onclick="openSP()">
+        <span>⚙</span> Settings
+      </button>
+    </div>
+
+    <div class="email-list">
+      <div class="filter-tabs">
+        <div class="filter-tab active">All</div>
+        <div class="filter-tab">Important</div>
+        <div class="filter-tab">Not Important</div>
+      </div>
+
+      <div class="email-row unread">
+        <div class="email-avatar" style="background:var(--a1)">A</div>
+        <div class="email-content">
+          <div class="email-from">Alex Morgan</div>
+          <div class="email-subj">Q2 Strategy Review — Updated deck attached</div>
+          <div class="email-preview">Hi team, I've updated the Q2 deck with the latest numbers from…</div>
+        </div>
+        <div class="email-time">10:32 AM</div>
+      </div>
+
+      <div class="email-row unread">
+        <div class="email-avatar" style="background:var(--a4)">N</div>
+        <div class="email-content">
+          <div class="email-from">Netflix</div>
+          <div class="email-subj">New arrivals you might like</div>
+          <div class="email-preview">Based on your recent watching history, we think you'll enjoy…</div>
+        </div>
+        <span class="nimp-badge">Not Relevant</span>
+        <div class="email-time">9:45 AM</div>
+      </div>
+
+      <div class="email-row">
+        <div class="email-avatar" style="background:var(--a2)">S</div>
+        <div class="email-content">
+          <div class="email-from">Sarah Chen</div>
+          <div class="email-subj">Re: Contract review — final version</div>
+          <div class="email-preview">Looks good to me. I've signed and attached the final version…</div>
+        </div>
+        <div class="email-time">8:12 AM</div>
+      </div>
+
+      <div class="email-row">
+        <div class="email-avatar" style="background:var(--a3)">L</div>
+        <div class="email-content">
+          <div class="email-from">LinkedIn</div>
+          <div class="email-subj">5 new profile views this week</div>
+          <div class="email-preview">See who's been looking at your profile and new job matches…</div>
+        </div>
+        <span class="nimp-badge">Not Relevant</span>
+        <div class="email-time">Yesterday</div>
+      </div>
+
+      <div class="email-row">
+        <div class="email-avatar" style="background:var(--a5)">J</div>
+        <div class="email-content">
+          <div class="email-from">James Park</div>
+          <div class="email-subj">Lunch tomorrow?</div>
+          <div class="email-preview">Hey! Are you free for lunch tomorrow? Was thinking we could…</div>
+        </div>
+        <div class="email-time">Yesterday</div>
+      </div>
+
+      <div class="email-row">
+        <div class="email-avatar" style="background:var(--a4)">P</div>
+        <div class="email-content">
+          <div class="email-from">Product Hunt</div>
+          <div class="email-subj">Daily digest — Top products of the day</div>
+          <div class="email-preview">Today's top launches include an AI writing assistant, a new…</div>
+        </div>
+        <span class="nimp-badge">Not Relevant</span>
+        <div class="email-time">Yesterday</div>
+      </div>
+
+      <div class="email-row">
+        <div class="email-avatar" style="background:var(--a1)">M</div>
+        <div class="email-content">
+          <div class="email-from">Mike Torres</div>
+          <div class="email-subj">Bug report — login flow broken on Safari</div>
+          <div class="email-preview">Hey, just noticed that the login redirect isn't working on…</div>
+        </div>
+        <div class="email-time">Mar 11</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings panel backdrop -->
+<div class="sp-backdrop" id="sp-bd" onclick="closeSP()"></div>
+
+<!-- Settings panel -->
+<div class="sp-panel" id="sp-panel">
+  <div class="sp-head">
+    <div class="sp-back" id="sp-back" onclick="spBack()" style="visibility:hidden">←</div>
+    <div class="sp-title" id="sp-title">Settings</div>
+    <div class="sp-close" onclick="closeSP()">✕</div>
+  </div>
+
+  <!-- Main settings view -->
+  <div class="sp-view on" id="sp-main">
+    <div class="sp-body">
+      <div class="sp-sec">Accounts</div>
+      <div class="acct-card">
+        <div class="acct-av" style="background:var(--a1)">S</div>
+        <div class="acct-info"><div class="acct-em">studiomgmt@gmail.com</div></div>
+        <div class="primary-tag">Primary</div>
+      </div>
+      <div class="acct-card">
+        <div class="acct-av" style="background:var(--a2)">L</div>
+        <div class="acct-info"><div class="acct-em">hi@littlebird.ai</div></div>
+        <span class="remove-lnk">Remove</span>
+      </div>
+      <button class="add-acct"><span style="font-size:16px">+</span> Add account</button>
+
+      <div class="sp-sec">Email Organization</div>
+      <div class="sp-row" onclick="spGo('email-org')">
+        <span class="sp-icon">📋</span>
+        <div class="sp-content">
+          <div class="sp-label">Email organization</div>
+          <div class="sp-sub">Control how Not Relevant emails appear in Gmail</div>
+        </div>
+        <span class="sp-chev">›</span>
+      </div>
+
+      <div class="sp-sec">Automations</div>
+      <div class="sp-row">
+        <span class="sp-icon" style="color:var(--a3)">⚡</span>
+        <div class="sp-content"><div class="sp-label">View automations</div><div class="sp-sub">3 active rules running</div></div>
+        <span class="sp-chev">›</span>
+      </div>
+
+      <div class="sp-sec">Reminders</div>
+      <div class="sp-row">
+        <span class="sp-icon">⏰</span>
+        <div class="sp-content"><div class="sp-label">View reminders</div><div class="sp-sub">4 upcoming</div></div>
+        <span class="sp-chev">›</span>
+      </div>
+
+      <div class="sp-sec">Support</div>
+      <div class="sp-row">
+        <span class="sp-icon" style="color:var(--blue)">💬</span>
+        <div class="sp-content"><div class="sp-label">Contact support</div><div class="sp-sub">We usually respond within a few hours</div></div>
+        <span class="sp-chev">›</span>
+      </div>
+
+      <div class="sp-sec red">Danger Zone</div>
+      <div class="sp-row">
+        <span class="sp-icon" style="color:var(--danger)">🗑</span>
+        <div class="sp-content"><div class="sp-label red">Delete my Emailzap account</div><div class="sp-sub">Permanently removes all data and settings</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Organization sub-view -->
+  <div class="sp-view" id="sp-email-org">
+    <div class="sp-body">
+      <div class="eo-info">
+        Changes apply to future emails only. Previously labeled or moved emails won't be modified.
+      </div>
+
+      <!-- Account 1 -->
+      <div class="eo-account-block">
+        <div class="eo-account-header">
+          <div class="eo-account-av" style="background:var(--a1)">S</div>
+          <div class="eo-account-email">studiomgmt@gmail.com</div>
+          <div class="eo-saved-toast" id="toast-acct1">✓ Saved</div>
+        </div>
+        <div class="eo-options">
+          <div class="eo-option selected" onclick="selectOption('acct1', 0, this)">
+            <div class="eo-radio"><div class="eo-radio-dot"></div></div>
+            <div class="eo-text">
+              <div class="eo-option-title">EmailZap View only</div>
+              <div class="eo-option-desc">Not Relevant emails are only labeled in your EmailZap View. Your Gmail inbox stays completely untouched.</div>
+            </div>
+          </div>
+          <div class="eo-option" onclick="selectOption('acct1', 1, this)">
+            <div class="eo-radio"><div class="eo-radio-dot"></div></div>
+            <div class="eo-text">
+              <div class="eo-option-title">Label in Gmail</div>
+              <div class="eo-option-desc">Not Relevant emails are also labeled in your Gmail inbox but stay in your inbox.</div>
+            </div>
+          </div>
+          <div class="eo-option" onclick="selectOption('acct1', 2, this)">
+            <div class="eo-radio"><div class="eo-radio-dot"></div></div>
+            <div class="eo-text">
+              <div class="eo-option-title">Label and skip inbox</div>
+              <div class="eo-option-desc">Not Relevant emails are labeled and moved to a "Not Relevant" Gmail label, removing them from your inbox.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account 2 -->
+      <div class="eo-account-block">
+        <div class="eo-account-header">
+          <div class="eo-account-av" style="background:var(--a2)">L</div>
+          <div class="eo-account-email">hi@littlebird.ai</div>
+          <div class="eo-saved-toast" id="toast-acct2">✓ Saved</div>
+        </div>
+        <div class="eo-options">
+          <div class="eo-option selected" onclick="selectOption('acct2', 0, this)">
+            <div class="eo-radio"><div class="eo-radio-dot"></div></div>
+            <div class="eo-text">
+              <div class="eo-option-title">EmailZap View only</div>
+              <div class="eo-option-desc">Not Relevant emails are only labeled in your EmailZap View. Your Gmail inbox stays completely untouched.</div>
+            </div>
+          </div>
+          <div class="eo-option" onclick="selectOption('acct2', 1, this)">
+            <div class="eo-radio"><div class="eo-radio-dot"></div></div>
+            <div class="eo-text">
+              <div class="eo-option-title">Label in Gmail</div>
+              <div class="eo-option-desc">Not Relevant emails are also labeled in your Gmail inbox but stay in your inbox.</div>
+            </div>
+          </div>
+          <div class="eo-option" onclick="selectOption('acct2', 2, this)">
+            <div class="eo-radio"><div class="eo-radio-dot"></div></div>
+            <div class="eo-text">
+              <div class="eo-option-title">Label and skip inbox</div>
+              <div class="eo-option-desc">Not Relevant emails are labeled and moved to a "Not Relevant" Gmail label, removing them from your inbox.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Settings panel open/close */
+function openSP() {
+  document.getElementById('sp-bd').classList.add('on');
+  document.getElementById('sp-panel').classList.add('on');
+}
+function closeSP() {
+  document.getElementById('sp-bd').classList.remove('on');
+  document.getElementById('sp-panel').classList.remove('on');
+  setTimeout(spBack, 300);
+}
+
+/* Sub-view navigation */
+function spGo(view) {
+  document.getElementById('sp-main').classList.remove('on');
+  document.getElementById('sp-' + view).classList.add('on');
+  document.getElementById('sp-back').style.visibility = 'visible';
+  document.getElementById('sp-title').textContent = 'Email Organization';
+}
+function spBack() {
+  document.querySelectorAll('.sp-view').forEach(v => v.classList.remove('on'));
+  document.getElementById('sp-main').classList.add('on');
+  document.getElementById('sp-back').style.visibility = 'hidden';
+  document.getElementById('sp-title').textContent = 'Settings';
+}
+
+/* Email Organization option selection */
+function selectOption(acctId, optionIndex, el) {
+  var block = el.closest('.eo-account-block');
+  var options = block.querySelectorAll('.eo-option');
+  var wasAlreadySelected = el.classList.contains('selected');
+
+  if (wasAlreadySelected) return;
+
+  options.forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+
+  /* Show saved toast */
+  var toast = document.getElementById('toast-' + acctId);
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 1500);
+}
+</script>
+
+</body>
+</html>
