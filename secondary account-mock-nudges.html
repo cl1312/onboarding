@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emailzap — Second Account Nudge Interventions</title>
+<style>
+/* ═══════════════════════════
+   DESIGN TOKENS (from mock-v5)
+═══════════════════════════ */
+:root {
+  --blue:       #1967d2;
+  --blue-lt:    #d3e3fd;
+  --blue-mid:   #1558b0;
+  --text:       #202124;
+  --text2:      #5f6368;
+  --text3:      #80868b;
+  --bg:         #ffffff;
+  --surface:    #f8f9fa;
+  --hover:      #f1f3f4;
+  --border:     #e0e0e0;
+  --border-lt:  #dadce0;
+  --danger:     #ea4335;
+  --important:  #fbbc04;
+  --success:    #34a853;
+  --nimp-bg:    #fce8e6;
+  --nimp-bd:    #f5c6c0;
+  --a1: #1a73e8; --a2: #34a853; --a3: #f9ab00;
+  --a4: #ea4335; --a5: #a142f4; --a6: #00bcd4;
+  --ai:    #6366f1;
+  --ai-lt: #f5f3ff;
+  --sh-sm: 0 1px 3px rgba(60,64,67,.15), 0 1px 2px rgba(60,64,67,.10);
+  --sh-md: 0 4px 16px rgba(0,0,0,.12);
+  --sh-lg: 0 8px 28px rgba(0,0,0,.18);
+  --r-xl:  20px;
+  --r-lg:  16px;
+  --r-md:  12px;
+  --r-sm:   8px;
+  --r-xs:   6px;
+  --r-pill: 24px;
+  --r-nav:  0 20px 20px 0;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Google Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+}
+
+.app { display:flex; height:100vh; }
+
+/* ═══════════════════════════
+   CONTROL PANEL (top fixed)
+═══════════════════════════ */
+.ctrl-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  background: #1c1c1e; color: #fff;
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 20px; font-size: 13px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.ctrl-bar label { display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+.ctrl-bar input[type="checkbox"] { accent-color: var(--blue); width: 16px; height: 16px; }
+.ctrl-sep { width: 1px; height: 24px; background: #444; flex-shrink: 0; }
+.ctrl-title { font-weight: 600; font-size: 14px; color: #fff; margin-right: 8px; }
+.ctrl-btn {
+  padding: 5px 12px; border-radius: 6px;
+  background: var(--blue); color: #fff; border: none;
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: inherit;
+}
+.ctrl-btn:hover { background: var(--blue-mid); }
+.ctrl-btn.danger { background: var(--danger); }
+.ctrl-btn.success { background: var(--success); }
+.ctrl-info { font-size: 11px; color: #999; margin-left: auto; }
+
+.app-offset { margin-top: 44px; height: calc(100vh - 44px); }
+
+/* ═══════════════════════════
+   SIDEBAR
+═══════════════════════════ */
+.sidebar {
+  width: 256px;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 8px 0; overflow-y: auto; flex-shrink: 0;
+  scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar { display:none; }
+
+.sb-head { display: flex; align-items: center; padding: 4px 14px 8px; gap: 10px; }
+.sb-hamburger {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--text2); cursor: pointer;
+}
+.sb-logo { font-size: 20px; font-weight: 400; color: var(--text2); }
+.sb-logo .r { color: var(--danger); } .sb-logo .b { color: var(--a1); }
+.sb-logo .y { color: var(--a3); } .sb-logo .g { color: var(--success); }
+
+.compose-btn {
+  margin: 0 8px 8px; background: var(--surface);
+  border: none; border-radius: var(--r-lg);
+  padding: 12px 20px 12px 16px; font-size: 14px; font-weight: 500;
+  color: var(--text); cursor: pointer;
+  display: flex; align-items: center; gap: 12px; font-family: inherit;
+  transition: background 150ms, box-shadow 150ms;
+}
+.compose-btn:hover { background: #e8eaf6; box-shadow: var(--sh-sm); }
+
+.nav-item {
+  display: flex; align-items: center;
+  height: 36px; padding: 0 12px; margin: 1px 0;
+  border-radius: var(--r-nav); cursor: pointer; font-size: 14px;
+  color: var(--text); user-select: none;
+  transition: background 100ms; gap: 16px;
+}
+.nav-item:hover { background: var(--hover); }
+.nav-item.active { background: var(--blue-lt); font-weight: 700; }
+.ni-icon { font-size: 17px; color: var(--text2); width: 20px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+.nav-item.active .ni-icon { color: var(--blue); }
+.ni-label { flex: 1; }
+.ni-count { font-size: 13px; color: var(--text2); font-weight: 500; }
+
+.ai-row {
+  display: flex; align-items: center;
+  height: 36px; padding: 0 12px; margin: 1px 0;
+  border-radius: var(--r-nav); cursor: pointer; font-size: 14px;
+  color: var(--text); user-select: none;
+  transition: background 100ms; gap: 16px;
+}
+.ai-row:hover { background: var(--hover); }
+.ai-row.active { background: var(--blue-lt); font-weight: 700; }
+.ai-row.active .ni-icon { color: var(--blue); }
+.ai-label { flex: 1; }
+.ai-count { font-size: 13px; color: var(--text2); font-weight: 500; }
+.ai-chev {
+  font-size: 11px; color: var(--text2);
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 200ms ease; flex-shrink: 0;
+}
+.ai-chev.open { transform: rotate(90deg); }
+
+.submenu { overflow: hidden; max-height: 0; transition: max-height 250ms ease; }
+.submenu.open { max-height: 600px; }
+
+.sub-item {
+  display: flex; align-items: center;
+  height: 34px; padding: 0 12px 0 44px; margin: 1px 0;
+  border-radius: var(--r-nav); cursor: pointer; font-size: 13px;
+  color: var(--text); user-select: none;
+  transition: background 100ms; gap: 12px; position: relative;
+}
+.sub-item:hover { background: var(--hover); }
+.sub-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.sub-count { margin-left: auto; font-size: 13px; color: var(--text2); font-weight: 500; }
+
+.add-acct-row {
+  display: flex; align-items: center;
+  height: 34px; padding: 0 12px 0 44px; margin: 1px 0;
+  border-radius: var(--r-nav); cursor: pointer; font-size: 13px;
+  color: var(--blue); gap: 8px; transition: background 100ms;
+}
+.add-acct-row:hover { background: var(--hover); }
+
+.nav-divider { height: 1px; background: var(--border); margin: 6px 0; }
+
+/* ═══════════════════════════
+   INTERVENTION 1: Ghost Account Slot
+═══════════════════════════ */
+.ghost-slot {
+  display: flex; align-items: center;
+  height: 34px; padding: 0 12px 0 44px; margin: 1px 0;
+  border-radius: var(--r-nav); cursor: pointer; font-size: 13px;
+  color: var(--text3); gap: 12px;
+  transition: background 100ms, color 150ms;
+}
+.ghost-slot:hover { background: var(--hover); color: var(--blue); }
+.ghost-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  border: 1.5px dashed var(--border);
+  transition: border-color 150ms, background 150ms;
+}
+.ghost-slot:hover .ghost-dot {
+  border-color: var(--a2);
+  background: rgba(52, 168, 83, 0.25);
+  border-style: solid;
+}
+.ghost-label { flex: 1; }
+.ghost-chev {
+  font-size: 11px; color: var(--text3);
+  transition: color 150ms;
+}
+.ghost-slot:hover .ghost-chev { color: var(--blue); }
+
+/* ═══════════════════════════
+   INTERVENTION 2: Sidebar Visual Card
+═══════════════════════════ */
+.sidebar-nudge-card {
+  margin: 8px 12px 4px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 14px 12px;
+  position: relative;
+  transition: box-shadow 200ms;
+}
+.sidebar-nudge-card:hover { box-shadow: var(--sh-sm); }
+.snc-dismiss {
+  position: absolute; top: 8px; right: 8px;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--text3); cursor: pointer;
+  transition: background 100ms, color 100ms;
+}
+.snc-dismiss:hover { background: var(--hover); color: var(--text); }
+.snc-circles {
+  display: flex; gap: 6px; margin-bottom: 8px;
+}
+.snc-circle {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 1.5px solid rgba(26, 115, 232, 0.3);
+}
+.snc-circle:nth-child(2) { border-color: rgba(52, 168, 83, 0.3); }
+.snc-headline {
+  font-size: 13px; font-weight: 500; color: var(--text);
+  margin-bottom: 10px; line-height: 1.4; padding-right: 16px;
+}
+.snc-cta {
+  width: 100%; height: 32px;
+  background: var(--blue-lt); color: var(--blue);
+  border: none; border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: background 100ms;
+}
+.snc-cta:hover { background: #c2d9f7; }
+
+/* ═══════════════════════════
+   CONTENT PANE
+═══════════════════════════ */
+.content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.top-bar {
+  height: 56px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 12px; flex-shrink: 0;
+}
+.search-wrap {
+  flex: 1; max-width: 720px;
+  display: flex; align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border-lt);
+  border-radius: var(--r-pill);
+  height: 44px; padding: 0 16px; gap: 10px;
+}
+.search-icon { font-size: 15px; color: var(--text2); flex-shrink: 0; }
+.search-input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 14px; color: var(--text); font-family: inherit;
+}
+.search-input::placeholder { color: var(--text3); }
+.settings-btn {
+  display: flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 14px;
+  background: var(--surface); border: 1.5px solid var(--border-lt);
+  border-radius: var(--r-pill);
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: inherit;
+  transition: background 100ms;
+}
+.settings-btn:hover { background: var(--hover); color: var(--text); }
+
+/* Toolbar */
+.toolbar {
+  height: 42px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px; flex-shrink: 0;
+}
+.tl-left { display: flex; align-items: center; gap: 8px; }
+.tl-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+.tl-btn {
+  font-size: 13px; color: var(--text2);
+  cursor: pointer; padding: 4px 8px;
+  border-radius: var(--r-xs);
+  transition: background 100ms; user-select: none;
+}
+.tl-btn:hover { background: var(--hover); color: var(--text); }
+.tl-right { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+.pag-lbl { font-size: 13px; color: var(--text2); margin-right: 4px; }
+.pag-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text2); cursor: pointer;
+}
+.pag-btn:hover { background: var(--hover); }
+
+/* Filter bar */
+.filter-tabs {
+  height: 40px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: stretch;
+  padding: 0 12px; flex-shrink: 0;
+}
+.ftab {
+  padding: 0 16px; font-size: 13px; font-weight: 500;
+  color: var(--text2); cursor: pointer;
+  display: flex; align-items: center; gap: 6px; user-select: none;
+  height: 100%; border-bottom: 2.5px solid transparent;
+  transition: color 150ms; white-space: nowrap;
+}
+.ftab:hover { color: var(--text); }
+.ftab.fa { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+
+/* ═══════════════════════════
+   INTERVENTION 4: List View Banner
+═══════════════════════════ */
+.list-banner {
+  display: flex; align-items: center;
+  min-height: 48px; padding: 10px 20px;
+  background: #e8f0fe;
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  gap: 10px; flex-shrink: 0;
+  animation: bannerSlideIn 300ms ease-out;
+}
+@keyframes bannerSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.lb-icon { font-size: 18px; flex-shrink: 0; }
+.lb-text { font-size: 13px; color: var(--text); flex: 1; line-height: 1.4; }
+.lb-text strong { font-weight: 600; }
+.lb-cta {
+  font-size: 13px; font-weight: 600; color: var(--blue);
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; white-space: nowrap;
+  padding: 6px 12px; border-radius: var(--r-sm);
+  transition: background 100ms;
+}
+.lb-cta:hover { background: rgba(25, 103, 210, 0.08); }
+.lb-dismiss {
+  font-size: 16px; color: var(--text3); cursor: pointer;
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 100ms;
+}
+.lb-dismiss:hover { background: rgba(0,0,0,.06); color: var(--text); }
+
+/* Email rows */
+.email-list { flex: 1; overflow-y: auto; }
+.erow {
+  display: flex; align-items: center;
+  height: 40px; padding: 0 16px 0 8px;
+  cursor: pointer; gap: 0; position: relative;
+  transition: background 100ms;
+}
+.erow:hover {
+  background: var(--hover);
+  box-shadow: inset 1px 0 0 var(--border-lt), inset -1px 0 0 var(--border-lt),
+              0 1px 3px rgba(60,64,67,.12);
+  z-index: 1;
+}
+.erow.read .er-sender { font-weight: 400; color: var(--text2); }
+.erow.read .er-subj-text { font-weight: 400; }
+
+.er-star {
+  font-size: 15px; color: var(--border-lt); flex-shrink: 0;
+  width: 24px; text-align: center; margin-right: 2px;
+}
+.er-imp-marker {
+  font-size: 13px; color: var(--important); flex-shrink: 0;
+  width: 20px; text-align: center; margin-right: 2px;
+}
+.er-imp-marker.hidden-marker { visibility: hidden; }
+.er-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+  margin-right: 10px;
+}
+.er-sender {
+  font-size: 13.5px; font-weight: 700; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  width: 160px; flex-shrink: 0; margin-right: 8px;
+}
+.er-body { flex: 1; min-width: 0; overflow: hidden; display: flex; align-items: baseline; gap: 6px; }
+.nimp-badge {
+  font-size: 11px; font-weight: 600;
+  background: var(--danger); color: #fff;
+  border-radius: 20px; padding: 2px 8px; white-space: nowrap; flex-shrink: 0;
+}
+.er-subj-text {
+  font-size: 13.5px; font-weight: 600; white-space: nowrap;
+  flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 340px;
+}
+.er-sep { color: var(--text3); font-size: 13px; flex-shrink: 0; margin: 0 1px; }
+.er-prev {
+  font-size: 13px; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.er-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-left: 12px; }
+.er-time { font-size: 12px; color: var(--text2); white-space: nowrap; }
+
+/* ═══════════════════════════
+   INTERVENTION 3: Setup Reminder Modal
+═══════════════════════════ */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.15);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 200ms;
+}
+.modal-backdrop.on { opacity: 1; pointer-events: all; }
+
+.setup-modal {
+  background: var(--bg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-lg);
+  width: 420px; padding: 28px 32px;
+  transform: scale(0.96); transition: transform 200ms ease-out;
+}
+.modal-backdrop.on .setup-modal { transform: scale(1); }
+
+.sm-title {
+  font-size: 18px; font-weight: 700; color: var(--text);
+  margin-bottom: 20px;
+}
+.sm-checklist { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.sm-item { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.sm-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0;
+}
+.sm-check.done { background: #e6f4ea; color: var(--success); }
+.sm-check.pending { border: 2px solid var(--blue); color: transparent; }
+.sm-item-text { color: var(--text); }
+.sm-item-text.muted { color: var(--text2); }
+
+.sm-social {
+  font-size: 13px; color: var(--text2); line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.sm-actions { display: flex; align-items: center; gap: 12px; }
+.sm-primary {
+  height: 38px; padding: 0 24px;
+  background: var(--blue); color: #fff; border: none;
+  border-radius: var(--r-sm); font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: inherit;
+  transition: background 100ms;
+}
+.sm-primary:hover { background: var(--blue-mid); }
+.sm-skip {
+  font-size: 13px; color: var(--text2); cursor: pointer;
+  background: none; border: none; font-family: inherit;
+  padding: 8px 4px;
+}
+.sm-skip:hover { color: var(--text); text-decoration: underline; }
+
+/* ═══════════════════════════
+   INTERVENTION 5: Contextual Toast
+═══════════════════════════ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #1c1c1e; color: #fff;
+  border-radius: var(--r-md); padding: 14px 20px;
+  box-shadow: var(--sh-lg);
+  display: flex; align-items: center; gap: 14px;
+  font-size: 13px; line-height: 1.4;
+  z-index: 300; min-width: 380px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 250ms, transform 250ms;
+  transform: translateX(-50%) translateY(12px);
+}
+.toast.on {
+  opacity: 1; pointer-events: all;
+  transform: translateX(-50%) translateY(0);
+}
+.toast-text { flex: 1; }
+.toast-cta {
+  color: #8ab4f8; font-weight: 600; cursor: pointer;
+  background: none; border: none; font-family: inherit;
+  font-size: 13px; white-space: nowrap;
+}
+.toast-cta:hover { text-decoration: underline; }
+
+/* ═══════════════════════════
+   SUCCESS ANIMATION
+═══════════════════════════ */
+@keyframes confetti-pop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.success-check {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: #e6f4ea; color: var(--success);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin: 0 auto 12px;
+  animation: confetti-pop 400ms ease-out;
+}
+
+/* Hidden utility */
+.hidden { display: none !important; }
+
+/* ═══════════════════════════
+   COPY VARIANT SELECTOR
+═══════════════════════════ */
+.variant-select {
+  background: #333; color: #fff; border: 1px solid #555;
+  border-radius: 4px; padding: 3px 8px; font-size: 12px;
+  font-family: inherit; cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ CONTROL PANEL ══════════ -->
+<div class="ctrl-bar">
+  <span class="ctrl-title">Nudge Controls</span>
+  <div class="ctrl-sep"></div>
+  <label><input type="checkbox" id="ctrl-ghost" checked onchange="toggleIntervention('ghost')"> 1. Ghost Slot</label>
+  <label><input type="checkbox" id="ctrl-card" checked onchange="toggleIntervention('card')"> 2. Sidebar Card</label>
+  <label><input type="checkbox" id="ctrl-modal" onchange="toggleIntervention('modal')"> 3. Setup Modal</label>
+  <label><input type="checkbox" id="ctrl-banner" checked onchange="toggleIntervention('banner')"> 4. List Banner</label>
+  <label><input type="checkbox" id="ctrl-toast" onchange="toggleIntervention('toast')"> 5. Toast</label>
+  <div class="ctrl-sep"></div>
+  <select class="variant-select" id="banner-variant" onchange="setBannerVariant(this.value)">
+    <option value="early">Banner: Sessions 3-5</option>
+    <option value="mid">Banner: Sessions 6-10</option>
+    <option value="late">Banner: Sessions 11+</option>
+  </select>
+  <select class="variant-select" id="card-variant" onchange="setCardVariant(this.value)">
+    <option value="early">Card: Day 0-6</option>
+    <option value="late">Card: Day 7+</option>
+  </select>
+  <div class="ctrl-sep"></div>
+  <button class="ctrl-btn success" onclick="simulateAddAccount()">Simulate Add Account</button>
+  <button class="ctrl-btn danger" onclick="resetAll()">Reset</button>
+  <span class="ctrl-info">Interactive mock — toggle interventions above</span>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div class="app app-offset">
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-hamburger">☰</div>
+    <div class="sb-logo"><span class="r">G</span><span class="b">m</span><span class="y">a</span><span class="g">il</span></div>
+  </div>
+
+  <button class="compose-btn">
+    <span style="font-size:17px">✏</span> Compose
+  </button>
+
+  <div class="nav-item">
+    <span class="ni-icon">📥</span><span class="ni-label">Inbox</span><span class="ni-count">24</span>
+  </div>
+
+  <!-- Emailzap injection -->
+  <div class="ai-row active">
+    <span class="ni-icon" style="color:var(--blue)">⊞</span>
+    <span class="ai-label">All Inboxes</span>
+    <span class="ai-count" id="ai-total">248</span>
+    <span class="ai-chev open">›</span>
+  </div>
+
+  <div class="submenu open" id="ai-sub">
+    <!-- Single connected account -->
+    <div class="sub-item" id="acct-primary">
+      <div class="sub-dot" style="background:var(--a1)"></div>
+      <span style="flex:1">john@gmail.com</span>
+      <span class="sub-count">248</span>
+    </div>
+
+    <!-- INTERVENTION 1: Ghost Account Slot -->
+    <div class="ghost-slot" id="nudge-ghost" onclick="simulateAddAccount()">
+      <div class="ghost-dot"></div>
+      <span class="ghost-label">Connect another account</span>
+      <span class="ghost-chev">›</span>
+    </div>
+
+    <!-- Second account (hidden, shown after add) -->
+    <div class="sub-item hidden" id="acct-secondary">
+      <div class="sub-dot" style="background:var(--a2)"></div>
+      <span style="flex:1">john@work.com</span>
+      <span class="sub-count">156</span>
+    </div>
+
+    <div class="add-acct-row" onclick="simulateAddAccount()"><span>＋</span><span>Add / manage accounts</span></div>
+  </div>
+
+  <!-- INTERVENTION 2: Sidebar Visual Card -->
+  <div class="sidebar-nudge-card" id="nudge-card">
+    <div class="snc-dismiss" onclick="dismissCard()">✕</div>
+    <div class="snc-circles">
+      <div class="snc-circle"></div>
+      <div class="snc-circle"></div>
+    </div>
+    <div class="snc-headline" id="card-headline">See all your email in one place</div>
+    <button class="snc-cta" onclick="simulateAddAccount()">Connect 2nd account</button>
+  </div>
+
+  <div class="nav-divider"></div>
+  <div class="nav-item"><span class="ni-icon">★</span><span class="ni-label">Starred</span></div>
+  <div class="nav-item"><span class="ni-icon">⏰</span><span class="ni-label">Snoozed</span></div>
+  <div class="nav-item"><span class="ni-icon">📤</span><span class="ni-label">Sent</span></div>
+  <div class="nav-item"><span class="ni-icon">📝</span><span class="ni-label">Drafts</span><span class="ni-count">20</span></div>
+  <div class="nav-item"><span class="ni-icon">⋯</span><span class="ni-label">More</span></div>
+</nav>
+
+<!-- ══════════ CONTENT ══════════ -->
+<div class="content">
+  <div class="top-bar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="Search all inboxes…">
+    </div>
+    <button class="settings-btn"><span>⚙</span> Settings</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="tl-left">
+      <input type="checkbox" style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer">
+      <span class="tl-btn">Select All</span>
+      <div class="tl-sep"></div>
+      <span class="tl-btn">Mark as Read</span>
+    </div>
+    <div class="tl-right">
+      <span class="pag-lbl">1–20 of 248</span>
+      <div class="pag-btn">‹</div>
+      <div class="pag-btn">›</div>
+    </div>
+  </div>
+
+  <div class="filter-tabs">
+    <div class="ftab fa">All</div>
+    <div class="ftab">Important</div>
+    <div class="ftab">Not Important</div>
+  </div>
+
+  <!-- INTERVENTION 4: List View Banner -->
+  <div class="list-banner" id="nudge-banner">
+    <span class="lb-icon">📬</span>
+    <span class="lb-text" id="banner-text">You have <strong>1 account</strong> connected. Add another to see everything in one view.</span>
+    <button class="lb-cta" onclick="simulateAddAccount()">Add account</button>
+    <span class="lb-dismiss" onclick="dismissBanner()">✕</span>
+  </div>
+
+  <!-- Email list -->
+  <div class="email-list" id="email-list"></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- INTERVENTION 3: Setup Reminder Modal -->
+<div class="modal-backdrop" id="nudge-modal" onclick="dismissModal(event)">
+  <div class="setup-modal" id="setup-modal-inner">
+    <div class="sm-title">Your EmailZap setup</div>
+    <div class="sm-checklist">
+      <div class="sm-item">
+        <div class="sm-check done">✓</div>
+        <span class="sm-item-text">john@gmail.com connected</span>
+      </div>
+      <div class="sm-item">
+        <div class="sm-check done">✓</div>
+        <span class="sm-item-text">AI importance sorting active</span>
+      </div>
+      <div class="sm-item">
+        <div class="sm-check pending"></div>
+        <span class="sm-item-text">Connect a second account</span>
+      </div>
+    </div>
+    <div class="sm-social">Most users connect 2+ accounts to unlock the full unified inbox.</div>
+    <div class="sm-actions">
+      <button class="sm-primary" onclick="simulateAddAccount()">Connect now</button>
+      <button class="sm-skip" onclick="dismissModal()">Skip for now</button>
+    </div>
+  </div>
+</div>
+
+<!-- INTERVENTION 5: Contextual Toast -->
+<div class="toast" id="nudge-toast">
+  <span class="toast-text">Only searching <strong>1 account</strong>. Add another to search everywhere.</span>
+  <button class="toast-cta" onclick="simulateAddAccount()">Add account</button>
+</div>
+
+<script>
+/* ══ EMAIL DATA ══ */
+const EMAILS = [
+  {unread:true, imp:false,nimp:false,from:'Rishi, Anup',   subj:'Invoices for AI Engineer Success Fee', prev:'Please find attached the invoices…', time:'10:02 PM'},
+  {unread:true, imp:false,nimp:true, from:'Roger',         subj:'Re: Trouble figuring out EmailZap?', prev:'I seem to have six accounts…', time:'6:33 PM'},
+  {unread:true, imp:true, nimp:false,from:'Liz',           subj:'Re: Just Checking In', prev:'Thank you — I did not like the sorting…', time:'6:07 PM'},
+  {unread:true, imp:false,nimp:true, from:'Steven, me',    subj:'Re: Trouble figuring out EmailZap?', prev:'Six accounts — pagination off on mobile…', time:'5:12 PM'},
+  {unread:false,imp:true, nimp:false,from:'Johnny',        subj:'Re: $5.00 payment unsuccessful again', prev:'Payment method needs updating.', time:'2:06 PM'},
+  {unread:false,imp:false,nimp:false,from:'EmailZap',      subj:'Your digest for March 16, 2026', prev:'Emailzap moved 11 emails to Zapped…', time:'12:00 PM'},
+  {unread:false,imp:false,nimp:true, from:'Google Cloud',  subj:'[Update] New OpenTelemetry API', prev:'Automatic enablement on your account…', time:'8:50 AM'},
+  {unread:true, imp:false,nimp:false,from:'Kamal Kumar',   subj:'Performance report - Meta and Google', prev:'Executive snapshot of ads performance…', time:'4:28 PM'},
+  {unread:false,imp:false,nimp:true, from:'AJIO',          subj:'Festive fits for every celebration', prev:'Dressed for the Biryani this Eid…', time:'3:48 PM'},
+  {unread:false,imp:false,nimp:false,from:'Partho Paul',   subj:'Accepted: Tech Standup @ Weekly', prev:'Calendar acceptance notification…', time:'Feb 9'},
+  {unread:true, imp:true, nimp:false,from:'Mark, me',      subj:'I want to remove your service', prev:'Hi Mark — apologies for the bad experience…', time:'Feb 8'},
+  {unread:false,imp:false,nimp:true, from:'The CapTable',  subj:'India\'s bet on data centres', prev:'The most interesting news selected for you…', time:'10:23 AM'},
+];
+
+const ACCT_COL = 'var(--a1)';
+
+function renderList() {
+  const el = document.getElementById('email-list');
+  el.innerHTML = EMAILS.map(e => {
+    let cls = 'erow' + (!e.unread ? ' read' : '');
+    const impMark = e.imp
+      ? '<span class="er-imp-marker">▶</span>'
+      : '<span class="er-imp-marker hidden-marker">▶</span>';
+    return `<div class="${cls}">
+      <span class="er-star">☆</span>
+      ${impMark}
+      <div class="er-av" style="background:${ACCT_COL}">${e.from[0]}</div>
+      <span class="er-sender">${e.from}</span>
+      <div class="er-body">
+        ${e.nimp ? '<span class="nimp-badge">Not Important</span>' : ''}
+        <span class="er-subj-text">${e.subj}</span>
+        <span class="er-sep"> - </span>
+        <span class="er-prev">${e.prev}</span>
+      </div>
+      <div class="er-right">
+        <span class="er-time">${e.time}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══ INTERVENTION TOGGLES ══ */
+let accountAdded = false;
+
+function toggleIntervention(type) {
+  if (accountAdded) return;
+  const cb = document.getElementById('ctrl-' + type);
+  const el = document.getElementById('nudge-' + type);
+  if (type === 'modal') {
+    el.classList.toggle('on', cb.checked);
+  } else if (type === 'toast') {
+    el.classList.toggle('on', cb.checked);
+  } else {
+    el.classList.toggle('hidden', !cb.checked);
+  }
+}
+
+function dismissCard() {
+  document.getElementById('nudge-card').classList.add('hidden');
+  document.getElementById('ctrl-card').checked = false;
+}
+
+function dismissBanner() {
+  document.getElementById('nudge-banner').classList.add('hidden');
+  document.getElementById('ctrl-banner').checked = false;
+}
+
+function dismissModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('nudge-modal').classList.remove('on');
+  document.getElementById('ctrl-modal').checked = false;
+}
+
+/* ══ BANNER COPY VARIANTS ══ */
+const BANNER_COPY = {
+  early: 'You have <strong>1 account</strong> connected. Add another to see everything in one view.',
+  mid: 'Managing multiple inboxes? Connect them here to <strong>stop switching tabs</strong>.',
+  late: 'Users with 2+ accounts save <strong>23 minutes per week</strong>.'
+};
+
+function setBannerVariant(v) {
+  document.getElementById('banner-text').innerHTML = BANNER_COPY[v];
+}
+
+/* ══ CARD COPY VARIANTS ══ */
+const CARD_COPY = {
+  early: 'See all your email in one place',
+  late: 'You\'re missing emails from your other accounts'
+};
+
+function setCardVariant(v) {
+  document.getElementById('card-headline').textContent = CARD_COPY[v];
+}
+
+/* ══ SIMULATE ADD ACCOUNT ══ */
+function simulateAddAccount() {
+  if (accountAdded) return;
+  accountAdded = true;
+
+  // Hide all nudges
+  document.getElementById('nudge-ghost').classList.add('hidden');
+  document.getElementById('nudge-card').classList.add('hidden');
+  document.getElementById('nudge-banner').classList.add('hidden');
+  document.getElementById('nudge-modal').classList.remove('on');
+  document.getElementById('nudge-toast').classList.remove('on');
+
+  // Uncheck all controls
+  ['ghost','card','modal','banner','toast'].forEach(t => {
+    document.getElementById('ctrl-' + t).checked = false;
+    document.getElementById('ctrl-' + t).disabled = true;
+  });
+
+  // Show second account with animation
+  const sec = document.getElementById('acct-secondary');
+  sec.classList.remove('hidden');
+  sec.style.opacity = '0';
+  sec.style.transition = 'opacity 300ms ease';
+  setTimeout(() => { sec.style.opacity = '1'; }, 50);
+
+  // Update count
+  document.getElementById('ai-total').textContent = '404';
+
+  // Add some second-account emails to list
+  const secondaryEmails = [
+    {unread:true, imp:true, nimp:false, from:'Sarah Chen', subj:'Q1 Board Deck — Final Review', prev:'Attached is the updated board deck…', time:'9:45 AM'},
+    {unread:true, imp:false, nimp:false, from:'HR Team', subj:'New Benefits Portal Now Live', prev:'We\'re excited to announce the new portal…', time:'8:30 AM'},
+    {unread:false, imp:false, nimp:true, from:'Jira', subj:'[PROJ-142] Sprint Review Notes', prev:'Sprint 23 review summary and action items…', time:'Yesterday'},
+  ];
+
+  // Interleave secondary emails
+  secondaryEmails.forEach((e, i) => {
+    EMAILS.splice(i * 3 + 1, 0, {...e, isSecondary: true});
+  });
+  renderListWithAccounts();
+
+  // Show success toast
+  const toast = document.getElementById('nudge-toast');
+  toast.innerHTML = `
+    <div class="success-check">✓</div>
+    <span class="toast-text"><strong>john@work.com</strong> connected! Your unified inbox now shows emails from both accounts.</span>
+  `;
+  toast.classList.add('on');
+  setTimeout(() => { toast.classList.remove('on'); }, 4000);
+}
+
+function renderListWithAccounts() {
+  const el = document.getElementById('email-list');
+  el.innerHTML = EMAILS.map(e => {
+    const col = e.isSecondary ? 'var(--a2)' : 'var(--a1)';
+    let cls = 'erow' + (!e.unread ? ' read' : '');
+    const impMark = e.imp
+      ? '<span class="er-imp-marker">▶</span>'
+      : '<span class="er-imp-marker hidden-marker">▶</span>';
+    return `<div class="${cls}">
+      <span class="er-star">☆</span>
+      ${impMark}
+      <div class="er-av" style="background:${col}">${e.from[0]}</div>
+      <span class="er-sender">${e.from}</span>
+      <div class="er-body">
+        ${e.nimp ? '<span class="nimp-badge">Not Important</span>' : ''}
+        <span class="er-subj-text">${e.subj}</span>
+        <span class="er-sep"> - </span>
+        <span class="er-prev">${e.prev}</span>
+      </div>
+      <div class="er-right">
+        <span class="er-time">${e.time}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══ RESET ══ */
+function resetAll() {
+  accountAdded = false;
+  // Reset emails
+  EMAILS.length = 0;
+  EMAILS.push(
+    {unread:true, imp:false,nimp:false,from:'Rishi, Anup',   subj:'Invoices for AI Engineer Success Fee', prev:'Please find attached the invoices…', time:'10:02 PM'},
+    {unread:true, imp:false,nimp:true, from:'Roger',         subj:'Re: Trouble figuring out EmailZap?', prev:'I seem to have six accounts…', time:'6:33 PM'},
+    {unread:true, imp:true, nimp:false,from:'Liz',           subj:'Re: Just Checking In', prev:'Thank you — I did not like the sorting…', time:'6:07 PM'},
+    {unread:true, imp:false,nimp:true, from:'Steven, me',    subj:'Re: Trouble figuring out EmailZap?', prev:'Six accounts — pagination off on mobile…', time:'5:12 PM'},
+    {unread:false,imp:true, nimp:false,from:'Johnny',        subj:'Re: $5.00 payment unsuccessful again', prev:'Payment method needs updating.', time:'2:06 PM'},
+    {unread:false,imp:false,nimp:false,from:'EmailZap',      subj:'Your digest for March 16, 2026', prev:'Emailzap moved 11 emails to Zapped…', time:'12:00 PM'},
+    {unread:false,imp:false,nimp:true, from:'Google Cloud',  subj:'[Update] New OpenTelemetry API', prev:'Automatic enablement on your account…', time:'8:50 AM'},
+    {unread:true, imp:false,nimp:false,from:'Kamal Kumar',   subj:'Performance report - Meta and Google', prev:'Executive snapshot of ads performance…', time:'4:28 PM'},
+    {unread:false,imp:false,nimp:true, from:'AJIO',          subj:'Festive fits for every celebration', prev:'Dressed for the Biryani this Eid…', time:'3:48 PM'},
+    {unread:false,imp:false,nimp:false,from:'Partho Paul',   subj:'Accepted: Tech Standup @ Weekly', prev:'Calendar acceptance notification…', time:'Feb 9'},
+    {unread:true, imp:true, nimp:false,from:'Mark, me',      subj:'I want to remove your service', prev:'Hi Mark — apologies for the bad experience…', time:'Feb 8'},
+    {unread:false,imp:false,nimp:true, from:'The CapTable',  subj:'India\'s bet on data centres', prev:'The most interesting news selected for you…', time:'10:23 AM'},
+  );
+
+  // Show nudges
+  document.getElementById('nudge-ghost').classList.remove('hidden');
+  document.getElementById('nudge-card').classList.remove('hidden');
+  document.getElementById('nudge-banner').classList.remove('hidden');
+  document.getElementById('nudge-modal').classList.remove('on');
+  document.getElementById('nudge-toast').classList.remove('on');
+
+  // Reset toast content
+  document.getElementById('nudge-toast').innerHTML = `
+    <span class="toast-text">Only searching <strong>1 account</strong>. Add another to search everywhere.</span>
+    <button class="toast-cta" onclick="simulateAddAccount()">Add account</button>
+  `;
+
+  // Hide second account
+  const sec = document.getElementById('acct-secondary');
+  sec.classList.add('hidden');
+  sec.style.opacity = '';
+  sec.style.transition = '';
+
+  // Reset count
+  document.getElementById('ai-total').textContent = '248';
+
+  // Re-enable and check controls
+  ['ghost','card','banner'].forEach(t => {
+    document.getElementById('ctrl-' + t).checked = true;
+    document.getElementById('ctrl-' + t).disabled = false;
+  });
+  ['modal','toast'].forEach(t => {
+    document.getElementById('ctrl-' + t).checked = false;
+    document.getElementById('ctrl-' + t).disabled = false;
+  });
+
+  // Reset copy variants
+  document.getElementById('banner-variant').value = 'early';
+  document.getElementById('card-variant').value = 'early';
+  setBannerVariant('early');
+  setCardVariant('early');
+
+  renderList();
+}
+
+/* ══ INIT ══ */
+renderList();
+</script>
+</body>
+</html>
