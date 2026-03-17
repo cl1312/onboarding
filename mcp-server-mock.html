@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap MCP — Give your AI all your email</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:          #faf8f3;
+  --bg-alt:      #f3f0e8;
+  --bg-section:  #f7f4ee;
+  --card:        #ffffff;
+  --border:      #e8e3d8;
+  --border-soft: #ede9e0;
+  --text-head:   #1a1a1a;
+  --text-body:   #4a4744;
+  --text-muted:  #928d85;
+  --text-label:  #7a756d;
+  --accent:      #d94f3c;
+  --accent-warm: #e8613e;
+  --accent-soft: #fdf0ee;
+  --accent-hover:#c44535;
+  --green:       #2d7a4a;
+  --green-soft:  #edf7f1;
+  --code-bg:     #1a1a1a;
+  --code-text:   #e8e3d8;
+  --shadow-sm:   0 1px 3px rgba(50,40,30,.06), 0 4px 12px rgba(50,40,30,.04);
+  --shadow-md:   0 2px 8px rgba(50,40,30,.06), 0 16px 40px rgba(50,40,30,.08);
+  --shadow-lg:   0 4px 16px rgba(50,40,30,.08), 0 32px 64px rgba(50,40,30,.12);
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans:  'Inter', -apple-system, sans-serif;
+  --font-mono:  'JetBrains Mono', monospace;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text-body); line-height: 1.6; }
+
+/* ── VIEWS ─────────────────────────────────── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── NAV ────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(250,248,243,.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 0 48px;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo-text { font-family: var(--font-serif); font-size: 18px; font-weight: 600; color: var(--text-head); }
+.nav-badge {
+  font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  background: var(--accent-soft); color: var(--accent);
+  padding: 3px 8px; border-radius: var(--r-pill);
+  border: 1px solid rgba(217,79,60,.15);
+}
+.nav-actions { display: flex; align-items: center; gap: 20px; }
+.nav-link { font-size: 14px; color: var(--text-muted); text-decoration: none; }
+.nav-link:hover { color: var(--text-body); }
+.btn-nav {
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  background: var(--accent); color: white;
+  border: none; padding: 8px 20px; border-radius: var(--r-pill);
+  transition: background .15s;
+}
+.btn-nav:hover { background: var(--accent-hover); }
+
+/* ── HERO ───────────────────────────────────── */
+.hero {
+  padding: 140px 48px 100px;
+  max-width: 1100px; margin: 0 auto;
+  text-align: center;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 28px;
+}
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content: ''; display: block; width: 28px; height: 1px; background: var(--accent); opacity: .4;
+}
+.hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 6vw, 68px);
+  font-weight: 700; line-height: 1.12;
+  color: var(--text-head);
+  margin-bottom: 24px;
+  letter-spacing: -.02em;
+}
+.hero h1 em { font-style: italic; color: var(--accent); }
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--text-body); max-width: 620px; margin: 0 auto 44px;
+  font-weight: 400; line-height: 1.65;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 16px; font-weight: 600; cursor: pointer;
+  background: var(--accent); color: white;
+  border: none; padding: 16px 36px; border-radius: var(--r-pill);
+  box-shadow: 0 4px 24px rgba(217,79,60,.3);
+  transition: all .2s; text-decoration: none;
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 32px rgba(217,79,60,.35); }
+.btn-primary svg { flex-shrink: 0; }
+.hero-sub-cta { margin-top: 14px; font-size: 13px; color: var(--text-muted); }
+
+/* clients strip */
+.clients-strip {
+  margin-top: 52px;
+  display: flex; align-items: center; justify-content: center; gap: 0;
+  flex-wrap: wrap;
+}
+.clients-label { font-size: 12px; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; margin-right: 20px; }
+.client-pill {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 500; color: var(--text-label);
+  background: var(--card); border: 1px solid var(--border);
+  padding: 7px 14px; border-radius: var(--r-pill);
+  margin: 4px;
+}
+.client-icon { width: 18px; height: 18px; border-radius: 4px; }
+
+/* ── PROBLEM SECTION ────────────────────────── */
+.section { padding: 80px 48px; max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 16px;
+}
+.section h2 {
+  font-family: var(--font-serif); font-size: clamp(28px, 4vw, 44px);
+  font-weight: 600; color: var(--text-head); line-height: 1.2;
+  margin-bottom: 16px;
+}
+.section-sub { font-size: 17px; color: var(--text-body); max-width: 520px; line-height: 1.65; margin-bottom: 52px; }
+
+.problem-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.problem-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 32px 28px;
+  box-shadow: var(--shadow-sm);
+}
+.problem-card .quote {
+  font-family: var(--font-serif); font-style: italic;
+  font-size: 17px; color: var(--text-head); line-height: 1.5;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.problem-card .problem-note { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+.problem-card .tag {
+  display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  margin-bottom: 18px;
+}
+.tag-anxiety { background: #fff3f2; color: #b03a2e; border: 1px solid rgba(176,58,46,.15); }
+.tag-confusion { background: #fff8ed; color: #a05e1a; border: 1px solid rgba(160,94,26,.15); }
+.tag-trust { background: #f2f0fd; color: #5246a0; border: 1px solid rgba(82,70,160,.15); }
+
+/* ── AHA MOMENT ─────────────────────────────── */
+.aha-section {
+  background: var(--bg-alt);
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 80px 48px;
+}
+.aha-inner { max-width: 900px; margin: 0 auto; }
+.aha-chat-demo {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-xl); padding: 32px;
+  box-shadow: var(--shadow-md);
+  margin-top: 48px;
+}
+.aha-chat-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 24px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 13px; font-weight: 600; color: var(--text-label);
+}
+.aha-app-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+.chat-msg {
+  display: flex; gap: 12px; margin-bottom: 20px;
+}
+.chat-msg.user { justify-content: flex-end; }
+.chat-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bg-alt); border: 1px solid var(--border);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.chat-bubble {
+  max-width: 480px; padding: 12px 16px;
+  border-radius: 16px; font-size: 14px; line-height: 1.55;
+}
+.chat-msg.user .chat-bubble { background: var(--code-bg); color: #e8e3d8; border-radius: 16px 4px 16px 16px; }
+.chat-msg.ai .chat-bubble { background: var(--bg-alt); color: var(--text-body); border: 1px solid var(--border); border-radius: 4px 16px 16px 16px; }
+.chat-bubble strong { color: var(--green); }
+.chat-bubble .searching { color: var(--text-muted); font-style: italic; font-size: 13px; }
+.aha-feeling {
+  margin-top: 28px; padding: 20px 24px;
+  background: var(--green-soft); border: 1px solid rgba(45,122,74,.15);
+  border-radius: var(--r-md);
+  font-size: 14px; color: var(--green);
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.aha-feeling-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── HOW IT WORKS ───────────────────────────── */
+.steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 48px; }
+.step {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.step-num {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; flex-shrink: 0;
+  border: 1px solid rgba(217,79,60,.2);
+}
+.step h3 { font-size: 17px; font-weight: 600; color: var(--text-head); }
+.step p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+.step-connector {
+  display: none;
+}
+
+/* ── FINAL CTA SECTION ──────────────────────── */
+.cta-section {
+  text-align: center; padding: 100px 48px;
+  border-top: 1px solid var(--border-soft);
+}
+.cta-section h2 {
+  font-family: var(--font-serif); font-size: clamp(28px, 4vw, 48px);
+  font-weight: 600; color: var(--text-head); margin-bottom: 16px;
+}
+.cta-section p { font-size: 17px; color: var(--text-body); margin-bottom: 40px; }
+
+/* ── CONNECT ACCOUNTS VIEW ──────────────────── */
+.connect-view {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 24px;
+  background: var(--bg);
+}
+.connect-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-xl); padding: 52px 48px;
+  max-width: 460px; width: 100%;
+  box-shadow: var(--shadow-lg);
+}
+.connect-logo { text-align: center; margin-bottom: 32px; }
+.connect-logo-text { font-family: var(--font-serif); font-size: 22px; font-weight: 600; color: var(--text-head); }
+.connect-logo-badge {
+  font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  background: var(--accent-soft); color: var(--accent);
+  padding: 3px 10px; border-radius: var(--r-pill); margin-left: 8px;
+  border: 1px solid rgba(217,79,60,.15);
+}
+.connect-title { font-family: var(--font-serif); font-size: 26px; font-weight: 600; color: var(--text-head); margin-bottom: 8px; }
+.connect-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 36px; line-height: 1.6; }
+.connect-why {
+  background: var(--bg-alt); border: 1px solid var(--border-soft);
+  border-radius: var(--r-md); padding: 16px 18px;
+  margin-bottom: 28px;
+}
+.connect-why-title { font-size: 12px; font-weight: 600; color: var(--text-label); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+.connect-why-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.connect-why-list li { font-size: 13px; color: var(--text-body); display: flex; align-items: center; gap: 8px; }
+.check-icon { color: var(--green); font-size: 14px; }
+
+.btn-google {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
+  background: white; color: #3c4043;
+  border: 1px solid #dadce0; border-radius: var(--r-md);
+  padding: 13px 20px; font-size: 15px; font-weight: 500;
+  cursor: pointer; transition: all .15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+.btn-google:hover { background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+.google-logo { width: 20px; height: 20px; flex-shrink: 0; }
+
+.connected-accounts { margin-top: 28px; }
+.connected-label { font-size: 12px; font-weight: 600; color: var(--text-label); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+.account-chip {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--green-soft); border: 1px solid rgba(45,122,74,.2);
+  border-radius: var(--r-md); padding: 10px 14px; margin-bottom: 8px;
+}
+.account-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--green); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; flex-shrink: 0;
+}
+.account-info { flex: 1; }
+.account-email { font-size: 13px; font-weight: 500; color: var(--text-head); }
+.account-type { font-size: 11px; color: var(--text-muted); }
+.account-check { color: var(--green); font-size: 16px; }
+
+.btn-add-account {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: none; color: var(--accent);
+  border: 1.5px dashed rgba(217,79,60,.35); border-radius: var(--r-md);
+  padding: 11px 20px; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all .15s; margin-top: 4px;
+}
+.btn-add-account:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+.btn-continue {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--accent); color: white;
+  border: none; border-radius: var(--r-md);
+  padding: 14px 20px; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all .15s; margin-top: 20px;
+}
+.btn-continue:hover { background: var(--accent-hover); }
+.btn-continue:disabled { opacity: .4; cursor: default; }
+
+/* ── SETUP VIEW ─────────────────────────────── */
+.setup-view {
+  min-height: 100vh;
+  background: var(--bg);
+  padding-top: 60px;
+}
+.setup-layout {
+  display: grid; grid-template-columns: 300px 1fr;
+  max-width: 960px; margin: 0 auto;
+  min-height: calc(100vh - 60px);
+  gap: 0;
+}
+.setup-sidebar {
+  padding: 48px 32px;
+  border-right: 1px solid var(--border-soft);
+}
+.setup-sidebar-title { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px; }
+.setup-steps-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.setup-step-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--r-sm);
+  font-size: 14px;
+}
+.setup-step-item.done { color: var(--green); }
+.setup-step-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.setup-step-item.pending { color: var(--text-muted); }
+.step-icon { font-size: 16px; flex-shrink: 0; }
+
+.setup-main { padding: 48px; }
+.setup-heading { font-family: var(--font-serif); font-size: 32px; font-weight: 600; color: var(--text-head); margin-bottom: 6px; }
+.setup-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 40px; }
+
+/* accounts section */
+.accounts-section { margin-bottom: 40px; }
+.section-title { font-size: 13px; font-weight: 600; color: var(--text-label); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px; }
+.setup-account-chip {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--green-soft); border: 1px solid rgba(45,122,74,.2);
+  border-radius: var(--r-md); padding: 10px 14px; margin-bottom: 8px;
+}
+.setup-add-account {
+  display: flex; align-items: center; gap: 8px;
+  background: none; color: var(--text-muted);
+  border: 1.5px dashed var(--border); border-radius: var(--r-md);
+  padding: 9px 14px; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .15s;
+}
+.setup-add-account:hover { color: var(--accent); border-color: rgba(217,79,60,.4); }
+
+/* token section */
+.token-section { margin-bottom: 40px; }
+.token-box {
+  display: flex; align-items: center; gap: 0;
+  background: var(--code-bg); border-radius: var(--r-md);
+  overflow: hidden; border: 1px solid rgba(255,255,255,.08);
+}
+.token-value {
+  flex: 1; padding: 14px 18px;
+  font-family: var(--font-mono); font-size: 13px; color: #a8d8b4;
+  letter-spacing: .04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.btn-copy {
+  padding: 12px 18px; background: rgba(255,255,255,.06); color: var(--text-muted);
+  border: none; border-left: 1px solid rgba(255,255,255,.08);
+  cursor: pointer; font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; transition: all .15s;
+  white-space: nowrap;
+}
+.btn-copy:hover { background: rgba(255,255,255,.1); color: white; }
+.btn-copy.copied { color: var(--green); }
+
+/* client tabs */
+.client-tabs-section {}
+.client-tabs {
+  display: flex; gap: 4px; margin-bottom: 20px;
+  background: var(--bg-alt); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 4px;
+}
+.client-tab {
+  flex: 1; padding: 8px 14px; border-radius: calc(var(--r-md) - 4px);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  background: none; border: none; color: var(--text-muted);
+  transition: all .15s; white-space: nowrap;
+}
+.client-tab.active { background: var(--card); color: var(--text-head); box-shadow: var(--shadow-sm); font-weight: 600; }
+.client-tab:hover:not(.active) { color: var(--text-body); }
+
+.client-config { display: none; }
+.client-config.active { display: block; }
+
+.config-instruction {
+  font-size: 14px; color: var(--text-body); margin-bottom: 16px;
+  line-height: 1.6;
+}
+.config-instruction ol { padding-left: 20px; margin-top: 8px; }
+.config-instruction ol li { margin-bottom: 4px; }
+.config-instruction code {
+  font-family: var(--font-mono); font-size: 12px;
+  background: var(--bg-alt); padding: 2px 6px; border-radius: 4px;
+  color: var(--text-head);
+}
+
+.code-block {
+  background: var(--code-bg); border-radius: var(--r-md);
+  overflow: hidden; border: 1px solid rgba(255,255,255,.06);
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.code-filename { font-family: var(--font-mono); font-size: 11px; color: #928d85; }
+.code-copy-btn {
+  font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  background: none; border: 1px solid rgba(255,255,255,.12);
+  color: #928d85; padding: 4px 10px; border-radius: 4px;
+  cursor: pointer; transition: all .15s; text-transform: uppercase;
+}
+.code-copy-btn:hover { border-color: rgba(255,255,255,.25); color: #e8e3d8; }
+.code-copy-btn.copied { color: #6ec99a; border-color: rgba(110,201,154,.3); }
+pre {
+  padding: 20px 20px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: 12.5px; line-height: 1.7;
+  color: var(--code-text);
+}
+.c-key   { color: #d4b4f5; }
+.c-str   { color: #a8d8b4; }
+.c-val   { color: #f5c97a; }
+.c-token { color: #f5a97a; font-weight: 600; }
+.c-comment { color: #928d85; font-style: italic; }
+
+.done-note {
+  margin-top: 24px; padding: 16px 20px;
+  background: var(--green-soft); border: 1px solid rgba(45,122,74,.18);
+  border-radius: var(--r-md);
+  font-size: 14px; color: var(--green);
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* ── BACK BUTTON ────────────────────────────── */
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-muted); cursor: pointer;
+  background: none; border: none; padding: 0; margin-bottom: 32px;
+  transition: color .15s;
+}
+.back-btn:hover { color: var(--text-body); }
+
+/* ── FOOTER ─────────────────────────────────── */
+footer {
+  border-top: 1px solid var(--border-soft);
+  padding: 32px 48px;
+  text-align: center;
+  font-size: 13px; color: var(--text-muted);
+}
+
+/* ── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .hero { padding: 120px 20px 60px; }
+  .section { padding: 60px 20px; }
+  .problem-cards { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .aha-section { padding: 60px 20px; }
+  .connect-card { padding: 36px 24px; }
+  .setup-layout { grid-template-columns: 1fr; }
+  .setup-sidebar { display: none; }
+  .setup-main { padding: 24px; }
+  .client-tabs { flex-wrap: wrap; }
+}
+
+/* ── ANIMATION ──────────────────────────────── */
+.fade-in { animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.typing-dots::after {
+  content: '...';
+  display: inline-block;
+  animation: typing 1.2s steps(4, end) infinite;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+@keyframes typing {
+  0%, 100% { clip-path: inset(0 100% 0 0); }
+  25% { clip-path: inset(0 75% 0 0); }
+  50% { clip-path: inset(0 50% 0 0); }
+  75% { clip-path: inset(0 25% 0 0); }
+}
+
+/* account chip in setup */
+.setup-account-chip .account-info { flex: 1; }
+.setup-account-chip .account-email { font-size: 13px; font-weight: 500; color: #1a5c33; }
+.setup-account-chip .account-type { font-size: 11px; color: #4a9266; }
+.setup-account-chip .account-avatar { background: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAV
+═══════════════════════════════════════════ -->
+<nav>
+  <a class="nav-logo" onclick="showView('landing')" style="cursor:pointer">
+    <span class="nav-logo-text">EmailZap</span>
+    <span class="nav-badge">MCP Server</span>
+  </a>
+  <div class="nav-actions">
+    <a class="nav-link" href="#">Docs</a>
+    <button class="btn-nav" onclick="showView('connect')">Get started — free</button>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════
+     VIEW 1: LANDING PAGE
+═══════════════════════════════════════════ -->
+<div id="view-landing" class="view active">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-eyebrow">EmailZap for AI Clients</div>
+    <h1>Your AI is reading<br>from the <em>wrong inbox.</em></h1>
+    <p class="hero-sub">Every other email MCP only connects one account. EmailZap connects all of them — so Claude, Cursor, and OpenAI never miss what's sitting in your other inbox.</p>
+    <button class="btn-primary" onclick="showView('connect')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      Connect your Gmail — free
+    </button>
+    <p class="hero-sub-cta">No Chrome extension needed &nbsp;·&nbsp; Read-only &nbsp;·&nbsp; Works with Claude, Cursor, Windsurf &amp; OpenAI</p>
+
+    <div class="clients-strip">
+      <span class="clients-label">Works with</span>
+      <div class="client-pill">
+        <svg class="client-icon" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#D4A15E"/><path d="M20 8c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12S26.627 8 20 8zm0 4a8 8 0 1 1 0 16 8 8 0 0 1 0-16z" fill="white" opacity=".3"/><text x="20" y="25" text-anchor="middle" font-size="14" font-weight="700" fill="white" font-family="sans-serif">C</text></svg>
+        Claude Desktop
+      </div>
+      <div class="client-pill">
+        <svg class="client-icon" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#1a1a2e"/><text x="20" y="27" text-anchor="middle" font-size="16" font-weight="700" fill="white" font-family="sans-serif">⌥</text></svg>
+        Cursor
+      </div>
+      <div class="client-pill">
+        <svg class="client-icon" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#4A90E2"/><text x="20" y="27" text-anchor="middle" font-size="16" font-weight="700" fill="white" font-family="sans-serif">W</text></svg>
+        Windsurf
+      </div>
+      <div class="client-pill">
+        <svg class="client-icon" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#10a37f"/><text x="20" y="27" text-anchor="middle" font-size="16" font-weight="700" fill="white" font-family="sans-serif">AI</text></svg>
+        OpenAI
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem -->
+  <section class="section" style="border-top:1px solid var(--border-soft)">
+    <div class="section-label">The problem</div>
+    <h2>When your AI can't see everything,<br>you can't trust it with anything.</h2>
+    <p class="section-sub">The friction points that kill AI + email, one by one.</p>
+
+    <div class="problem-cards">
+      <div class="problem-card">
+        <span class="tag tag-anxiety">Broken trust</span>
+        <p class="quote">"Claude, did I get an email about the Acme contract?"</p>
+        <p class="problem-note">Claude says no. You check Gmail manually. It's sitting in your work account. <strong>You stop asking Claude about email.</strong></p>
+      </div>
+      <div class="problem-card">
+        <span class="tag tag-confusion">Dead end</span>
+        <p class="quote">"I tried adding my work Gmail but the MCP only takes one account."</p>
+        <p class="problem-note">Every other MCP server forces you to pick one inbox. Your context lives across two, three, four accounts. There's no path forward.</p>
+      </div>
+      <div class="problem-card">
+        <span class="tag tag-trust">Invisible context</span>
+        <p class="quote">"I was sure I had a reply about the project in my inbox somewhere."</p>
+        <p class="problem-note">It's in a secondary account your AI can't see. Your AI is making decisions based on an incomplete picture — and neither of you know it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Aha moment demo -->
+  <div class="aha-section">
+    <div class="aha-inner">
+      <div class="section-label">The aha moment</div>
+      <h2 style="font-family:var(--font-serif);font-size:clamp(24px,3.5vw,40px);font-weight:600;color:var(--text-head);line-height:1.2;margin-bottom:8px">"Claude can actually see everything.<br>I can trust it now."</h2>
+      <p style="font-size:16px;color:var(--text-body);max-width:500px;line-height:1.65">Once EmailZap connects all your accounts, your AI has the full picture — across every inbox, in a single query.</p>
+
+      <div class="aha-chat-demo">
+        <div class="aha-chat-header">
+          <div class="aha-app-dot"></div>
+          Claude Desktop — with EmailZap MCP
+        </div>
+
+        <div class="chat-msg user">
+          <div class="chat-bubble">Any emails about my contract renewal from Acme Corp?</div>
+          <div class="chat-avatar">🧑</div>
+        </div>
+
+        <div class="chat-msg ai">
+          <div class="chat-avatar" style="background:#fdf0ee;border-color:rgba(217,79,60,.2);font-size:12px;font-weight:700;color:var(--accent)">EZ</div>
+          <div class="chat-bubble">
+            <span class="searching">Searching across 3 connected accounts</span><span class="typing-dots"></span>
+            <br><br>
+            Found it. <strong>The email is in your work account</strong> (work@acmecorp.com), not your personal inbox.<br><br>
+            <strong>From:</strong> legal@acmecorp.com<br>
+            <strong>Subject:</strong> Contract Renewal — Action Required by April 1st<br>
+            <strong>Received:</strong> 2 days ago<br><br>
+            They're asking you to review and sign the updated SLA. Want me to summarize the key changes?
+          </div>
+        </div>
+
+        <div class="aha-feeling">
+          <span class="aha-feeling-icon">✦</span>
+          <span><strong>"I can't go back."</strong> &nbsp; I would have missed this completely. Claude checked all three accounts and found it instantly — no switching, no manual searching.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <section class="section">
+    <div class="section-label">Setup</div>
+    <h2>Three steps. Two minutes.</h2>
+    <p class="section-sub">No Chrome extension. No complex config. Just connect your accounts and paste one block.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Connect your Gmail accounts</h3>
+          <p>Sign in with Google and add as many accounts as you want. Personal, work, side projects — all of them. Takes about 2 minutes.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Copy your config token</h3>
+          <p>You get a single API token. All your connected accounts are automatically included — no per-account setup required.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Paste into your AI client</h3>
+          <p>We give you the exact config block for Claude Desktop, Cursor, Windsurf, or OpenAI. Copy, paste, done. Your AI can now read all your email.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <div class="cta-section">
+    <h2>Your AI is only as good as<br>what it can see.</h2>
+    <p>Give it the full picture. Free to start.</p>
+    <button class="btn-primary" onclick="showView('connect')">
+      Connect your Gmail — free
+    </button>
+  </div>
+
+  <footer>
+    © 2026 EmailZap &nbsp;·&nbsp; <a href="#" style="color:var(--text-muted);text-decoration:none">Privacy</a> &nbsp;·&nbsp; <a href="#" style="color:var(--text-muted);text-decoration:none">Terms</a>
+  </footer>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     VIEW 2: CONNECT ACCOUNTS
+═══════════════════════════════════════════ -->
+<div id="view-connect" class="view">
+  <div class="connect-view">
+    <div class="connect-card fade-in">
+      <div class="connect-logo">
+        <span class="connect-logo-text">EmailZap</span>
+        <span class="connect-logo-badge">MCP</span>
+      </div>
+
+      <h2 class="connect-title">Connect your Gmail accounts</h2>
+      <p class="connect-sub">Sign in with Google to connect each account. Add as many as you want — your AI will see all of them.</p>
+
+      <div class="connect-why">
+        <div class="connect-why-title">What EmailZap accesses</div>
+        <ul class="connect-why-list">
+          <li><span class="check-icon">✓</span> Read emails and threads</li>
+          <li><span class="check-icon">✓</span> Search across all connected accounts</li>
+          <li><span class="check-icon">✗</span> No sending, deleting, or modifying emails</li>
+          <li><span class="check-icon">✗</span> No changes to your Gmail inbox</li>
+        </ul>
+      </div>
+
+      <div id="connect-state-initial">
+        <button class="btn-google" onclick="simulateGoogleAuth()">
+          <svg class="google-logo" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continue with Google
+        </button>
+      </div>
+
+      <div id="connect-state-accounts" style="display:none">
+        <div class="connected-accounts">
+          <div class="connected-label">Connected accounts</div>
+          <div id="account-list">
+            <div class="account-chip">
+              <div class="account-avatar">C</div>
+              <div class="account-info">
+                <div class="account-email">chandan@gmail.com</div>
+                <div class="account-type">Personal</div>
+              </div>
+              <span class="account-check">✓</span>
+            </div>
+          </div>
+          <button class="btn-add-account" id="add-account-btn" onclick="addSecondAccount()">
+            <span style="font-size:18px;line-height:1">+</span> Add another Gmail account
+          </button>
+        </div>
+        <button class="btn-continue" onclick="showView('setup')">
+          Continue to setup →
+        </button>
+        <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:12px">You can always add more accounts later from your settings</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     VIEW 3: SETUP / TOKEN + CONFIG
+═══════════════════════════════════════════ -->
+<div id="view-setup" class="view">
+  <div class="setup-view">
+    <div class="setup-layout">
+
+      <!-- Sidebar progress -->
+      <aside class="setup-sidebar">
+        <div class="setup-sidebar-title">Setup progress</div>
+        <ul class="setup-steps-list">
+          <li class="setup-step-item done"><span class="step-icon">✓</span> Connect accounts</li>
+          <li class="setup-step-item active"><span class="step-icon">→</span> Get your config</li>
+          <li class="setup-step-item pending"><span class="step-icon">○</span> Paste into AI client</li>
+        </ul>
+        <div style="margin-top:40px;padding:16px;background:var(--bg-alt);border:1px solid var(--border-soft);border-radius:var(--r-md)">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Connected accounts</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-head);margin-bottom:4px">chandan@gmail.com</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-head);margin-bottom:12px">work@chandanluthra.com</div>
+          <button onclick="showView('connect')" style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0">+ Add another account</button>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <main class="setup-main fade-in">
+        <h1 class="setup-heading">You're connected.</h1>
+        <p class="setup-sub">Copy your token and paste the config into your AI client.</p>
+
+        <!-- Token -->
+        <div class="token-section">
+          <div class="section-title">Your API Token</div>
+          <div class="token-box">
+            <div class="token-value" id="token-display">ezm_a3f9k2x8p1q7n5r4t6y0w2e8m3j5v1c</div>
+            <button class="btn-copy" id="copy-token-btn" onclick="copyToken()">Copy</button>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Keep this private. It gives access to all your connected email accounts.</p>
+        </div>
+
+        <!-- Client config tabs -->
+        <div class="client-tabs-section">
+          <div class="section-title">Setup instructions</div>
+          <div class="client-tabs">
+            <button class="client-tab active" onclick="switchTab('claude')">Claude Desktop</button>
+            <button class="client-tab" onclick="switchTab('cursor')">Cursor</button>
+            <button class="client-tab" onclick="switchTab('windsurf')">Windsurf</button>
+            <button class="client-tab" onclick="switchTab('openai')">OpenAI</button>
+          </div>
+
+          <!-- Claude Desktop -->
+          <div class="client-config active" id="config-claude">
+            <div class="config-instruction">
+              <ol>
+                <li>Open Claude Desktop and go to <code>Settings → Developer → Edit Config</code></li>
+                <li>Add the block below to your <code>claude_desktop_config.json</code></li>
+                <li>Restart Claude Desktop</li>
+              </ol>
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-filename">claude_desktop_config.json</span>
+                <button class="code-copy-btn" onclick="copyConfig('claude')">Copy</button>
+              </div>
+              <pre id="code-claude"><span class="c-key">"mcpServers"</span>: {
+  <span class="c-key">"emailzap"</span>: {
+    <span class="c-key">"command"</span>: <span class="c-str">"npx"</span>,
+    <span class="c-key">"args"</span>: [<span class="c-str">"-y"</span>, <span class="c-str">"@emailzap/mcp"</span>],
+    <span class="c-key">"env"</span>: {
+      <span class="c-key">"EMAILZAP_TOKEN"</span>: <span class="c-token">"ezm_a3f9k2x8p1q7n5r4t6y0w2e8m3j5v1c"</span>
+    }
+  }
+}</pre>
+            </div>
+            <div class="done-note">
+              <span>✓</span>
+              After restart, Claude will have read access to <strong>chandan@gmail.com</strong> and <strong>work@chandanluthra.com</strong>.
+            </div>
+          </div>
+
+          <!-- Cursor -->
+          <div class="client-config" id="config-cursor">
+            <div class="config-instruction">
+              <ol>
+                <li>Open Cursor and go to <code>Settings → MCP Servers</code></li>
+                <li>Click <code>Add new MCP server</code> and paste the config below</li>
+                <li>Save and restart Cursor</li>
+              </ol>
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-filename">.cursor/mcp.json</span>
+                <button class="code-copy-btn" onclick="copyConfig('cursor')">Copy</button>
+              </div>
+              <pre id="code-cursor">{
+  <span class="c-key">"mcpServers"</span>: {
+    <span class="c-key">"emailzap"</span>: {
+      <span class="c-key">"command"</span>: <span class="c-str">"npx"</span>,
+      <span class="c-key">"args"</span>: [<span class="c-str">"-y"</span>, <span class="c-str">"@emailzap/mcp"</span>],
+      <span class="c-key">"env"</span>: {
+        <span class="c-key">"EMAILZAP_TOKEN"</span>: <span class="c-token">"ezm_a3f9k2x8p1q7n5r4t6y0w2e8m3j5v1c"</span>
+      }
+    }
+  }
+}</pre>
+            </div>
+            <div class="done-note">
+              <span>✓</span>
+              Cursor will have read access to both your connected Gmail accounts.
+            </div>
+          </div>
+
+          <!-- Windsurf -->
+          <div class="client-config" id="config-windsurf">
+            <div class="config-instruction">
+              <ol>
+                <li>Open Windsurf and navigate to <code>Settings → AI Extensions → MCP</code></li>
+                <li>Add a new server using the config below</li>
+                <li>Reload Windsurf</li>
+              </ol>
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-filename">windsurf_mcp_config.json</span>
+                <button class="code-copy-btn" onclick="copyConfig('windsurf')">Copy</button>
+              </div>
+              <pre id="code-windsurf">{
+  <span class="c-key">"name"</span>: <span class="c-str">"EmailZap"</span>,
+  <span class="c-key">"command"</span>: <span class="c-str">"npx"</span>,
+  <span class="c-key">"args"</span>: [<span class="c-str">"-y"</span>, <span class="c-str">"@emailzap/mcp"</span>],
+  <span class="c-key">"env"</span>: {
+    <span class="c-key">"EMAILZAP_TOKEN"</span>: <span class="c-token">"ezm_a3f9k2x8p1q7n5r4t6y0w2e8m3j5v1c"</span>
+  }
+}</pre>
+            </div>
+            <div class="done-note">
+              <span>✓</span>
+              Windsurf will have read access to both your connected Gmail accounts.
+            </div>
+          </div>
+
+          <!-- OpenAI -->
+          <div class="client-config" id="config-openai">
+            <div class="config-instruction">
+              <ol>
+                <li>In your OpenAI project, go to <code>Settings → Plugins → Add MCP Server</code></li>
+                <li>Enter the server URL and your token below</li>
+                <li>Save and enable the plugin</li>
+              </ol>
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-filename">OpenAI MCP config</span>
+                <button class="code-copy-btn" onclick="copyConfig('openai')">Copy</button>
+              </div>
+              <pre id="code-openai">{
+  <span class="c-key">"server_url"</span>: <span class="c-str">"https://mcp.emailzap.co/v1"</span>,
+  <span class="c-key">"auth"</span>: {
+    <span class="c-key">"type"</span>: <span class="c-str">"bearer"</span>,
+    <span class="c-key">"token"</span>: <span class="c-token">"ezm_a3f9k2x8p1q7n5r4t6y0w2e8m3j5v1c"</span>
+  },
+  <span class="c-comment">// Connects: chandan@gmail.com, work@chandanluthra.com</span>
+}</pre>
+            </div>
+            <div class="done-note">
+              <span>✓</span>
+              OpenAI will have read access to both your connected Gmail accounts.
+            </div>
+          </div>
+
+        </div><!-- /client-tabs-section -->
+
+        <div style="margin-top:40px;padding:24px;background:var(--bg-alt);border:1px solid var(--border-soft);border-radius:var(--r-lg)">
+          <div style="font-size:13px;font-weight:600;color:var(--text-label);margin-bottom:8px">AVAILABLE TOOLS (v1)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:8px 14px;font-family:var(--font-mono);font-size:12px;color:var(--text-head)">search_emails</div>
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:8px 14px;font-family:var(--font-mono);font-size:12px;color:var(--text-head)">get_email</div>
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:8px 14px;font-family:var(--font-mono);font-size:12px;color:var(--text-head)">list_emails</div>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:10px">Read-only in v1. Write actions (reply, delete, automate) coming soon.</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     JS
+═══════════════════════════════════════════ -->
+<script>
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+  // re-trigger fade-in
+  const card = document.querySelector('#view-' + name + ' .fade-in');
+  if (card) { card.style.animation = 'none'; card.offsetHeight; card.style.animation = ''; }
+}
+
+function simulateGoogleAuth() {
+  document.getElementById('connect-state-initial').style.display = 'none';
+  document.getElementById('connect-state-accounts').style.display = 'block';
+}
+
+let secondAdded = false;
+function addSecondAccount() {
+  if (secondAdded) return;
+  secondAdded = true;
+  const list = document.getElementById('account-list');
+  const chip = document.createElement('div');
+  chip.className = 'account-chip fade-in';
+  chip.innerHTML = `
+    <div class="account-avatar" style="background:#4a76c0">W</div>
+    <div class="account-info">
+      <div class="account-email">work@chandanluthra.com</div>
+      <div class="account-type">Work</div>
+    </div>
+    <span class="account-check">✓</span>`;
+  list.appendChild(chip);
+  document.getElementById('add-account-btn').style.opacity = '.4';
+  document.getElementById('add-account-btn').style.pointerEvents = 'none';
+  document.getElementById('add-account-btn').textContent = '✓ Two accounts connected';
+}
+
+function copyToken() {
+  const btn = document.getElementById('copy-token-btn');
+  btn.textContent = 'Copied!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+}
+
+function switchTab(client) {
+  document.querySelectorAll('.client-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.client-config').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('config-' + client).classList.add('active');
+}
+
+function copyConfig(client) {
+  const btn = event.target;
+  btn.textContent = 'Copied!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+}
+</script>
+
+</body>
+</html>
