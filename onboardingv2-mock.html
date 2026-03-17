@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap — Onboarding v2 Mock</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:      #1a73e8;
+  --blue-lt:   #e8f0fe;
+  --blue-mid:  #1557b0;
+  --text:      #202124;
+  --text2:     #5f6368;
+  --text3:     #80868b;
+  --bg:        #ffffff;
+  --surface:   #f8f9fa;
+  --hover:     #f1f3f4;
+  --border:    #e0e0e0;
+  --success:   #34a853;
+  --sh-md:     0 4px 24px rgba(0,0,0,0.14);
+  --sh-lg:     0 8px 40px rgba(0,0,0,0.22);
+  --r-lg:      16px;
+  --r-md:      12px;
+  --r-sm:      8px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Google Sans', 'Roboto', -apple-system, Arial, sans-serif;
+  background: #e8eaf6;
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── GMAIL SHELL ─────────────────────────────── */
+.gmail-shell {
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: filter 400ms ease;
+}
+.gmail-shell.blurred { filter: blur(3px); }
+
+.g-topbar {
+  height: 64px; background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 16px; flex-shrink: 0;
+}
+.g-menu-icon { font-size: 20px; color: var(--text2); cursor: pointer; padding: 8px; border-radius: 50%; }
+.g-logo { font-size: 22px; font-weight: 400; color: var(--text2); letter-spacing: -0.5px; }
+.g-logo .r { color: #ea4335; } .g-logo .b { color: #1a73e8; }
+.g-logo .y { color: #f9ab00; } .g-logo .g2 { color: #34a853; }
+.g-search {
+  flex: 1; max-width: 720px; height: 46px; background: var(--surface);
+  border-radius: 24px; display: flex; align-items: center;
+  padding: 0 20px; gap: 8px; cursor: text;
+}
+.g-search-placeholder { color: var(--text3); font-size: 16px; }
+.g-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--blue); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; margin-left: auto; flex-shrink: 0;
+}
+
+.g-body { display: flex; flex: 1; overflow: hidden; }
+
+.g-sidebar {
+  width: 256px; padding: 8px 0;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.g-compose {
+  margin: 0 8px 8px; padding: 12px 20px;
+  background: var(--surface); border-radius: 16px;
+  font-size: 14px; color: var(--text);
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+}
+.g-nav-item {
+  display: flex; align-items: center; height: 36px;
+  padding: 0 12px; margin: 1px 0;
+  border-radius: 0 20px 20px 0; cursor: pointer;
+  font-size: 14px; color: var(--text); gap: 16px;
+}
+.g-nav-item:hover { background: var(--hover); }
+.g-nav-item.active { background: var(--blue-lt); font-weight: 700; }
+.g-ni-icon { font-size: 17px; color: var(--text2); width: 20px; }
+.g-ni-count { font-size: 13px; color: var(--text2); }
+
+.ez-nav-item {
+  display: flex; align-items: center; height: 36px;
+  padding: 0 12px; margin: 1px 0;
+  border-radius: 0 20px 20px 0; cursor: pointer;
+  font-size: 14px; gap: 16px;
+  background: var(--blue-lt); color: var(--blue); font-weight: 700;
+  margin-top: 8px;
+}
+.ez-nav-item:hover { background: #d3e3fd; }
+.ez-label { flex: 1; color: var(--blue); }
+
+.g-content { flex: 1; overflow-y: auto; padding: 0; position: relative; }
+
+/* EmailZap view inside content pane */
+.ez-view { display: none; flex-direction: column; height: 100%; }
+.ez-view.visible { display: flex; }
+
+.ez-toolbar {
+  height: 52px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 12px; flex-shrink: 0;
+}
+.ez-search {
+  flex: 1; height: 36px; background: var(--surface);
+  border-radius: 18px; display: flex; align-items: center;
+  padding: 0 16px; gap: 8px; font-size: 14px; color: var(--text3);
+}
+.ez-settings { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 18px; }
+.ez-settings:hover { background: var(--hover); }
+
+/* Post-skip nudge banner */
+.nudge-banner {
+  background: var(--blue-lt);
+  border-bottom: 1px solid #c5d8f9;
+  padding: 10px 20px;
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.nudge-banner.hiding {
+  animation: slideUp 0.25s ease forwards;
+}
+@keyframes slideUp {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
+.nudge-text { flex: 1; font-size: 13.5px; color: #174ea6; }
+.nudge-cta {
+  padding: 6px 14px; border: 1.5px solid var(--blue);
+  border-radius: var(--r-sm); background: transparent;
+  color: var(--blue); font-family: inherit; font-size: 13px;
+  font-weight: 500; cursor: pointer; white-space: nowrap;
+  transition: background 150ms;
+}
+.nudge-cta:hover { background: var(--blue-lt); }
+.nudge-dismiss {
+  width: 28px; height: 28px; border: none; background: none;
+  border-radius: 50%; cursor: pointer; color: #174ea6;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+.nudge-dismiss:hover { background: #c5d8f9; }
+
+.ez-filter-row {
+  display: flex; align-items: center; padding: 8px 20px;
+  border-bottom: 1px solid var(--border); gap: 4px; flex-shrink: 0;
+}
+.ez-filter-tab {
+  padding: 6px 14px; border-radius: 20px; font-size: 13px;
+  cursor: pointer; color: var(--text2); border: none; background: none;
+  font-family: inherit;
+}
+.ez-filter-tab:hover { background: var(--hover); }
+.ez-filter-tab.active { background: var(--blue-lt); color: var(--blue); font-weight: 700; }
+
+.ez-email-list { flex: 1; overflow-y: auto; }
+.ez-email-row {
+  display: flex; align-items: center; padding: 10px 20px;
+  border-bottom: 1px solid var(--border); cursor: pointer; gap: 14px;
+}
+.ez-email-row:hover { background: var(--surface); }
+.ez-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.ez-email-meta { flex: 1; min-width: 0; }
+.ez-sender { font-size: 14px; font-weight: 700; color: var(--text); }
+.ez-subject { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ez-snippet { font-size: 13px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ez-time { font-size: 12px; color: var(--text2); flex-shrink: 0; }
+.ez-account-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* ─── OVERLAY ─────────────────────────────────── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  transition: opacity 350ms ease;
+}
+.overlay.hidden { opacity: 0; pointer-events: none; }
+
+/* ─── MODAL ───────────────────────────────────── */
+.modal {
+  background: var(--bg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-lg);
+  width: 480px;
+  max-width: calc(100vw - 32px);
+  position: relative;
+  overflow: hidden;
+  animation: modalIn 300ms cubic-bezier(0.2,0,0,1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal.fading { animation: modalOut 350ms ease forwards; }
+@keyframes modalOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.97); }
+}
+
+/* Progress bar */
+.progress-track {
+  height: 4px; background: var(--border); width: 100%;
+}
+.progress-fill {
+  height: 100%; background: var(--blue);
+  border-radius: 2px;
+  transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Close button */
+.close-btn {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none; background: none; cursor: pointer;
+  color: var(--text2); font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10;
+  transition: background 150ms;
+}
+.close-btn:hover { background: var(--hover); }
+
+/* Screens */
+.screen { display: none; padding: 36px 40px 40px; }
+.screen.active { display: block; }
+
+/* Step label */
+.step-label {
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 24px;
+}
+
+/* ─── SCREEN 1 ────────────────────────────────── */
+#s1 { text-align: center; padding-top: 48px; }
+.ez-logo-mark {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: var(--blue); margin: 0 auto 20px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(26,115,232,0.3);
+}
+.ez-logo-mark svg { width: 28px; height: 28px; fill: #fff; }
+#s1 h1 {
+  font-size: 24px; font-weight: 700; color: var(--text);
+  line-height: 1.3; margin-bottom: 14px;
+}
+#s1 p {
+  font-size: 15px; color: var(--text2); line-height: 1.6;
+  margin-bottom: 36px;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%; height: 44px; background: var(--blue); color: #fff;
+  border: none; border-radius: var(--r-sm); font-family: inherit;
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  transition: background 150ms, box-shadow 150ms;
+  gap: 6px;
+}
+.btn-primary:hover { background: var(--blue-mid); box-shadow: 0 2px 8px rgba(26,115,232,0.35); }
+.btn-primary:active { transform: scale(0.99); }
+
+/* ─── SCREEN 2 ────────────────────────────────── */
+#s2 h2 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+#s2 p  { font-size: 14px; color: var(--text2); margin-bottom: 30px; line-height: 1.6; }
+.btn-google {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 44px; background: #fff;
+  border: 1.5px solid var(--border); border-radius: var(--r-sm);
+  font-family: inherit; font-size: 15px; font-weight: 500;
+  color: var(--text); cursor: pointer; gap: 10px;
+  transition: background 150ms, box-shadow 150ms;
+}
+.btn-google:hover { background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.google-g {
+  width: 20px; height: 20px; flex-shrink: 0;
+}
+.reassurance {
+  margin-top: 16px; font-size: 12px; color: var(--text3);
+  text-align: center; line-height: 1.8;
+}
+
+/* ─── SCREEN 3 ────────────────────────────────── */
+#s3 h2 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+#s3 .subtext { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
+
+/* Locked inbox visual */
+.locked-inbox {
+  border-radius: var(--r-md); overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 22px;
+  box-shadow: var(--sh-md);
+  background: var(--bg);
+}
+.inbox-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; border-bottom: 1px solid var(--border);
+}
+.inbox-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 11px; font-weight: 700; color: #fff;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.inbox-meta { flex: 1; min-width: 0; }
+.inbox-sender { font-size: 12px; font-weight: 700; color: var(--text); }
+.inbox-subj { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.inbox-time { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+
+/* Locked rows (blurred, with overlay) */
+.inbox-locked-wrapper { position: relative; }
+.inbox-locked-rows {
+  filter: blur(3.5px);
+  pointer-events: none;
+  user-select: none;
+}
+.inbox-locked-rows .inbox-row { border-bottom: 1px solid var(--border); }
+.inbox-locked-rows .inbox-row:last-child { border-bottom: none; }
+.inbox-lock-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 7px;
+  background: rgba(255,255,255,0.45);
+}
+.inbox-lock-badge {
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  background: rgba(255,255,255,0.95); border: 1px solid var(--border);
+  padding: 5px 12px; border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* CTA area */
+.s3-cta { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.btn-skip {
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 13px; color: var(--text2);
+  text-decoration: none; padding: 4px 8px;
+}
+.btn-skip:hover { text-decoration: underline; color: var(--text); }
+
+/* ─── SUCCESS STATE ───────────────────────────── */
+#success-state {
+  display: none; padding: 48px 40px;
+  text-align: center; flex-direction: column;
+  align-items: center; gap: 16px;
+}
+#success-state.active { display: flex; }
+.success-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #e6f4ea;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+}
+#success-state h2 { font-size: 20px; font-weight: 700; color: var(--text); }
+#success-state p { font-size: 14px; color: var(--text2); }
+
+/* ─── CONFETTI ────────────────────────────────── */
+#confetti-canvas {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+}
+
+/* ─── TOAST ───────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #323232; color: #fff; padding: 10px 20px;
+  border-radius: 6px; font-size: 14px; z-index: 9998;
+  opacity: 0; transition: opacity 200ms ease; pointer-events: none;
+  white-space: nowrap;
+}
+.toast.visible { opacity: 1; }
+
+/* ─── DEMO NAV ────────────────────────────────── */
+.demo-nav {
+  position: fixed; bottom: 16px; right: 16px; z-index: 9990;
+  display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+}
+.demo-nav-label {
+  font-size: 11px; color: #fff; background: rgba(0,0,0,0.5);
+  padding: 2px 8px; border-radius: 10px;
+}
+.demo-steps { display: flex; gap: 6px; }
+.demo-step {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: none; cursor: pointer; font-size: 12px; font-weight: 700;
+  transition: all 150ms;
+  display: flex; align-items: center; justify-content: center;
+}
+.demo-step.inactive { background: rgba(255,255,255,0.3); color: rgba(255,255,255,0.8); }
+.demo-step.current  { background: #fff; color: var(--blue); }
+.demo-step.done     { background: rgba(255,255,255,0.6); color: var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- Gmail Shell (background) -->
+<div class="gmail-shell blurred" id="gmail-shell">
+  <div class="g-topbar">
+    <span class="g-menu-icon">☰</span>
+    <span class="g-logo">
+      <span class="r">G</span><span class="b">o</span><span class="y">o</span><span class="g2">g</span><span class="r">l</span><span class="b">e</span>&nbsp;Mail
+    </span>
+    <div class="g-search"><span class="g-search-placeholder">Search mail</span></div>
+    <div class="g-avatar">C</div>
+  </div>
+  <div class="g-body">
+    <div class="g-sidebar">
+      <div class="g-compose">✏️ Compose</div>
+      <div class="g-nav-item"><span class="g-ni-icon">📥</span><span>Inbox</span><span class="g-ni-count">14</span></div>
+      <div class="g-nav-item"><span class="g-ni-icon">⭐</span><span>Starred</span></div>
+      <div class="g-nav-item"><span class="g-ni-icon">🕐</span><span>Snoozed</span></div>
+      <div class="g-nav-item"><span class="g-ni-icon">📤</span><span>Sent</span></div>
+      <div class="g-nav-item"><span class="g-ni-icon">📝</span><span>Drafts</span><span class="g-ni-count">3</span></div>
+      <div style="height:1px;background:var(--border);margin:8px 0;"></div>
+      <div class="ez-nav-item" id="all-inboxes-nav">
+        <span style="font-size:16px">⚡</span>
+        <span class="ez-label">All Inboxes</span>
+        <span style="font-size:13px;color:var(--blue);font-weight:600;">32</span>
+      </div>
+    </div>
+    <div class="g-content">
+      <!-- EmailZap View (shown in post-skip state) -->
+      <div class="ez-view" id="ez-view">
+        <div class="ez-toolbar">
+          <div class="ez-search">🔍 Search across all inboxes…</div>
+          <div class="ez-settings">⚙</div>
+        </div>
+        <!-- Post-skip nudge banner -->
+        <div class="nudge-banner" id="nudge-banner">
+          <span class="nudge-text">Your inbox is incomplete — connect your other accounts to see the full picture</span>
+          <button class="nudge-cta" id="nudge-add-btn">Add account</button>
+          <button class="nudge-dismiss" id="nudge-dismiss-btn" title="Dismiss">✕</button>
+        </div>
+        <div class="ez-filter-row">
+          <button class="ez-filter-tab active">All</button>
+          <button class="ez-filter-tab">Important</button>
+          <button class="ez-filter-tab">Not Important</button>
+        </div>
+        <div class="ez-email-list">
+          <!-- Single account emails only -->
+          <div class="ez-email-row">
+            <div class="ez-avatar" style="background:#1a73e8">C</div>
+            <div class="ez-email-meta">
+              <div class="ez-sender">Chandan Luthra</div>
+              <div class="ez-subject">Re: Q1 review doc is ready</div>
+              <div class="ez-snippet">Can you take a look before Friday?</div>
+            </div>
+            <span class="ez-time">10:42 AM</span>
+            <div class="ez-account-dot" style="background:#1a73e8" title="personal@gmail.com"></div>
+          </div>
+          <div class="ez-email-row">
+            <div class="ez-avatar" style="background:#34a853">G</div>
+            <div class="ez-email-meta">
+              <div class="ez-sender">GitHub</div>
+              <div class="ez-subject">PR review requested: add-onboarding-v2</div>
+              <div class="ez-snippet">Anmolpreet requested your review</div>
+            </div>
+            <span class="ez-time">9:15 AM</span>
+            <div class="ez-account-dot" style="background:#1a73e8" title="personal@gmail.com"></div>
+          </div>
+          <div class="ez-email-row">
+            <div class="ez-avatar" style="background:#f9ab00">N</div>
+            <div class="ez-email-meta">
+              <div class="ez-sender">Notion</div>
+              <div class="ez-subject">Your weekly digest is ready</div>
+              <div class="ez-snippet">Pages updated this week: EmailZap Roadmap…</div>
+            </div>
+            <span class="ez-time">8:00 AM</span>
+            <div class="ez-account-dot" style="background:#1a73e8" title="personal@gmail.com"></div>
+          </div>
+          <div class="ez-email-row" style="opacity:0.45;pointer-events:none;">
+            <div class="ez-avatar" style="background:#ccc">?</div>
+            <div class="ez-email-meta">
+              <div class="ez-sender" style="color:var(--text3)">Work emails not visible</div>
+              <div class="ez-subject" style="color:var(--text3)">Connect work account to see these</div>
+            </div>
+            <span class="ez-time" style="color:var(--text3)">—</span>
+            <div class="ez-account-dot" style="background:#e0e0e0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Overlay -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+
+    <!-- Progress bar (hidden on screen 1) -->
+    <div class="progress-track" id="progress-track" style="display:none">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <!-- Close button (hidden on screen 1) -->
+    <button class="close-btn" id="close-btn" style="display:none" title="Close">✕</button>
+
+    <!-- SCREEN 1: Value Prop -->
+    <div class="screen active" id="s1">
+      <div class="ez-logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </div>
+      <h1>One inbox for all your email accounts</h1>
+      <p>EmailZap unifies all your Gmail accounts into one clean, intelligent inbox — built right inside Gmail. No tab-switching, no missed emails.</p>
+      <button class="btn-primary" id="s1-cta">Get Started — It's Free →</button>
+    </div>
+
+    <!-- SCREEN 2: Sign Up -->
+    <div class="screen" id="s2">
+      <div class="step-label">Step 1 of 2 · Sign in</div>
+      <h2>Connect your primary Gmail</h2>
+      <p>We'll start with one account. You can add more on the next step.</p>
+      <button class="btn-google" id="s2-cta">
+        <svg class="google-g" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continue with Google
+      </button>
+      <p class="reassurance">Read-only access · No emails sent on your behalf · Remove anytime</p>
+    </div>
+
+    <!-- SCREEN 3: Add Second Account -->
+    <div class="screen" id="s3">
+      <div class="step-label">Step 2 of 2 · Unlock your full inbox</div>
+      <h2>Don't miss what matters</h2>
+      <p class="subtext">Right now, there are emails in your other accounts you can't see here. You might be missing something urgent.</p>
+
+      <!-- Locked inbox visual -->
+      <div class="locked-inbox">
+        <!-- Visible rows (personal account) -->
+        <div class="inbox-row">
+          <div class="inbox-av" style="background:#1a73e8">G</div>
+          <div class="inbox-meta">
+            <div class="inbox-sender">GitHub</div>
+            <div class="inbox-subj">PR merged: fix onboarding flow</div>
+          </div>
+          <span class="inbox-time">10:42 AM</span>
+        </div>
+        <div class="inbox-row">
+          <div class="inbox-av" style="background:#f9ab00">N</div>
+          <div class="inbox-meta">
+            <div class="inbox-sender">Notion</div>
+            <div class="inbox-subj">Your weekly digest is ready</div>
+          </div>
+          <span class="inbox-time">9:15 AM</span>
+        </div>
+
+        <!-- Locked rows (blurred — other accounts) -->
+        <div class="inbox-locked-wrapper">
+          <div class="inbox-locked-rows">
+            <div class="inbox-row">
+              <div class="inbox-av" style="background:#34a853">S</div>
+              <div class="inbox-meta">
+                <div class="inbox-sender">Sarah (Manager)</div>
+                <div class="inbox-subj">Urgent: need your sign-off before EOD</div>
+              </div>
+              <span class="inbox-time">8:30 AM</span>
+            </div>
+            <div class="inbox-row">
+              <div class="inbox-av" style="background:#ea4335">S</div>
+              <div class="inbox-meta">
+                <div class="inbox-sender">Stripe</div>
+                <div class="inbox-subj">Action required: payment of $2,400</div>
+              </div>
+              <span class="inbox-time">Yesterday</span>
+            </div>
+            <div class="inbox-row">
+              <div class="inbox-av" style="background:#a142f4">L</div>
+              <div class="inbox-meta">
+                <div class="inbox-sender">Linear</div>
+                <div class="inbox-subj">EMA-512 is blocked — your input needed</div>
+              </div>
+              <span class="inbox-time">Yesterday</span>
+            </div>
+          </div>
+          <div class="inbox-lock-overlay">
+            <div class="inbox-lock-badge">🔒 From your other accounts</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="s3-cta">
+        <button class="btn-primary" id="s3-cta">Connect another account →</button>
+        <button class="btn-skip" id="s3-skip">Continue with 1 account only</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS STATE (inline, not a screen) -->
+    <div id="success-state">
+      <div class="success-icon">✅</div>
+      <h2>Connected!</h2>
+      <p>Opening your full inbox…</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Demo navigation dots -->
+<div class="demo-nav">
+  <span class="demo-nav-label">Demo screens</span>
+  <div class="demo-steps">
+    <button class="demo-step current" data-step="1" title="Screen 1: Value Prop">1</button>
+    <button class="demo-step inactive" data-step="2" title="Screen 2: Sign Up">2</button>
+    <button class="demo-step inactive" data-step="3" title="Screen 3: Add Account">3</button>
+    <button class="demo-step inactive" data-step="4" title="Post-skip nudge">4</button>
+  </div>
+</div>
+
+<script>
+/* ─── STATE ─────────────────────────────────── */
+let currentStep = 1;
+
+/* ─── ELEMENTS ──────────────────────────────── */
+const overlay     = document.getElementById('overlay');
+const modal       = document.getElementById('modal');
+const gmailShell  = document.getElementById('gmail-shell');
+const progressTrack = document.getElementById('progress-track');
+const progressFill  = document.getElementById('progress-fill');
+const closeBtn    = document.getElementById('close-btn');
+const ezView      = document.getElementById('ez-view');
+const nudgeBanner = document.getElementById('nudge-banner');
+const toast       = document.getElementById('toast');
+const confettiCanvas = document.getElementById('confetti-canvas');
+
+/* ─── SCREEN NAVIGATION ─────────────────────── */
+function goTo(step) {
+  // Hide all screens and success state
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('success-state').classList.remove('active');
+
+  if (step === 4) {
+    // Post-skip view: close modal, show EmailZap view
+    showPostSkip();
+    return;
+  }
+
+  currentStep = step;
+  const screenEl = document.getElementById('s' + step);
+  if (screenEl) screenEl.classList.add('active');
+
+  // Progress bar
+  if (step === 1) {
+    progressTrack.style.display = 'none';
+    closeBtn.style.display = 'none';
+  } else if (step === 2) {
+    progressTrack.style.display = 'block';
+    progressFill.style.width = '50%';
+    closeBtn.style.display = 'flex';
+  } else if (step === 3) {
+    progressTrack.style.display = 'block';
+    progressFill.style.width = '100%';
+    closeBtn.style.display = 'flex';
+  }
+
+  updateDemoNav(step);
+}
+
+/* ─── POST-SKIP VIEW ────────────────────────── */
+function showPostSkip() {
+  currentStep = 4;
+  // Fade out modal
+  modal.classList.add('fading');
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+    gmailShell.classList.remove('blurred');
+    ezView.classList.add('visible');
+    // Reset
+    modal.classList.remove('fading');
+    // Re-show nudge banner if it was hidden
+    nudgeBanner.style.display = 'flex';
+    nudgeBanner.classList.remove('hiding');
+  }, 350);
+  updateDemoNav(4);
+}
+
+/* ─── SUCCESS + CONFETTI ────────────────────── */
+function showSuccess() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('success-state').classList.add('active');
+  launchConfetti();
+  setTimeout(() => showPostSkip(), 2200);
+}
+
+/* ─── CONFETTI ──────────────────────────────── */
+const ctx = confettiCanvas.getContext('2d');
+let confettiParticles = [];
+let confettiRunning = false;
+
+function resizeCanvas() {
+  confettiCanvas.width  = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function launchConfetti() {
+  confettiParticles = [];
+  const colors = ['#1a73e8','#34a853','#f9ab00','#ea4335','#a142f4','#00bcd4'];
+  for (let i = 0; i < 110; i++) {
+    confettiParticles.push({
+      x: Math.random() * window.innerWidth,
+      y: -10 - Math.random() * 100,
+      r: 5 + Math.random() * 6,
+      d: 0.5 + Math.random() * 1.5,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      tilt: Math.random() * 30 - 15,
+      tiltSpeed: 0.07 + Math.random() * 0.1,
+      angle: 0,
+      shape: Math.random() > 0.5 ? 'rect' : 'circle'
+    });
+  }
+  if (!confettiRunning) animateConfetti();
+}
+
+function animateConfetti() {
+  confettiRunning = true;
+  ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  let alive = false;
+  confettiParticles.forEach(p => {
+    p.y += p.d * 3;
+    p.x += Math.sin(p.angle) * 1.5;
+    p.angle += 0.03;
+    p.tilt += p.tiltSpeed;
+    if (p.y < confettiCanvas.height + 20) alive = true;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.tilt * Math.PI / 180);
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = 0.85;
+    if (p.shape === 'rect') {
+      ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.4);
+    } else {
+      ctx.beginPath(); ctx.arc(0, 0, p.r * 0.5, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  });
+  if (alive) requestAnimationFrame(animateConfetti);
+  else { confettiRunning = false; ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); }
+}
+
+/* ─── TOAST ─────────────────────────────────── */
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 2500);
+}
+
+/* ─── DEMO NAV ──────────────────────────────── */
+function updateDemoNav(step) {
+  document.querySelectorAll('.demo-step').forEach(btn => {
+    const s = parseInt(btn.dataset.step);
+    btn.classList.remove('current', 'done', 'inactive');
+    if (s === step) btn.classList.add('current');
+    else if (s < step) btn.classList.add('done');
+    else btn.classList.add('inactive');
+  });
+}
+
+/* ─── EVENT LISTENERS ───────────────────────── */
+document.getElementById('s1-cta').addEventListener('click', () => goTo(2));
+document.getElementById('s2-cta').addEventListener('click', () => goTo(3));
+document.getElementById('s3-cta').addEventListener('click', () => showSuccess());
+document.getElementById('s3-skip').addEventListener('click', () => goTo(4));
+closeBtn.addEventListener('click', () => goTo(4));
+
+document.querySelectorAll('.demo-step').forEach(btn => {
+  btn.addEventListener('click', () => goTo(parseInt(btn.dataset.step)));
+});
+
+document.getElementById('nudge-add-btn').addEventListener('click', () => {
+  showToast('Add account flow would open here');
+});
+
+document.getElementById('nudge-dismiss-btn').addEventListener('click', () => {
+  nudgeBanner.classList.add('hiding');
+  setTimeout(() => { nudgeBanner.style.display = 'none'; }, 260);
+});
+
+// Filter tabs
+document.querySelectorAll('.ez-filter-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ez-filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+
+// Keyboard: Enter advances current screen
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (currentStep === 1) goTo(2);
+  else if (currentStep === 2) goTo(3);
+  else if (currentStep === 3) showSuccess();
+});
+
+/* ─── INIT ──────────────────────────────────── */
+goTo(1);
+</script>
+</body>
+</html>
