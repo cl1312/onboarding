@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap — Product UI</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════
+   DESIGN TOKENS
+═══════════════════════════ */
+:root {
+  --dark:      #141413;
+  --light:     #faf9f5;
+  --surface:   #f2f0e8;
+  --border:    #e8e6dc;
+  --mid:       #b0aea5;
+  --text:      #141413;
+  --text2:     #5a5850;
+  --text3:     #9e9a92;
+  --orange:    #d97757;
+  --blue:      #6a9bcc;
+  --green:     #788c5d;
+  --ez-red:    #ea4335;
+
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-pill: 100px;
+
+  --sh-sm: 0 1px 3px rgba(0,0,0,.05);
+  --sh-md: 0 4px 16px rgba(0,0,0,.07);
+  --sh-lg: 0 8px 28px rgba(0,0,0,.12);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Poppins', -apple-system, sans-serif;
+  background: #f6f8fc;
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+}
+
+.app { display: flex; height: 100vh; }
+
+/* ═══════════════════════════
+   GMAIL SIDEBAR (narrow icon rail)
+═══════════════════════════ */
+.gmail-sidebar {
+  width: 68px;
+  background: #f6f8fc;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.gs-logo {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+.gs-item {
+  width: 52px; height: 44px;
+  border-radius: 16px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px; cursor: pointer;
+  font-size: 10px; color: #5f6368;
+  transition: background 150ms;
+  position: relative;
+}
+.gs-item:hover { background: #e8eaed; }
+.gs-item .gs-icon { font-size: 18px; }
+.gs-item .gs-badge {
+  position: absolute; top: 4px; right: 6px;
+  background: #ea4335; color: #fff;
+  font-size: 9px; font-weight: 700;
+  padding: 1px 5px; border-radius: 10px;
+}
+.gs-divider { width: 28px; height: 1px; background: #dadce0; margin: 8px 0; }
+.gs-item.ez-item.active {
+  background: #fef0eb; color: var(--orange);
+}
+
+/* ═══════════════════════════
+   EMAILZAP MAIN PANEL
+═══════════════════════════ */
+.ez-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--light);
+  overflow: hidden;
+}
+
+/* ── Top Bar ── */
+.ez-topbar {
+  height: 52px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.ez-logo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 16px; font-weight: 700; color: var(--dark); flex-shrink: 0;
+}
+.ez-logo-mark {
+  width: 26px; height: 26px;
+  background: linear-gradient(135deg, var(--orange), #c4613f);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px;
+}
+.ez-search {
+  flex: 1; max-width: 480px;
+  display: flex; align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-pill);
+  height: 36px; padding: 0 14px; gap: 8px;
+  cursor: pointer;
+  transition: border-color 200ms, box-shadow 200ms;
+}
+.ez-search:focus-within {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(217,119,87,.12);
+  background: #fff;
+}
+.ez-search-icon { font-size: 13px; color: var(--text3); }
+.ez-search input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 13px; font-family: 'Poppins', sans-serif; color: var(--text);
+}
+.ez-search input::placeholder { color: var(--text3); }
+.ez-search-kbd {
+  font-size: 10px; color: var(--text3); background: var(--light);
+  padding: 2px 6px; border-radius: 5px; border: 1px solid var(--border);
+}
+.ez-topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.ez-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), #5585b3);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+
+/* ── Body ── */
+.ez-body { flex: 1; display: flex; overflow: hidden; }
+
+/* ═══════════════════════════
+   LEFT NAV
+═══════════════════════════ */
+.ez-nav {
+  width: 200px;
+  background: #fff;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 10px 6px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.ez-nav::-webkit-scrollbar { display: none; }
+
+.ez-nav-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text3); padding: 10px 10px 4px;
+}
+.ez-nav-item {
+  display: flex; align-items: center; gap: 8px;
+  height: 32px; padding: 0 10px;
+  border-radius: 8px; cursor: pointer;
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  transition: background 100ms;
+}
+.ez-nav-item:hover { background: var(--surface); }
+.ez-nav-item.active {
+  background: #fef0eb; color: var(--orange); font-weight: 600;
+}
+.ez-nav-icon { width: 18px; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ez-nav-count {
+  margin-left: auto; font-size: 10px; font-weight: 600;
+  color: var(--text3); background: var(--surface);
+  padding: 1px 6px; border-radius: 8px;
+}
+.ez-nav-item.active .ez-nav-count { background: rgba(217,119,87,.12); color: var(--orange); }
+.ez-nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+.nav-divider { height: 1px; background: var(--border); margin: 6px 10px; }
+
+/* Suggestions badge */
+.ez-nav-item .suggestions-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #7c3aed; margin-left: auto; flex-shrink: 0;
+}
+
+/* ═══════════════════════════
+   CENTER — TABS + EMAIL LIST
+═══════════════════════════ */
+.ez-center {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; min-width: 0;
+}
+
+/* Category tabs */
+.ez-tabs {
+  display: flex; align-items: stretch;
+  height: 40px; background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px; gap: 0; flex-shrink: 0;
+  overflow-x: auto;
+}
+.ez-tabs::-webkit-scrollbar { display: none; }
+
+.ez-tab {
+  padding: 0 14px; font-size: 12px; font-weight: 500;
+  color: var(--text3); cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  border-bottom: 2px solid transparent;
+  transition: color 150ms, border-color 150ms;
+  white-space: nowrap; flex-shrink: 0;
+}
+.ez-tab:hover { color: var(--text2); }
+.ez-tab.active { color: var(--orange); border-bottom-color: var(--orange); font-weight: 600; }
+.ez-tab .tab-count {
+  font-size: 10px; font-weight: 700;
+  background: var(--surface); color: var(--text3);
+  padding: 1px 5px; border-radius: 8px;
+}
+.ez-tab.active .tab-count { background: rgba(217,119,87,.12); color: var(--orange); }
+.tab-sep {
+  width: 1px; height: 16px; background: var(--border);
+  margin: auto 4px; flex-shrink: 0;
+}
+
+/* Sub-labels (shown below tabs when Travel/Newsletters active) */
+.sub-labels {
+  display: none; align-items: center;
+  height: 34px; background: var(--light);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px; gap: 6px; flex-shrink: 0;
+}
+.sub-labels.visible { display: flex; }
+.sub-label {
+  font-size: 11px; font-weight: 500;
+  padding: 4px 12px; border-radius: var(--r-pill);
+  background: #fff; border: 1px solid var(--border);
+  color: var(--text2); cursor: pointer;
+  transition: all 120ms; white-space: nowrap;
+}
+.sub-label:hover { border-color: var(--text3); }
+.sub-label.active {
+  background: var(--dark); color: #fff; border-color: var(--dark);
+}
+
+/* Assistant brief — conversational card, collapsible */
+.assistant-brief {
+  margin: 16px 20px 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 0;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.ab-top-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; cursor: pointer;
+  user-select: none; transition: background 100ms;
+}
+.ab-top-bar:hover { background: var(--light); }
+.ab-chevron {
+  font-size: 10px; color: var(--text3);
+  transition: transform 200ms;
+  flex-shrink: 0;
+}
+.assistant-brief.collapsed .ab-chevron { transform: rotate(-90deg); }
+.ab-collapsible {
+  max-height: 300px; overflow: hidden;
+  transition: max-height 250ms ease, padding 250ms ease;
+  padding: 0 16px 14px;
+}
+.assistant-brief.collapsed .ab-collapsible {
+  max-height: 0; padding-bottom: 0;
+}
+.ab-items-scroll {
+  max-height: 160px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.ab-items-scroll::-webkit-scrollbar { width: 3px; }
+.ab-items-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.assistant-brief::before {
+  content: '';
+  position: absolute;
+  top: -6px; left: 24px;
+  width: 12px; height: 12px;
+  background: #fff;
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  transform: rotate(45deg);
+}
+.ab-avatar {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--orange), #c4613f);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 10px; flex-shrink: 0;
+}
+.ab-who {
+  font-size: 11px; font-weight: 600; color: var(--orange);
+}
+.ab-when {
+  font-size: 10px; color: var(--text3); margin-left: auto;
+}
+.ab-dismiss {
+  font-size: 14px; color: var(--text3); cursor: pointer;
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; transition: background 100ms;
+}
+.ab-dismiss:hover { background: var(--surface); color: var(--text2); }
+.ab-message {
+  font-size: 13px; color: var(--text2); line-height: 1.55;
+  font-family: 'Lora', serif;
+}
+.ab-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 8px;
+  cursor: pointer; transition: background 100ms;
+}
+.ab-item:hover { background: var(--light); }
+.ab-dot {
+  width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+}
+.ab-dot.urgent { background: var(--ez-red); }
+.ab-dot.normal { background: var(--orange); }
+.ab-dot.low { background: var(--blue); }
+.ab-item-text {
+  font-size: 12px; color: var(--text2); flex: 1;
+}
+.ab-item-text strong { color: var(--dark); font-weight: 600; }
+.ab-tag {
+  font-size: 9px; font-weight: 600;
+  padding: 2px 7px; border-radius: var(--r-pill); flex-shrink: 0;
+}
+.ab-tag.deadline { background: #fef2f2; color: var(--ez-red); }
+.ab-tag.reply { background: #fef6e7; color: #92400e; }
+.ab-tag.action { background: #f0f7ff; color: #1d4ed8; }
+
+/* ═══════════════════════════
+   EMAIL LIST
+═══════════════════════════ */
+.email-list {
+  flex: 1; overflow-y: auto; padding: 4px 0;
+}
+.email-list::-webkit-scrollbar { width: 5px; }
+.email-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.email-row {
+  display: flex; align-items: center;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: background 100ms;
+  gap: 12px;
+  border-left: 3px solid transparent;
+  margin: 0;
+}
+.email-row:hover { background: #faf8f4; }
+.email-row.selected { background: #fef8f5; }
+.email-row.unread { font-weight: 600; }
+
+/* Account indicator — colored left border */
+.email-row[data-account="work"] { border-left-color: var(--blue); }
+.email-row[data-account="personal"] { border-left-color: var(--green); }
+
+.er-star {
+  font-size: 14px; color: var(--border); cursor: pointer;
+  flex-shrink: 0; transition: color 100ms; line-height: 1;
+}
+.er-star:hover { color: #f59e0b; }
+.er-star.starred { color: #f59e0b; }
+
+.er-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0;
+}
+
+.er-sender {
+  width: 120px; font-size: 12px; font-weight: 500;
+  color: var(--text2); flex-shrink: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.email-row.unread .er-sender { font-weight: 700; color: var(--dark); }
+
+.er-content {
+  flex: 1; display: flex; align-items: center;
+  gap: 6px; min-width: 0;
+}
+.er-subject {
+  font-size: 12px; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.email-row.unread .er-subject { font-weight: 600; color: var(--dark); }
+.er-snippet {
+  font-size: 12px; color: var(--text3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex-shrink: 1;
+}
+
+.er-meta {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.er-account-tag {
+  font-size: 9px; font-weight: 600; padding: 2px 6px;
+  border-radius: var(--r-pill); white-space: nowrap;
+}
+.er-account-tag.work { background: rgba(106,155,204,.12); color: var(--blue); }
+.er-account-tag.personal { background: rgba(120,140,93,.12); color: var(--green); }
+
+.er-label {
+  font-size: 9px; font-weight: 600;
+  padding: 2px 7px; border-radius: var(--r-pill); white-space: nowrap;
+}
+.er-label.newsletter { background: #f0e6ff; color: #7c3aed; }
+.er-label.receipt    { background: #ecfdf5; color: #059669; }
+.er-label.travel     { background: #f0f7ff; color: #2563eb; }
+
+.er-time {
+  font-size: 11px; color: var(--text3);
+  white-space: nowrap; min-width: 46px; text-align: right;
+}
+.email-row.unread .er-time { color: var(--text2); }
+
+/* Nudge row */
+.nudge-row {
+  display: flex; align-items: center;
+  padding: 7px 20px; gap: 8px;
+  background: #fffbf5;
+  cursor: pointer; margin: 2px 0;
+  border-left: 3px solid var(--ez-orange);
+}
+.nudge-row:hover { background: #fef6e7; }
+.nudge-icon { font-size: 12px; color: var(--ez-orange); }
+.nudge-text { font-size: 11px; color: #92400e; font-weight: 500; }
+.nudge-text strong { font-weight: 700; }
+.nudge-time { font-size: 10px; color: var(--text3); margin-left: auto; }
+
+/* ═══════════════════════════
+   EMAIL DETAIL — HALF SCREEN SLIDE-OVER
+═══════════════════════════ */
+.detail-overlay {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 50%;
+  background: #fff;
+  box-shadow: -4px 0 24px rgba(0,0,0,.08);
+  z-index: 50;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 250ms cubic-bezier(.4,0,.2,1);
+}
+.detail-overlay.open { transform: translateX(0); }
+
+.do-header {
+  display: flex; align-items: center;
+  padding: 12px 20px; gap: 10px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.do-close {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text3); cursor: pointer;
+  transition: background 100ms; border: none; background: none;
+  font-family: 'Poppins', sans-serif;
+}
+.do-close:hover { background: var(--surface); color: var(--text); }
+.do-subject {
+  font-size: 15px; font-weight: 700; color: var(--dark);
+  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.do-account-tag {
+  font-size: 9px; font-weight: 600; padding: 2px 7px;
+  border-radius: var(--r-pill); flex-shrink: 0;
+}
+
+.do-meta {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px; flex-shrink: 0;
+}
+.do-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: #fff; flex-shrink: 0;
+}
+.do-meta-text { flex: 1; }
+.do-from { font-size: 13px; font-weight: 600; color: var(--dark); }
+.do-from-email { font-size: 11px; color: var(--text3); font-weight: 400; }
+.do-date { font-size: 11px; color: var(--text3); }
+
+.do-body {
+  flex: 1; overflow-y: auto; padding: 0 20px 20px;
+}
+.do-body::-webkit-scrollbar { width: 4px; }
+.do-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.do-body-text {
+  font-family: 'Lora', serif; font-size: 13px;
+  line-height: 1.7; color: var(--text2);
+}
+
+/* Extracted action items */
+.do-action-items {
+  margin-top: 14px; padding: 12px;
+  background: #fffbf5; border: 1px solid #f5e8d8;
+  border-radius: var(--r-sm);
+}
+.do-ai-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--orange);
+  margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
+}
+.do-ai-item {
+  font-size: 12px; color: var(--text2); padding: 3px 0;
+  display: flex; align-items: flex-start; gap: 6px;
+}
+.do-ai-bullet {
+  width: 4px; height: 4px; background: var(--orange);
+  border-radius: 50%; margin-top: 6px; flex-shrink: 0;
+}
+
+/* Quick Actions — pinned at bottom */
+.do-actions {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--light);
+  flex-shrink: 0;
+}
+.do-actions-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--text3); margin-bottom: 8px;
+}
+.do-actions-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.qa-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 12px; border-radius: var(--r-pill);
+  font-size: 11px; font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer; border: 1.5px solid var(--border);
+  background: #fff; color: var(--text2);
+  transition: all 120ms;
+}
+.qa-btn:hover { border-color: var(--text3); background: var(--surface); }
+.qa-btn.primary {
+  background: var(--orange); color: #fff; border-color: var(--orange);
+  box-shadow: 0 2px 8px rgba(217,119,87,.2);
+}
+.qa-btn.primary:hover {
+  background: #c4613f; border-color: #c4613f; transform: translateY(-1px);
+}
+
+/* Chat / Instruction input — in email detail */
+.do-chat {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  background: #fff; flex-shrink: 0;
+}
+.do-chat-wrap {
+  display: flex; align-items: center; gap: 8px;
+}
+.do-chat-input {
+  flex: 1; border: 1.5px solid var(--border);
+  border-radius: var(--r-pill); padding: 8px 14px;
+  font-size: 12px; font-family: 'Poppins', sans-serif;
+  color: var(--text); background: var(--light);
+  outline: none; transition: border-color 200ms, box-shadow 200ms;
+}
+.do-chat-input:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(217,119,87,.1);
+  background: #fff;
+}
+.do-chat-input::placeholder { color: var(--text3); }
+.do-chat-send {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--orange); color: #fff;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+  transition: background 120ms;
+  font-family: 'Poppins', sans-serif;
+}
+.do-chat-send:hover { background: #c4613f; }
+.do-chat-hints {
+  display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap;
+}
+.do-chat-hint {
+  font-size: 10px; color: var(--text3);
+  padding: 3px 8px; border-radius: var(--r-pill);
+  background: var(--light); border: 1px solid var(--border);
+  cursor: pointer; transition: all 100ms;
+  font-family: 'Poppins', sans-serif;
+}
+.do-chat-hint:hover { border-color: var(--text3); color: var(--text2); }
+
+/* ═══════════════════════════
+   GLOBAL CHATBOT — floating
+═══════════════════════════ */
+.chat-fab {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--orange), #c4613f);
+  color: #fff; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; z-index: 60;
+  box-shadow: 0 4px 16px rgba(217,119,87,.35);
+  transition: transform 150ms, box-shadow 150ms;
+  font-family: 'Poppins', sans-serif;
+}
+.chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(217,119,87,.4); }
+.chat-fab.hidden { display: none; }
+
+.chat-panel {
+  position: fixed; bottom: 84px; right: 24px;
+  width: 380px; max-height: 480px;
+  background: #fff; border-radius: var(--r-lg);
+  box-shadow: var(--sh-lg); z-index: 60;
+  display: none; flex-direction: column;
+  overflow: hidden;
+}
+.chat-panel.open { display: flex; }
+
+.chat-panel-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+}
+.chat-panel-logo {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--orange), #c4613f);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 11px;
+}
+.chat-panel-title { font-size: 13px; font-weight: 600; color: var(--dark); flex: 1; }
+.chat-panel-close {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text3); cursor: pointer;
+  border: none; background: none;
+}
+.chat-panel-close:hover { background: var(--surface); color: var(--text); }
+
+.chat-panel-messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  min-height: 200px;
+}
+.chat-panel-messages::-webkit-scrollbar { width: 4px; }
+.chat-panel-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.chat-msg {
+  max-width: 85%; font-size: 12px; line-height: 1.55;
+  padding: 8px 12px; border-radius: 12px;
+}
+.chat-msg.assistant {
+  align-self: flex-start;
+  background: var(--light); color: var(--text2);
+  border-bottom-left-radius: 4px;
+}
+.chat-msg.user {
+  align-self: flex-end;
+  background: var(--orange); color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-panel-input {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 14px; border-top: 1px solid var(--border);
+}
+.chat-panel-input input {
+  flex: 1; border: 1.5px solid var(--border);
+  border-radius: var(--r-pill); padding: 8px 14px;
+  font-size: 12px; font-family: 'Poppins', sans-serif;
+  color: var(--text); outline: none;
+  transition: border-color 200ms;
+}
+.chat-panel-input input:focus { border-color: var(--orange); }
+.chat-panel-input input::placeholder { color: var(--text3); }
+.chat-panel-input button {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--orange); color: #fff;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+  font-family: 'Poppins', sans-serif;
+}
+.chat-panel-input button:hover { background: #c4613f; }
+
+.chat-suggestions {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  padding: 0 14px 10px;
+}
+.chat-suggestion {
+  font-size: 10px; color: var(--text3);
+  padding: 4px 10px; border-radius: var(--r-pill);
+  background: var(--light); border: 1px solid var(--border);
+  cursor: pointer; transition: all 100ms;
+  font-family: 'Poppins', sans-serif;
+}
+.chat-suggestion:hover { border-color: var(--orange); color: var(--orange); }
+
+/* ═══════════════════════════
+   SUGGESTIONS PANEL (overlay like detail)
+═══════════════════════════ */
+.suggestions-overlay {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 380px;
+  background: #fff;
+  box-shadow: -4px 0 24px rgba(0,0,0,.08);
+  z-index: 50;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 250ms cubic-bezier(.4,0,.2,1);
+}
+.suggestions-overlay.open { transform: translateX(0); }
+
+.sg-header {
+  display: flex; align-items: center;
+  padding: 14px 20px; gap: 10px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.sg-close {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text3); cursor: pointer;
+  border: none; background: none; font-family: 'Poppins', sans-serif;
+}
+.sg-close:hover { background: var(--surface); color: var(--text); }
+.sg-title {
+  font-size: 14px; font-weight: 700; color: var(--dark); flex: 1;
+}
+.sg-badge {
+  font-size: 10px; font-weight: 700; background: #7c3aed;
+  color: #fff; padding: 2px 8px; border-radius: 10px;
+}
+
+.sg-list {
+  flex: 1; overflow-y: auto; padding: 12px;
+}
+.sg-list::-webkit-scrollbar { width: 4px; }
+.sg-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sg-card {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  margin-bottom: 10px;
+  transition: border-color 150ms;
+}
+.sg-card:hover { border-color: var(--text3); }
+.sg-card-icon { font-size: 20px; margin-bottom: 8px; }
+.sg-card-title {
+  font-size: 13px; font-weight: 600; color: var(--dark);
+  margin-bottom: 4px;
+}
+.sg-card-desc {
+  font-size: 12px; color: var(--text3); line-height: 1.5;
+  margin-bottom: 10px;
+}
+.sg-card-actions { display: flex; gap: 6px; }
+.sg-btn {
+  font-size: 11px; font-weight: 600;
+  padding: 5px 14px; border-radius: var(--r-pill);
+  cursor: pointer; font-family: 'Poppins', sans-serif;
+  transition: all 120ms; border: none;
+}
+.sg-btn.accept { background: var(--dark); color: #fff; }
+.sg-btn.accept:hover { background: #2a2a28; }
+.sg-btn.dismiss { background: var(--surface); color: var(--text2); }
+.sg-btn.dismiss:hover { background: var(--border); }
+
+/* ═══════════════════════════
+   SEARCH OVERLAY
+═══════════════════════════ */
+.search-overlay {
+  position: fixed; inset: 0;
+  background: rgba(20,20,19,.35);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: none; align-items: flex-start; justify-content: center;
+  padding-top: 80px;
+}
+.search-overlay.visible { display: flex; }
+.search-modal {
+  width: 560px; background: #fff;
+  border-radius: var(--r-lg); box-shadow: var(--sh-lg); overflow: hidden;
+}
+.sm-input-wrap {
+  display: flex; align-items: center;
+  padding: 14px 18px; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.sm-icon { font-size: 16px; color: var(--text3); }
+.sm-input {
+  flex: 1; border: none; outline: none;
+  font-size: 15px; font-family: 'Poppins', sans-serif; color: var(--dark);
+}
+.sm-input::placeholder { color: var(--text3); }
+.sm-kbd {
+  font-size: 10px; color: var(--text3); background: var(--surface);
+  padding: 2px 7px; border-radius: 5px; border: 1px solid var(--border);
+}
+.sm-results { padding: 10px; max-height: 360px; overflow-y: auto; }
+.sm-hint {
+  padding: 20px; text-align: center; color: var(--text3); font-size: 13px;
+}
+.sm-hint em {
+  font-family: 'Lora', serif; font-style: italic;
+  display: block; margin-top: 4px; color: var(--text2); font-size: 12px;
+}
+
+/* ═══════════════════════════
+   TOAST
+═══════════════════════════ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--dark); color: #fff;
+  padding: 10px 20px; border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 500;
+  box-shadow: var(--sh-lg); z-index: 2000;
+  display: flex; align-items: center; gap: 8px;
+  transition: transform 300ms cubic-bezier(.34,1.56,.64,1), opacity 300ms;
+  opacity: 0; pointer-events: none;
+}
+.toast.visible {
+  transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto;
+}
+.toast-undo { color: var(--orange); font-weight: 600; cursor: pointer; margin-left: 6px; }
+
+/* ═══════════════════════════
+   NOISE VIEW — shown when Noise tab active
+═══════════════════════════ */
+.noise-view { display: none; flex: 1; overflow-y: auto; padding: 4px 0; }
+.noise-view.visible { display: block; }
+.noise-view::-webkit-scrollbar { width: 5px; }
+.noise-view::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.noise-toolbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; background: #fafaf8;
+  border-bottom: 1px solid #f0ede6;
+}
+.noise-toolbar-text {
+  font-size: 11px; color: var(--text3); flex: 1;
+}
+.noise-toolbar-btn {
+  font-size: 11px; font-weight: 600;
+  padding: 5px 14px; border-radius: var(--r-pill);
+  cursor: pointer; font-family: 'Poppins', sans-serif;
+  transition: all 120ms; border: none;
+  background: var(--dark); color: #fff;
+}
+.noise-toolbar-btn:hover { background: #2a2a28; }
+
+.noise-email-row {
+  display: flex; align-items: center;
+  padding: 8px 20px; gap: 12px;
+  cursor: pointer; transition: background 100ms;
+  opacity: .65;
+}
+.noise-email-row:hover { background: #faf8f4; opacity: 1; }
+
+.ne-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--text3); flex-shrink: 0;
+}
+.ne-info { flex: 1; min-width: 0; }
+.ne-sender2 {
+  font-size: 12px; font-weight: 500; color: var(--text3);
+}
+.ne-subject2 {
+  font-size: 11px; color: var(--mid);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ne-time { font-size: 10px; color: var(--mid); flex-shrink: 0; }
+/* Noise row actions — two options, only visible on hover */
+.ne-actions {
+  display: flex; align-items: center; gap: 4px;
+  flex-shrink: 0; opacity: 0;
+  transition: opacity 120ms;
+}
+.noise-email-row:hover .ne-actions { opacity: 1; }
+
+.ne-move {
+  font-size: 10px; font-weight: 500;
+  padding: 4px 8px; border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: #fff; color: var(--text3);
+  cursor: pointer; font-family: 'Poppins', sans-serif;
+  transition: all 100ms; white-space: nowrap;
+  position: relative;
+}
+.ne-move:hover { border-color: var(--blue); color: var(--blue); background: #f0f7ff; }
+
+.ne-block {
+  font-size: 10px; font-weight: 600;
+  padding: 4px 8px; border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: #fff; color: var(--text3);
+  cursor: pointer; font-family: 'Poppins', sans-serif;
+  transition: all 100ms; white-space: nowrap;
+}
+.ne-block:hover {
+  border-color: var(--ez-red); color: var(--ez-red); background: #fef2f2;
+}
+
+/* Move-to dropdown */
+.ne-dropdown {
+  position: absolute; top: 100%; right: 0;
+  margin-top: 4px;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--r-sm); box-shadow: var(--sh-md);
+  z-index: 80; min-width: 140px;
+  display: none; flex-direction: column;
+  padding: 4px 0;
+}
+.ne-dropdown.open { display: flex; }
+.ne-dropdown-item {
+  font-size: 11px; font-weight: 500;
+  padding: 6px 12px; color: var(--text2);
+  cursor: pointer; transition: background 80ms;
+  display: flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
+.ne-dropdown-item:hover { background: var(--light); }
+.ne-dropdown-item .ndi-icon { font-size: 12px; width: 16px; text-align: center; }
+
+/* Animations */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: slideIn 200ms ease-out; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══════ GMAIL SIDEBAR ═══════ -->
+  <div class="gmail-sidebar">
+    <div class="gs-logo">
+      <svg viewBox="0 0 24 24" width="28" height="28">
+        <path fill="#EA4335" d="M1 5.64L12 13.14L23 5.64V18C23 19.1 22.1 20 21 20H3C1.9 20 1 19.1 1 18V5.64Z" opacity=".3"/>
+        <path fill="#4285F4" d="M23 5.64V18C23 19.1 22.1 20 21 20H19V9.28L12 14.77L5 9.28V20H3C1.9 20 1 19.1 1 18V5.64L3 4H21L23 5.64Z"/>
+        <path fill="#34A853" d="M5 9.28V20H3C1.9 20 1 19.1 1 18V5.64L5 9.28Z"/>
+        <path fill="#FBBC04" d="M1 5.64L3 4H21L23 5.64L12 13.14L1 5.64Z" opacity=".25"/>
+        <path fill="#C5221F" d="M19 9.28V20H21C22.1 20 23 19.1 23 18V5.64L19 9.28Z"/>
+      </svg>
+    </div>
+    <div class="gs-item" title="Inbox"><span class="gs-icon">📥</span><span class="gs-badge">14</span></div>
+    <div class="gs-item" title="Starred"><span class="gs-icon">⭐</span></div>
+    <div class="gs-item" title="Sent"><span class="gs-icon">📤</span></div>
+    <div class="gs-divider"></div>
+    <div class="gs-item ez-item active" title="All Inboxes — EmailZap" id="ez-trigger">
+      <span class="gs-icon" style="color:var(--orange);">⚡</span>
+      <span style="font-size:9px;font-weight:600;">All Inboxes</span>
+    </div>
+  </div>
+
+  <!-- ═══════ EMAILZAP PANEL ═══════ -->
+  <div class="ez-panel">
+
+    <!-- Top Bar -->
+    <div class="ez-topbar">
+      <div class="ez-logo">
+        <div class="ez-logo-mark">⚡</div>
+        EmailZap
+      </div>
+      <div class="ez-search" id="search-trigger">
+        <span class="ez-search-icon">🔍</span>
+        <input type="text" placeholder="Ask anything about your email..." readonly>
+        <span class="ez-search-kbd">⌘K</span>
+      </div>
+      <div class="ez-topbar-right">
+        <div class="ez-avatar">CL</div>
+      </div>
+    </div>
+
+    <div class="ez-body" style="position:relative;">
+
+      <!-- Left Nav -->
+      <div class="ez-nav">
+        <div class="ez-nav-label">Views</div>
+        <div class="ez-nav-item active" data-view="all-inboxes">
+          <span class="ez-nav-icon">📨</span> All Inboxes
+          <span class="ez-nav-count">6</span>
+        </div>
+        <div class="ez-nav-item" data-view="important">
+          <span class="ez-nav-icon">🔥</span> Important
+          <span class="ez-nav-count">3</span>
+        </div>
+        <div class="ez-nav-item" data-view="needs-action">
+          <span class="ez-nav-icon">⚡</span> Needs Action
+          <span class="ez-nav-count">3</span>
+        </div>
+
+        <div class="nav-divider"></div>
+
+        <div class="ez-nav-label">Accounts</div>
+        <div class="ez-nav-item" data-view="work">
+          <span class="ez-nav-dot" style="background:var(--blue);"></span> chandan@work.com
+          <span class="ez-nav-count">4</span>
+        </div>
+        <div class="ez-nav-item" data-view="personal">
+          <span class="ez-nav-dot" style="background:var(--green);"></span> chandan@gmail.com
+          <span class="ez-nav-count">2</span>
+        </div>
+        <div class="ez-nav-item" style="color:var(--orange);">
+          <span class="ez-nav-icon" style="font-size:12px;">+</span> Add account
+        </div>
+
+        <div class="nav-divider"></div>
+
+        <div class="ez-nav-label">More</div>
+        <div class="ez-nav-item" id="nav-suggestions">
+          <span class="ez-nav-icon">💡</span> Suggestions
+          <span class="suggestions-dot"></span>
+          <span class="ez-nav-count">3</span>
+        </div>
+        <div class="ez-nav-item" data-view="automations">
+          <span class="ez-nav-icon">🤖</span> Automations
+          <span class="ez-nav-count">5</span>
+        </div>
+        <div class="ez-nav-item" data-view="settings">
+          <span class="ez-nav-icon">⚙️</span> Settings
+        </div>
+      </div>
+
+      <!-- Center -->
+      <div class="ez-center">
+
+        <!-- Category Tabs -->
+        <div class="ez-tabs">
+          <div class="ez-tab active" data-tab="all">All <span class="tab-count">6</span></div>
+          <div class="ez-tab" data-tab="important">Important <span class="tab-count">3</span></div>
+          <div class="ez-tab" data-tab="noise">Noise <span class="tab-count">41</span></div>
+          <div class="tab-sep"></div>
+          <div class="ez-tab" data-tab="newsletters">Newsletters <span class="tab-count">8</span></div>
+          <div class="ez-tab" data-tab="travel">Travel <span class="tab-count">1</span></div>
+          <div class="ez-tab" data-tab="receipts">Receipts <span class="tab-count">3</span></div>
+          <div class="ez-tab" data-tab="social">Social <span class="tab-count">12</span></div>
+        </div>
+
+        <!-- Sub-labels for Travel -->
+        <div class="sub-labels" id="sub-travel">
+          <span class="sub-label active">All trips</span>
+          <span class="sub-label">Goa — Mar 2026</span>
+          <span class="sub-label">Tokyo — Jan 2026</span>
+          <span class="sub-label">Lisbon — Nov 2025</span>
+        </div>
+
+        <!-- Sub-labels for Newsletters -->
+        <div class="sub-labels" id="sub-newsletters">
+          <span class="sub-label active">All newsletters</span>
+          <span class="sub-label">Stratechery</span>
+          <span class="sub-label">TLDR</span>
+          <span class="sub-label">Dense Discovery</span>
+          <span class="sub-label">Lenny's Newsletter</span>
+          <span class="sub-label">Morning Brew</span>
+        </div>
+
+        <!-- Assistant Brief — collapsible + scrollable -->
+        <div class="assistant-brief animate-in" id="assistant-brief">
+          <div class="ab-top-bar" id="brief-toggle">
+            <div class="ab-chevron" id="brief-chevron">▼</div>
+            <div class="ab-avatar">⚡</div>
+            <div class="ab-who">EmailZap</div>
+            <div class="ab-message" style="flex:1; margin:0; font-size:12px;">Good morning — 5 things need you today. The rest is handled.</div>
+            <div class="ab-when">9:15 AM</div>
+            <div class="ab-dismiss" id="dismiss-brief">×</div>
+          </div>
+          <div class="ab-collapsible" id="brief-body">
+            <div class="ab-items-scroll">
+              <div class="ab-item" data-email="1">
+                <div class="ab-dot urgent"></div>
+                <div class="ab-item-text">Reply to <strong>Sarah Chen</strong> — Q2 launch sign-off</div>
+                <span class="ab-tag deadline">Deadline Fri</span>
+              </div>
+              <div class="ab-item" data-email="2">
+                <div class="ab-dot normal"></div>
+                <div class="ab-item-text">Confirm dinner with <strong>Priya</strong> — "still 7:30?"</div>
+                <span class="ab-tag reply">Needs reply</span>
+              </div>
+              <div class="ab-item" data-email="3">
+                <div class="ab-dot low"></div>
+                <div class="ab-item-text">Review contract from <strong>David Park</strong></div>
+                <span class="ab-tag action">Review</span>
+              </div>
+              <div class="ab-item" data-email="4">
+                <div class="ab-dot normal"></div>
+                <div class="ab-item-text">Reply to <strong>Alex Rivera</strong> — bug report (18h ago)</div>
+                <span class="ab-tag reply">Overdue</span>
+              </div>
+              <div class="ab-item" data-email="5">
+                <div class="ab-dot low"></div>
+                <div class="ab-item-text">Review <strong>Maya Lin's</strong> design feedback before sync</div>
+                <span class="ab-tag action">Review</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Noise View (shown when Noise tab is active) -->
+        <div class="noise-view" id="noise-view">
+          <div class="noise-toolbar">
+            <span class="noise-toolbar-text">41 emails handled silently · none of these needed you</span>
+            <button class="noise-toolbar-btn" onclick="showToast('All 41 noise emails cleared')">Clear All</button>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">LI</div>
+            <div class="ne-info"><div class="ne-sender2">LinkedIn</div><div class="ne-subject2">12 people viewed your profile this week</div></div>
+            <span class="ne-time">8:30 AM</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Newsletters')"><span class="ndi-icon">📰</span> Newsletters</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Social')"><span class="ndi-icon">💬</span> Social</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Notifications')"><span class="ndi-icon">🔔</span> Notifications</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'LinkedIn')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">NO</div>
+            <div class="ne-info"><div class="ne-sender2">Notion</div><div class="ne-subject2">Weekly digest: 8 pages updated in your workspace</div></div>
+            <span class="ne-time">7:00 AM</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Newsletters')"><span class="ndi-icon">📰</span> Newsletters</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Notifications')"><span class="ndi-icon">🔔</span> Notifications</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Notion')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">SH</div>
+            <div class="ne-info"><div class="ne-sender2">Shopify</div><div class="ne-subject2">Flash sale: 40% off everything — ends tonight</div></div>
+            <span class="ne-time">6:45 AM</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Receipts')"><span class="ndi-icon">🧾</span> Receipts</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Shopify')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">GH</div>
+            <div class="ne-info"><div class="ne-sender2">GitHub</div><div class="ne-subject2">New comment on PR #847: "Looks good, minor nit"</div></div>
+            <span class="ne-time">Yesterday</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Notifications')"><span class="ndi-icon">🔔</span> Notifications</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'GitHub')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">ST</div>
+            <div class="ne-info"><div class="ne-sender2">Stripe</div><div class="ne-subject2">Your monthly statement is ready</div></div>
+            <span class="ne-time">Yesterday</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Receipts')"><span class="ndi-icon">🧾</span> Receipts</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Stripe')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">PW</div>
+            <div class="ne-info"><div class="ne-sender2">Promo Weekly</div><div class="ne-subject2">This week's deals you can't miss!</div></div>
+            <span class="ne-time">Yesterday</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Newsletters')"><span class="ndi-icon">📰</span> Newsletters</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Promo Weekly')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">SL</div>
+            <div class="ne-info"><div class="ne-sender2">Slack</div><div class="ne-subject2">5 new messages in #general</div></div>
+            <span class="ne-time">Yesterday</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Notifications')"><span class="ndi-icon">🔔</span> Notifications</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Slack')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">FI</div>
+            <div class="ne-info"><div class="ne-sender2">Figma</div><div class="ne-subject2">Sarah commented on "Homepage v3"</div></div>
+            <span class="ne-time">Mar 17</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Notifications')"><span class="ndi-icon">🔔</span> Notifications</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Figma')">Block</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email List -->
+        <div class="email-list" id="email-list">
+
+          <!-- Nudge -->
+          <div class="nudge-row" data-email="nudge">
+            <span class="nudge-icon">⏰</span>
+            <span class="nudge-text">You read <strong>Alex Rivera's</strong> bug report 18h ago but haven't replied</span>
+            <span class="nudge-time">Yesterday 3:12 PM</span>
+          </div>
+
+          <div class="email-row unread" data-email="1" data-account="work">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#6a9bcc,#5585b3);">SC</div>
+            <div class="er-sender">Sarah Chen</div>
+            <div class="er-content">
+              <span class="er-subject">Re: Q2 launch timeline — need your sign-off</span>
+              <span class="er-snippet">— Hey, the team finalized the timeline. Can you review and approve by Friday?</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-time">9:12 AM</span>
+            </div>
+          </div>
+
+          <div class="email-row unread" data-email="2" data-account="personal">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#788c5d,#5f7348);">PK</div>
+            <div class="er-sender">Priya Kapoor</div>
+            <div class="er-content">
+              <span class="er-subject">Dinner tonight — still 7:30?</span>
+              <span class="er-snippet">— Hey! Just confirming we're on for tonight. Same place as last time?</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag personal">Personal</span>
+              <span class="er-time">8:45 AM</span>
+            </div>
+          </div>
+
+          <div class="email-row unread" data-email="3" data-account="work">
+            <div class="er-star starred">★</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#b07d4f,#8b6240);">DP</div>
+            <div class="er-sender">David Park</div>
+            <div class="er-content">
+              <span class="er-subject">Contract renewal docs attached</span>
+              <span class="er-snippet">— Hi Chandan, here are the renewal docs for the annual contract...</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-time">8:20 AM</span>
+            </div>
+          </div>
+
+          <div class="email-row" data-email="4" data-account="work">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#d97757,#c4613f);">AR</div>
+            <div class="er-sender">Alex Rivera</div>
+            <div class="er-content">
+              <span class="er-subject">Checkout crash — discount codes</span>
+              <span class="er-snippet">— Users are reporting a crash on the checkout page when applying discount codes...</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-time">Yesterday</span>
+            </div>
+          </div>
+
+          <div class="email-row" data-email="5" data-account="work">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">ML</div>
+            <div class="er-sender">Maya Lin</div>
+            <div class="er-content">
+              <span class="er-subject">Design review notes</span>
+              <span class="er-snippet">— Attached the feedback from the design review. A few things to iterate on...</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-time">Yesterday</span>
+            </div>
+          </div>
+
+          <div class="email-row" data-email="6" data-account="personal">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#059669,#047857);">JW</div>
+            <div class="er-sender">James Wong</div>
+            <div class="er-content">
+              <span class="er-subject">Tax documents ready</span>
+              <span class="er-snippet">— Your 2025 tax documents are ready for download. Please review before filing...</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag personal">Personal</span>
+              <span class="er-label receipt">Receipt</span>
+              <span class="er-time">Mar 17</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══════ EMAIL DETAIL SLIDE-OVER (half screen) ═══════ -->
+      <div class="detail-overlay" id="detail-overlay">
+        <div class="do-header">
+          <button class="do-close" id="detail-close">←</button>
+          <div class="do-subject" id="do-subject">Re: Q2 launch timeline</div>
+          <div class="do-account-tag" id="do-account-tag">Work</div>
+        </div>
+        <div class="do-meta">
+          <div class="do-avatar" id="do-avatar" style="background:linear-gradient(135deg,#6a9bcc,#5585b3);">SC</div>
+          <div class="do-meta-text">
+            <div class="do-from"><span id="do-from">Sarah Chen</span> <span class="do-from-email" id="do-email">&lt;sarah@work.com&gt;</span></div>
+            <div class="do-date" id="do-date">9:12 AM today · chandan@work.com</div>
+          </div>
+        </div>
+        <div class="do-body">
+          <div class="do-body-text" id="do-body">
+            Hey Chandan,<br><br>
+            The team finalized the Q2 launch timeline...
+          </div>
+          <div class="do-action-items" id="do-action-items">
+            <div class="do-ai-label"><span>⚡</span> Action items detected</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions — pinned -->
+        <div class="do-actions">
+          <div class="do-actions-label">Quick Actions</div>
+          <div class="do-actions-grid" id="do-actions-grid"></div>
+        </div>
+
+        <!-- Chat / Instruction input -->
+        <div class="do-chat">
+          <div class="do-chat-wrap">
+            <input class="do-chat-input" id="do-chat-input" type="text" placeholder="Tell EmailZap what to do with this email...">
+            <button class="do-chat-send" id="do-chat-send">↑</button>
+          </div>
+          <div class="do-chat-hints">
+            <span class="do-chat-hint" data-msg="Reply saying we're on it">Reply "we're on it"</span>
+            <span class="do-chat-hint" data-msg="Forward to the team with a summary">Forward + summarize</span>
+            <span class="do-chat-hint" data-msg="Create a Linear ticket from this">Create ticket</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ SUGGESTIONS PANEL ═══════ -->
+      <div class="suggestions-overlay" id="suggestions-overlay">
+        <div class="sg-header">
+          <button class="sg-close" id="sg-close">←</button>
+          <div class="sg-title">Suggestions</div>
+          <span class="sg-badge">3</span>
+        </div>
+        <div class="sg-list">
+          <div class="sg-card">
+            <div class="sg-card-icon">🗑️</div>
+            <div class="sg-card-title">Auto-delete Promo Weekly?</div>
+            <div class="sg-card-desc">You've deleted 8 emails from this sender in the last month. Want to auto-delete future ones?</div>
+            <div class="sg-card-actions">
+              <button class="sg-btn accept" onclick="showToast('Auto-delete enabled for Promo Weekly')">Auto-delete</button>
+              <button class="sg-btn dismiss">Dismiss</button>
+            </div>
+          </div>
+          <div class="sg-card">
+            <div class="sg-card-icon">📦</div>
+            <div class="sg-card-title">Auto-archive vendor invoices?</div>
+            <div class="sg-card-desc">You always archive emails from billing@aws.com within a minute. Should we do it for you?</div>
+            <div class="sg-card-actions">
+              <button class="sg-btn accept" onclick="showToast('Auto-archive enabled for billing@aws.com')">Auto-archive</button>
+              <button class="sg-btn dismiss">Dismiss</button>
+            </div>
+          </div>
+          <div class="sg-card">
+            <div class="sg-card-icon">🏷️</div>
+            <div class="sg-card-title">New category: "Client Contracts"?</div>
+            <div class="sg-card-desc">You've received 12 contract-related emails in the past 2 months. Want a dedicated category?</div>
+            <div class="sg-card-actions">
+              <button class="sg-btn accept" onclick="showToast('Category created: Client Contracts')">Create</button>
+              <button class="sg-btn dismiss">Dismiss</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /ez-body -->
+  </div><!-- /ez-panel -->
+</div><!-- /app -->
+
+<!-- Search overlay -->
+<div class="search-overlay" id="search-overlay">
+  <div class="search-modal">
+    <div class="sm-input-wrap">
+      <span class="sm-icon">🔍</span>
+      <input class="sm-input" id="search-input" type="text" placeholder="Ask anything about your email..." autofocus>
+      <span class="sm-kbd">ESC</span>
+    </div>
+    <div class="sm-results" id="search-results">
+      <div class="sm-hint">
+        Try natural language search<br>
+        <em>"What was the hotel booking for my Goa trip?"</em><br>
+        <em>"Invoices from last month"</em><br>
+        <em>"Anything from Sarah about the launch"</em>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Global Chatbot FAB -->
+<button class="chat-fab" id="chat-fab" title="Chat with EmailZap">✨</button>
+
+<!-- Global Chat Panel -->
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-panel-header">
+    <div class="chat-panel-logo">⚡</div>
+    <div class="chat-panel-title">EmailZap Assistant</div>
+    <button class="chat-panel-close" id="chat-panel-close">×</button>
+  </div>
+  <div class="chat-panel-messages" id="chat-messages">
+    <div class="chat-msg assistant">Hey Chandan! I'm managing your inbox. You have 6 important emails and I've handled 41 noise emails silently. What would you like to do?</div>
+  </div>
+  <div class="chat-suggestions" id="chat-suggestions">
+    <span class="chat-suggestion" data-msg="Summarize my inbox for today">Summarize today</span>
+    <span class="chat-suggestion" data-msg="What's urgent right now?">What's urgent?</span>
+    <span class="chat-suggestion" data-msg="Reply to Sarah saying I'll review by Thursday">Reply to Sarah</span>
+    <span class="chat-suggestion" data-msg="Block all promotional emails">Block all promos</span>
+    <span class="chat-suggestion" data-msg="Find the hotel booking for my Goa trip">Find Goa booking</span>
+  </div>
+  <div class="chat-panel-input">
+    <input type="text" id="chat-global-input" placeholder="Tell me what to do...">
+    <button id="chat-global-send">↑</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toast-text"></span>
+  <span class="toast-undo">Undo</span>
+</div>
+
+<script>
+// ═══════════════════════════
+//   DATA
+// ═══════════════════════════
+const emails = {
+  '1': {
+    subject: 'Re: Q2 launch timeline — need your sign-off',
+    from: 'Sarah Chen', email: 'sarah@work.com',
+    avatar: 'SC', avatarBg: 'linear-gradient(135deg,#6a9bcc,#5585b3)',
+    account: 'work', date: '9:12 AM today · chandan@work.com',
+    body: `Hey Chandan,<br><br>The team finalized the Q2 launch timeline. I've attached the updated Gantt chart with all the milestones.<br><br>Key dates:<br>— Design freeze: March 28<br>— QA begins: April 1<br>— Soft launch: April 15<br>— Full rollout: April 22<br><br>Can you review and sign off by <strong>Friday</strong>? We need your approval to lock in the vendor contracts.<br><br>Also, the marketing team wants to sync on the launch messaging — should I loop them in on our next standup?<br><br>Best,<br>Sarah`,
+    actions: ['Review and sign off on Q2 launch timeline by <strong>Friday</strong>', 'Decide: loop marketing into standup for launch messaging'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated' },
+      { icon: '📋', label: 'Create Ticket', toast: 'Linear ticket created: Q2 Launch Sign-off' },
+      { icon: '💬', label: 'Slack Team', toast: 'Posted to #engineering' },
+      { icon: '🔔', label: 'Remind Me', toast: 'Reminder set for tomorrow 9 AM' },
+    ],
+  },
+  '2': {
+    subject: 'Dinner tonight — still 7:30?',
+    from: 'Priya Kapoor', email: 'priya@gmail.com',
+    avatar: 'PK', avatarBg: 'linear-gradient(135deg,#788c5d,#5f7348)',
+    account: 'personal', date: '8:45 AM today · chandan@gmail.com',
+    body: `Hey! Just confirming we're on for tonight. Same place as last time?<br><br>I was thinking we could also grab dessert at that new bakery around the corner. Let me know!<br><br>See you soon 😊`,
+    actions: ['Confirm dinner tonight at 7:30'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated — casual tone' },
+      { icon: '📅', label: 'Add to Calendar', toast: 'Dinner added to calendar at 7:30 PM' },
+      { icon: '🔔', label: 'Remind at 6pm', toast: 'Reminder set for 6:00 PM' },
+    ],
+  },
+  '3': {
+    subject: 'Contract renewal docs attached',
+    from: 'David Park', email: 'david.park@legal.co',
+    avatar: 'DP', avatarBg: 'linear-gradient(135deg,#b07d4f,#8b6240)',
+    account: 'work', date: '8:20 AM today · chandan@work.com',
+    body: `Hi Chandan,<br><br>Here are the renewal docs for the annual contract. Please review the updated terms in Section 3 — we've adjusted the payment schedule per your request.<br><br>The signing deadline is <strong>March 25</strong>. Let me know if you have any questions.<br><br>Regards,<br>David Park<br>Senior Counsel`,
+    actions: ['Review updated terms in Section 3', 'Sign contract by <strong>March 25</strong>'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated — professional tone' },
+      { icon: '📋', label: 'Create Review Task', toast: 'Linear ticket created: Contract Review' },
+      { icon: '📤', label: 'Forward to Legal', toast: 'Forwarded to legal@work.com' },
+      { icon: '🔔', label: 'Remind Mar 24', toast: 'Reminder set for March 24' },
+    ],
+  },
+  '4': {
+    subject: 'Checkout crash — discount codes',
+    from: 'Alex Rivera', email: 'alex.r@support.com',
+    avatar: 'AR', avatarBg: 'linear-gradient(135deg,#d97757,#c4613f)',
+    account: 'work', date: 'Yesterday 3:12 PM · chandan@work.com',
+    body: `Hey team,<br><br>Users are reporting a crash on the checkout page when applying discount codes. Started after yesterday's deploy.<br><br>Error: <code>TypeError: Cannot read property 'apply' of undefined</code><br><br>3 customers have reported this so far. Can someone look into this ASAP?<br><br>— Alex<br>Customer Support`,
+    actions: ['Investigate checkout crash with discount codes', 'Fix the TypeError from yesterday\'s deploy'],
+    quickActions: [
+      { icon: '📋', label: 'Create Bug Ticket', primary: true, toast: 'Linear ticket created: Checkout crash — P1' },
+      { icon: '✍️', label: 'Reply "on it"', toast: 'Replied: "Looking into this now"' },
+      { icon: '💬', label: 'Alert #engineering', toast: 'Posted to #engineering on Slack' },
+    ],
+  },
+  '5': {
+    subject: 'Design review notes',
+    from: 'Maya Lin', email: 'maya@work.com',
+    avatar: 'ML', avatarBg: 'linear-gradient(135deg,#7c3aed,#6d28d9)',
+    account: 'work', date: 'Yesterday · chandan@work.com',
+    body: `Hey Chandan,<br><br>Attached the feedback from the design review. A few things to iterate on before the v2 handoff:<br><br>1. The spacing on mobile feels tight — needs 16px more padding<br>2. CTA color contrast doesn't meet AA standards<br>3. The onboarding flow could use a progress indicator<br><br>Overall looking great. Let's sync tomorrow to finalize.<br><br>— Maya`,
+    actions: ['Review 3 design feedback items', 'Sync with Maya to finalize v2 handoff'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated' },
+      { icon: '📋', label: 'Create Tasks', toast: '3 Linear tickets created from feedback' },
+      { icon: '📅', label: 'Schedule Sync', toast: 'Meeting scheduled with Maya' },
+    ],
+  },
+  '6': {
+    subject: 'Tax documents ready',
+    from: 'James Wong', email: 'james@taxservices.com',
+    avatar: 'JW', avatarBg: 'linear-gradient(135deg,#059669,#047857)',
+    account: 'personal', date: 'Mar 17 · chandan@gmail.com',
+    body: `Dear Chandan,<br><br>Your 2025 tax documents are ready for download. Please review before the filing deadline of <strong>April 15</strong>.<br><br>Documents included:<br>— Form 16 (TDS Certificate)<br>— Investment Summary<br>— Deduction Worksheet<br><br>Best regards,<br>James Wong`,
+    actions: ['Review tax documents before <strong>April 15</strong>'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated' },
+      { icon: '🔔', label: 'Remind Apr 10', toast: 'Reminder set for April 10' },
+      { icon: '📥', label: 'Download Docs', toast: 'Documents downloaded' },
+    ],
+  },
+  'nudge': {
+    subject: 'Checkout crash — discount codes',
+    from: 'Alex Rivera', email: 'alex.r@support.com',
+    avatar: 'AR', avatarBg: 'linear-gradient(135deg,#d97757,#c4613f)',
+    account: 'work', date: 'Yesterday 3:12 PM · chandan@work.com',
+    body: `Hey team,<br><br>Users are reporting a crash on the checkout page when applying discount codes. Started after yesterday's deploy.<br><br>3 customers have reported this so far. Can someone look into this ASAP?<br><br>— Alex`,
+    actions: ['Reply to Alex — 18 hours without response'],
+    quickActions: [
+      { icon: '✍️', label: 'Reply "on it"', primary: true, toast: 'Replied: "On it, investigating now"' },
+      { icon: '📋', label: 'Create Bug Ticket', toast: 'Linear ticket created' },
+    ],
+  }
+};
+
+// ═══════════════════════════
+//   SELECT EMAIL — open detail
+// ═══════════════════════════
+function selectEmail(id) {
+  const d = emails[id];
+  if (!d) return;
+
+  // Close suggestions if open
+  document.getElementById('suggestions-overlay').classList.remove('open');
+
+  // Populate detail
+  document.getElementById('do-subject').textContent = d.subject;
+  document.getElementById('do-from').textContent = d.from;
+  document.getElementById('do-email').textContent = '<' + d.email + '>';
+  document.getElementById('do-avatar').textContent = d.avatar;
+  document.getElementById('do-avatar').style.background = d.avatarBg;
+  document.getElementById('do-date').textContent = d.date;
+  document.getElementById('do-body').innerHTML = d.body;
+
+  const accTag = document.getElementById('do-account-tag');
+  accTag.textContent = d.account === 'work' ? 'Work' : 'Personal';
+  accTag.className = 'do-account-tag er-account-tag ' + d.account;
+
+  // Action items
+  const aiBox = document.getElementById('do-action-items');
+  aiBox.innerHTML = '<div class="do-ai-label"><span>⚡</span> Action items detected</div>';
+  d.actions.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'do-ai-item';
+    div.innerHTML = '<span class="do-ai-bullet"></span><span>' + a + '</span>';
+    aiBox.appendChild(div);
+  });
+
+  // Quick actions
+  const grid = document.getElementById('do-actions-grid');
+  grid.innerHTML = '';
+  d.quickActions.forEach(qa => {
+    const btn = document.createElement('button');
+    btn.className = 'qa-btn' + (qa.primary ? ' primary' : '');
+    btn.innerHTML = '<span>' + qa.icon + '</span> ' + qa.label;
+    btn.onclick = (e) => { e.stopPropagation(); showToast(qa.toast); };
+    grid.appendChild(btn);
+  });
+
+  // Highlight selected row
+  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('selected'));
+  const row = document.querySelector('[data-email="' + id + '"].email-row');
+  if (row) row.classList.add('selected');
+
+  // Open panel
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+// Close detail
+document.getElementById('detail-close').addEventListener('click', () => {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('selected'));
+});
+
+// Email row clicks
+document.querySelectorAll('.email-row, .nudge-row, .ab-item').forEach(el => {
+  el.addEventListener('click', () => {
+    const id = el.dataset.email;
+    if (id) selectEmail(id);
+  });
+});
+
+// ═══════════════════════════
+//   TABS — with sub-labels
+// ═══════════════════════════
+document.querySelectorAll('.ez-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ez-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    const t = tab.dataset.tab;
+    document.getElementById('sub-travel').classList.toggle('visible', t === 'travel');
+    document.getElementById('sub-newsletters').classList.toggle('visible', t === 'newsletters');
+
+    // Toggle noise view vs email list
+    const noiseView = document.getElementById('noise-view');
+    const emailList = document.getElementById('email-list');
+    const brief = document.getElementById('assistant-brief');
+    if (t === 'noise') {
+      noiseView.classList.add('visible');
+      emailList.style.display = 'none';
+      if (brief) brief.style.display = 'none';
+    } else {
+      noiseView.classList.remove('visible');
+      emailList.style.display = '';
+      if (brief) brief.style.display = '';
+    }
+  });
+});
+
+// Sub-label clicks
+document.querySelectorAll('.sub-label').forEach(sl => {
+  sl.addEventListener('click', () => {
+    sl.parentElement.querySelectorAll('.sub-label').forEach(s => s.classList.remove('active'));
+    sl.classList.add('active');
+  });
+});
+
+// ═══════════════════════════
+//   SUGGESTIONS PANEL
+// ═══════════════════════════
+document.getElementById('nav-suggestions').addEventListener('click', () => {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.getElementById('suggestions-overlay').classList.toggle('open');
+});
+document.getElementById('sg-close').addEventListener('click', () => {
+  document.getElementById('suggestions-overlay').classList.remove('open');
+});
+
+// Dismiss suggestion cards
+document.querySelectorAll('.sg-btn.dismiss').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const card = btn.closest('.sg-card');
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(20px)';
+    card.style.transition = 'all 200ms';
+    setTimeout(() => card.remove(), 200);
+  });
+});
+
+// ═══════════════════════════
+//   BRIEF — collapse/expand + dismiss
+// ═══════════════════════════
+document.getElementById('brief-toggle').addEventListener('click', (e) => {
+  if (e.target.classList.contains('ab-dismiss')) return;
+  document.getElementById('assistant-brief').classList.toggle('collapsed');
+});
+document.getElementById('dismiss-brief').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const brief = document.getElementById('assistant-brief');
+  brief.style.opacity = '0';
+  brief.style.transform = 'translateY(-8px)';
+  brief.style.transition = 'all 200ms';
+  setTimeout(() => brief.style.display = 'none', 200);
+});
+
+// ═══════════════════════════
+//   NAV ITEMS
+// ═══════════════════════════
+document.querySelectorAll('.ez-nav-item[data-view]').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.ez-nav-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+
+// ═══════════════════════════
+//   SEARCH
+// ═══════════════════════════
+document.getElementById('search-trigger').addEventListener('click', () => {
+  document.getElementById('search-overlay').classList.add('visible');
+  document.getElementById('search-input').focus();
+});
+
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.add('visible');
+    document.getElementById('search-input').focus();
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('search-overlay').classList.remove('visible');
+    document.getElementById('detail-overlay').classList.remove('open');
+    document.getElementById('suggestions-overlay').classList.remove('open');
+    document.querySelectorAll('.email-row').forEach(r => r.classList.remove('selected'));
+  }
+});
+
+document.getElementById('search-overlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('visible');
+});
+
+document.getElementById('search-input').addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  const results = document.getElementById('search-results');
+  if (!q) {
+    results.innerHTML = '<div class="sm-hint">Try natural language search<br><em>"What was the hotel booking for my Goa trip?"</em><br><em>"Invoices from last month"</em><br><em>"Anything from Sarah about the launch"</em></div>';
+    return;
+  }
+  let html = '';
+  const searchable = [
+    { q: ['sarah','launch','q2','timeline'], from: 'Sarah Chen', subj: 'Re: Q2 launch timeline — need your sign-off', time: '9:12 AM', acc: 'chandan@work.com' },
+    { q: ['dinner','priya','tonight'], from: 'Priya Kapoor', subj: 'Dinner tonight — still 7:30?', time: '8:45 AM', acc: 'chandan@gmail.com' },
+    { q: ['contract','david','renewal'], from: 'David Park', subj: 'Contract renewal docs attached', time: '8:20 AM', acc: 'chandan@work.com' },
+    { q: ['bug','crash','alex','checkout','discount'], from: 'Alex Rivera', subj: 'Checkout crash — discount codes', time: 'Yesterday', acc: 'chandan@work.com' },
+    { q: ['tax','document','james','filing'], from: 'James Wong', subj: 'Tax documents ready', time: 'Mar 17', acc: 'chandan@gmail.com' },
+    { q: ['design','maya','review','feedback'], from: 'Maya Lin', subj: 'Design review notes', time: 'Yesterday', acc: 'chandan@work.com' },
+  ];
+  searchable.forEach(s => {
+    if (s.q.some(k => q.includes(k))) {
+      const initials = s.from.split(' ').map(w => w[0]).join('');
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background=''">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text2);flex-shrink:0;">${initials}</div>
+        <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;color:var(--dark);">${s.from}</div><div style="font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.subj}</div></div>
+        <div style="text-align:right;flex-shrink:0;"><div style="font-size:10px;color:var(--text3);">${s.time}</div><div style="font-size:9px;color:var(--mid);">${s.acc}</div></div>
+      </div>`;
+    }
+  });
+  results.innerHTML = html || '<div class="sm-hint" style="padding:14px;">Searching all accounts...<br><em style="color:var(--text3);">No results yet</em></div>';
+});
+
+// ═══════════════════════════
+//   STAR TOGGLE
+// ═══════════════════════════
+document.querySelectorAll('.er-star').forEach(star => {
+  star.addEventListener('click', (e) => {
+    e.stopPropagation();
+    star.classList.toggle('starred');
+    star.textContent = star.classList.contains('starred') ? '★' : '☆';
+  });
+});
+
+// ═══════════════════════════
+//   NOISE ACTIONS
+// ═══════════════════════════
+function toggleDropdown(btn) {
+  // Close all other dropdowns first
+  document.querySelectorAll('.ne-dropdown.open').forEach(d => {
+    if (d !== btn.querySelector('.ne-dropdown')) d.classList.remove('open');
+  });
+  btn.querySelector('.ne-dropdown').classList.toggle('open');
+}
+
+function moveNoise(item, category) {
+  const row = item.closest('.noise-email-row');
+  const sender = row.querySelector('.ne-sender2').textContent;
+  showToast('Moved "' + sender + '" to ' + category + ' — future emails will go there too');
+  row.style.opacity = '0';
+  row.style.transform = 'translateX(-20px)';
+  row.style.transition = 'all 200ms';
+  setTimeout(() => row.remove(), 200);
+}
+
+function blockNoise(btn, sender) {
+  const row = btn.closest('.noise-email-row');
+  showToast(sender + ' blocked forever');
+  row.style.opacity = '0';
+  row.style.transform = 'translateX(20px)';
+  row.style.transition = 'all 200ms';
+  setTimeout(() => row.remove(), 200);
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', () => {
+  document.querySelectorAll('.ne-dropdown.open').forEach(d => d.classList.remove('open'));
+});
+
+// ═══════════════════════════
+//   EMAIL DETAIL CHAT INPUT
+// ═══════════════════════════
+function sendEmailChat() {
+  const input = document.getElementById('do-chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  showToast('Got it: "' + msg + '" — working on it...');
+  input.value = '';
+}
+document.getElementById('do-chat-send').addEventListener('click', sendEmailChat);
+document.getElementById('do-chat-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendEmailChat();
+});
+document.querySelectorAll('.do-chat-hint').forEach(hint => {
+  hint.addEventListener('click', () => {
+    document.getElementById('do-chat-input').value = hint.dataset.msg;
+    sendEmailChat();
+  });
+});
+
+// ═══════════════════════════
+//   GLOBAL CHATBOT
+// ═══════════════════════════
+document.getElementById('chat-fab').addEventListener('click', () => {
+  document.getElementById('chat-panel').classList.toggle('open');
+});
+document.getElementById('chat-panel-close').addEventListener('click', () => {
+  document.getElementById('chat-panel').classList.remove('open');
+});
+
+function sendGlobalChat() {
+  const input = document.getElementById('chat-global-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const messages = document.getElementById('chat-messages');
+
+  // User message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-msg user';
+  userMsg.textContent = msg;
+  messages.appendChild(userMsg);
+  input.value = '';
+
+  // Hide suggestions after first message
+  document.getElementById('chat-suggestions').style.display = 'none';
+
+  // Simulate assistant response
+  setTimeout(() => {
+    const reply = document.createElement('div');
+    reply.className = 'chat-msg assistant';
+
+    const lower = msg.toLowerCase();
+    if (lower.includes('summarize') || lower.includes('summary')) {
+      reply.textContent = 'Today you have 3 urgent items: Sarah needs Q2 sign-off by Friday, Priya wants dinner confirmation, and Alex\'s bug report from 18h ago still needs a reply. 41 noise emails were handled silently.';
+    } else if (lower.includes('urgent') || lower.includes('what\'s')) {
+      reply.textContent = 'Most urgent: Reply to Sarah Chen about the Q2 launch timeline — deadline is Friday. Also, Alex Rivera\'s bug report has been waiting 18 hours.';
+    } else if (lower.includes('reply') && lower.includes('sarah')) {
+      reply.textContent = 'Done! I\'ve drafted a reply to Sarah: "Thanks Sarah, I\'ll review the timeline and sign off by Thursday. Let\'s loop marketing into the next standup." Want me to send it?';
+    } else if (lower.includes('block') && lower.includes('promo')) {
+      reply.textContent = 'Done! I\'ve blocked all promotional emails. 12 senders have been auto-blocked. You can manage this in Automations anytime.';
+    } else if (lower.includes('goa') || lower.includes('hotel') || lower.includes('booking')) {
+      reply.textContent = 'Found it! Your Goa trip booking is at The Leela, Cavelossim — check-in March 22, check-out March 26. Confirmation #LG-449821. From chandan@gmail.com.';
+    } else {
+      reply.textContent = 'On it! I\'ll take care of "' + msg + '" right now.';
+    }
+
+    messages.appendChild(reply);
+    messages.scrollTop = messages.scrollHeight;
+  }, 600);
+
+  messages.scrollTop = messages.scrollHeight;
+}
+
+document.getElementById('chat-global-send').addEventListener('click', sendGlobalChat);
+document.getElementById('chat-global-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendGlobalChat();
+});
+document.querySelectorAll('.chat-suggestion').forEach(s => {
+  s.addEventListener('click', () => {
+    document.getElementById('chat-global-input').value = s.dataset.msg;
+    sendGlobalChat();
+  });
+});
+
+// ═══════════════════════════
+//   TOAST
+// ═══════════════════════════
+let toastTimer;
+function showToast(msg) {
+  clearTimeout(toastTimer);
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('visible');
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 3000);
+}
+</script>
+
+</body>
+</html>
