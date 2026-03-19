@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap — Nothing important missed. Nothing unimportant seen.</title>
+<meta name="description" content="Your inbox runs itself. EmailZap separates what matters from what doesn't — automatically. Zero scanning, zero decisions, zero effort.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════
+   DESIGN TOKENS
+═══════════════════════════ */
+:root {
+  --bg:         #EAE3D3;
+  --bg-alt:     #E2DAC8;
+  --card:       #FFFFFF;
+  --card-shadow: 0 4px 20px rgba(0,0,0,0.04);
+
+  --text-head:  #1a1a1a;
+  --text-body:  #444444;
+  --text-muted: #7a756d;
+  --text-light: #999;
+
+  --border:     #ddd6c6;
+
+  --r-card:     16px;
+  --r-pill:     999px;
+
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+
+  --max-w:      1140px;
+  --section-py:  100px;
+}
+
+/* ═══════════════════════════
+   RESET
+═══════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text-body);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* ═══════════════════════════
+   AMBIENT BACKGROUND
+   Soft organic shapes that drift gently —
+   warm light, muted hills, quiet atmosphere
+═══════════════════════════ */
+.ambient-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Soft warm radial glow — top right */
+.ambient-bg::before {
+  content: '';
+  position: absolute;
+  top: -15%;
+  right: -10%;
+  width: 70vw;
+  height: 70vw;
+  max-width: 900px;
+  max-height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(222,210,185,0.55) 0%, rgba(234,227,211,0) 70%);
+  animation: ambient-drift-1 30s ease-in-out infinite;
+}
+
+/* Soft warm radial glow — bottom left */
+.ambient-bg::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  left: -15%;
+  width: 80vw;
+  height: 80vw;
+  max-width: 1000px;
+  max-height: 1000px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(210,198,172,0.4) 0%, rgba(234,227,211,0) 65%);
+  animation: ambient-drift-2 36s ease-in-out infinite;
+}
+
+/* Layered organic shapes */
+.ambient-shape {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0;
+  animation-fill-mode: both;
+}
+
+/* Warm golden orb — floats near hero */
+.ambient-shape--1 {
+  top: 5%;
+  left: 20%;
+  width: 500px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(215,195,155,0.35) 0%, transparent 70%);
+  opacity: 1;
+  animation: ambient-float-1 25s ease-in-out infinite;
+}
+
+/* Cool sage whisper — middle of page */
+.ambient-shape--2 {
+  top: 30%;
+  right: 5%;
+  width: 400px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(190,200,180,0.2) 0%, transparent 70%);
+  opacity: 1;
+  animation: ambient-float-2 32s ease-in-out infinite;
+}
+
+/* Warm peach glow — lower page */
+.ambient-shape--3 {
+  top: 55%;
+  left: -5%;
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(220,200,170,0.3) 0%, transparent 70%);
+  opacity: 1;
+  animation: ambient-float-3 28s ease-in-out infinite;
+}
+
+/* Pale lavender hint — near testimonials */
+.ambient-shape--4 {
+  top: 75%;
+  right: 10%;
+  width: 450px;
+  height: 350px;
+  background: radial-gradient(ellipse, rgba(200,195,210,0.18) 0%, transparent 70%);
+  opacity: 1;
+  animation: ambient-float-4 35s ease-in-out infinite;
+}
+
+/* Soft horizon line — very subtle */
+.ambient-horizon {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40vh;
+  background: linear-gradient(180deg, transparent 0%, rgba(210,200,180,0.15) 100%);
+  pointer-events: none;
+}
+
+/* Grain texture overlay for warmth */
+.ambient-grain {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* Calm cloud/sky background — soft warm tones */
+.ambient-clouds {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ambient-clouds::before {
+  content: '';
+  position: absolute;
+  top: -5%; left: -5%;
+  width: 110%; height: 110%;
+  background:
+    /* Top cloud band */
+    radial-gradient(ellipse 600px 200px at 15% 15%, rgba(190,180,160,0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 180px at 35% 12%, rgba(180,170,148,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 700px 220px at 60% 10%, rgba(195,185,165,0.25) 0%, transparent 70%),
+    radial-gradient(ellipse 550px 190px at 82% 14%, rgba(185,175,155,0.2) 0%, transparent 70%),
+    /* Middle cloud band */
+    radial-gradient(ellipse 650px 240px at 10% 40%, rgba(188,178,158,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 800px 260px at 40% 38%, rgba(200,190,170,0.24) 0%, transparent 65%),
+    radial-gradient(ellipse 600px 200px at 65% 42%, rgba(185,175,155,0.2) 0%, transparent 70%),
+    radial-gradient(ellipse 700px 230px at 90% 36%, rgba(195,185,165,0.22) 0%, transparent 70%),
+    /* Lower cloud band */
+    radial-gradient(ellipse 750px 280px at 20% 65%, rgba(200,190,170,0.26) 0%, transparent 65%),
+    radial-gradient(ellipse 600px 220px at 50% 68%, rgba(190,180,160,0.2) 0%, transparent 70%),
+    radial-gradient(ellipse 800px 250px at 75% 62%, rgba(198,188,168,0.24) 0%, transparent 65%),
+    /* Bottom haze */
+    radial-gradient(ellipse 900px 300px at 30% 88%, rgba(205,195,175,0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 250px at 70% 85%, rgba(195,185,165,0.22) 0%, transparent 65%);
+  animation: clouds-drift 40s ease-in-out infinite;
+}
+
+.ambient-clouds::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    /* Wispy horizontal streaks */
+    linear-gradient(175deg, transparent 18%, rgba(190,180,160,0.08) 20%, transparent 22%),
+    linear-gradient(172deg, transparent 33%, rgba(185,175,155,0.06) 35%, transparent 37%),
+    linear-gradient(178deg, transparent 48%, rgba(195,185,165,0.09) 50%, transparent 52%),
+    linear-gradient(174deg, transparent 63%, rgba(188,178,158,0.07) 65%, transparent 67%),
+    linear-gradient(176deg, transparent 76%, rgba(200,190,170,0.08) 78%, transparent 80%);
+}
+
+@keyframes clouds-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-15px, 8px) scale(1.02); }
+}
+
+@keyframes ambient-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 20px) scale(1.05); }
+}
+
+@keyframes ambient-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(25px, -15px) scale(1.03); }
+}
+
+@keyframes ambient-float-1 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(20px, -15px) rotate(2deg); }
+  66% { transform: translate(-10px, 10px) rotate(-1deg); }
+}
+
+@keyframes ambient-float-2 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(-15px, 20px) rotate(-2deg); }
+  66% { transform: translate(10px, -10px) rotate(1deg); }
+}
+
+@keyframes ambient-float-3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(25px, -20px); }
+}
+
+@keyframes ambient-float-4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-20px, 15px); }
+}
+
+/* All page content sits above the ambient layer */
+nav, section, footer {
+  position: relative;
+  z-index: 1;
+}
+
+.container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ═══════════════════════════
+   TYPOGRAPHY
+═══════════════════════════ */
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  color: var(--text-head);
+  line-height: 1.1;
+  font-weight: 600;
+}
+
+h1 { font-size: clamp(42px, 5.5vw, 72px); }
+h2 { font-size: clamp(34px, 4vw, 54px); }
+h3 { font-size: clamp(22px, 2.5vw, 28px); }
+
+.section-sub {
+  font-size: 18px;
+  color: var(--text-muted);
+  max-width: 560px;
+  margin: 20px auto 0;
+  line-height: 1.65;
+}
+
+/* ═══════════════════════════
+   BUTTONS
+═══════════════════════════ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(to bottom, #2a2a2a, #000);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--text-head);
+  border: none;
+  padding: 14px 8px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.btn-secondary:hover { opacity: 0.7; }
+
+/* ═══════════════════════════
+   CARDS
+═══════════════════════════ */
+.card {
+  background: var(--card);
+  border-radius: var(--r-card);
+  box-shadow: var(--card-shadow);
+  padding: 36px 32px;
+}
+
+/* ═══════════════════════════
+   NAVIGATION
+═══════════════════════════ */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(234, 227, 211, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 0 32px;
+}
+
+.nav-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-head);
+}
+
+.nav-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #2a2a2a, #000);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+}
+
+.nav-cta {
+  background: linear-gradient(to bottom, #2a2a2a, #000);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+}
+
+.nav-cta:hover { transform: translateY(-1px); }
+
+/* ═══════════════════════════
+   SECTION 1 — HERO
+═══════════════════════════ */
+.hero {
+  padding: 120px 0 100px;
+  text-align: center;
+}
+
+.hero h1 {
+  max-width: 780px;
+  margin: 0 auto;
+  letter-spacing: -0.02em;
+}
+
+.hero h1 em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.hero-sub {
+  font-size: 19px;
+  color: var(--text-muted);
+  max-width: 520px;
+  margin: 28px auto 0;
+  line-height: 1.6;
+}
+
+.hero-cta {
+  margin-top: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.hero-proof {
+  margin-top: 56px;
+  font-size: 14px;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.hero-proof span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hero-visual {
+  margin-top: 80px;
+  position: relative;
+}
+
+.hero-scene {
+  max-width: 900px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #d4cbb8 0%, #c9bfa8 50%, #bfb59e 100%);
+  border-radius: 24px;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Calm abstract landscape inside hero */
+.hero-scene::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  background: linear-gradient(180deg, transparent, rgba(180,170,150,0.4));
+}
+
+.hero-scene-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+}
+
+.hero-scene-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.92);
+  color: var(--text-head);
+  border-radius: var(--r-pill);
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  backdrop-filter: blur(10px);
+}
+
+.hero-scene-pill .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: pulse-dot 2s ease infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
+}
+
+.hero-floating-cards {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+}
+
+.float-card {
+  position: absolute;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-head);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.float-card:nth-child(1) {
+  top: 18%; left: 8%;
+  animation-delay: 0s;
+}
+.float-card:nth-child(2) {
+  top: 60%; right: 6%;
+  animation-delay: 2s;
+}
+.float-card:nth-child(3) {
+  bottom: 15%; left: 15%;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.float-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.float-icon.green { background: #dcfce7; }
+.float-icon.red { background: #fee2e2; }
+.float-icon.blue { background: #dbeafe; }
+
+/* ═══════════════════════════
+   SECTION 2 — WHAT HAPPENS AUTOMATICALLY
+═══════════════════════════ */
+.auto-section {
+  padding: var(--section-py) 0;
+}
+
+.auto-section .section-head {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.auto-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.auto-card {
+  text-align: center;
+  padding: 48px 32px;
+}
+
+.auto-card-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  margin: 0 auto 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.auto-card-icon.surface { background: #dcfce7; }
+.auto-card-icon.vanish  { background: #f3e8ff; }
+.auto-card-icon.action  { background: #dbeafe; }
+
+.auto-card h3 {
+  margin-bottom: 12px;
+}
+
+.auto-card p {
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════
+   SECTION 3 — RELIEF MOMENTS
+═══════════════════════════ */
+.relief-section {
+  padding: var(--section-py) 0;
+}
+
+.relief-section .section-head {
+  text-align: center;
+  margin-bottom: 72px;
+}
+
+.relief-moments {
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+
+.relief-moment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.relief-moment:nth-child(even) {
+  direction: rtl;
+}
+.relief-moment:nth-child(even) > * {
+  direction: ltr;
+}
+
+.relief-text .relief-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+
+.relief-text h3 {
+  font-size: clamp(28px, 3vw, 38px);
+  margin-bottom: 16px;
+  line-height: 1.15;
+}
+
+.relief-text p {
+  color: var(--text-muted);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.relief-visual {
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  position: relative;
+}
+
+.relief-visual-inner {
+  padding: 40px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Moment 1: Clean inbox */
+.inbox-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.inbox-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0ede6;
+}
+
+.inbox-row:last-child { border-bottom: none; }
+
+.inbox-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  flex-shrink: 0;
+}
+
+.inbox-sender {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-head);
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.inbox-subject {
+  font-size: 14px;
+  color: var(--text-body);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inbox-time {
+  font-size: 12px;
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.inbox-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  margin-top: 12px;
+}
+
+/* Moment 2: Noise gone */
+.noise-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.noise-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fafaf8;
+  border-radius: 10px;
+  opacity: 0.5;
+  position: relative;
+}
+
+.noise-row::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #ccc;
+}
+
+.noise-sender {
+  font-size: 13px;
+  color: var(--text-muted);
+  width: 110px;
+}
+
+.noise-subject {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.noise-zapped {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px;
+  background: #fef3c7;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+/* Moment 3: One-click action */
+.action-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.action-email-preview {
+  padding: 16px;
+  background: #fafaf8;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-body);
+}
+
+.action-email-preview .from {
+  font-weight: 600;
+  color: var(--text-head);
+  margin-bottom: 4px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-head);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.action-btn:hover {
+  background: #f5f3ee;
+  border-color: #c8c1b4;
+}
+
+.action-btn.highlight {
+  background: linear-gradient(to bottom, #2a2a2a, #000);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* Moment 4: Categories */
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.cat-tab {
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 500;
+  background: #f5f3ee;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+}
+
+.cat-tab.active {
+  background: var(--text-head);
+  color: #fff;
+}
+
+.category-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cat-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #fafaf8;
+  border-radius: 10px;
+}
+
+.cat-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.cat-item-icon.newsletter { background: #ede9fe; }
+.cat-item-icon.receipt { background: #dcfce7; }
+.cat-item-icon.travel { background: #dbeafe; }
+
+.cat-item-text .cat-sender {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-head);
+}
+
+.cat-item-text .cat-subject {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Moment 5: Daily brief */
+.brief-card {
+  background: #fafaf8;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.brief-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-head);
+}
+
+.brief-header .brief-count {
+  background: var(--text-head);
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.brief-items {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.brief-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #fff;
+  border-radius: 10px;
+}
+
+.brief-item-priority {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.brief-item-priority.high { background: #ef4444; }
+.brief-item-priority.med { background: #f59e0b; }
+.brief-item-priority.low { background: #3b82f6; }
+
+.brief-item-content .brief-action {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-head);
+  margin-bottom: 2px;
+}
+
+.brief-item-content .brief-meta {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* Moment 6: Unified inbox */
+.unified-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.unified-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0ede6;
+}
+
+.unified-row:last-child { border-bottom: none; }
+
+.account-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.account-badge.work { background: #3b82f6; }
+.account-badge.personal { background: #8b5cf6; }
+.account-badge.side { background: #f59e0b; }
+
+.unified-sender {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-head);
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.unified-subject {
+  font-size: 14px;
+  color: var(--text-body);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unified-account-label {
+  font-size: 11px;
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.unified-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #f0ede6;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+}
+
+.legend-dot.work { background: #3b82f6; }
+.legend-dot.personal { background: #8b5cf6; }
+.legend-dot.side { background: #f59e0b; }
+
+/* Moment 7: Decisions stick */
+.decision-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.decision-pattern {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fafaf8;
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.decision-pattern .streak {
+  font-weight: 600;
+  color: var(--text-head);
+  white-space: nowrap;
+}
+
+.decision-suggestion {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.decision-suggestion-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 8px;
+}
+
+.decision-suggestion p {
+  font-size: 13px;
+  color: #78716c;
+  margin-bottom: 14px;
+}
+
+.decision-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.decision-btn {
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.decision-btn.confirm {
+  background: #92400e;
+  color: #fff;
+}
+
+.decision-btn.dismiss {
+  background: transparent;
+  color: #78716c;
+  border: 1px solid #d6d3d1;
+}
+
+/* Moment 8: Find anything */
+.search-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.search-query {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: #fafaf8;
+  border-radius: 10px;
+  border: 1px solid #e8e3d8;
+}
+
+.search-query .search-icon {
+  color: var(--text-light);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.search-query .query-text {
+  font-size: 14px;
+  color: var(--text-head);
+  font-weight: 500;
+}
+
+.search-answer {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.search-answer-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #166534;
+  margin-bottom: 8px;
+}
+
+.search-answer-text {
+  font-size: 15px;
+  color: var(--text-head);
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.search-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.search-source .source-badge {
+  padding: 2px 8px;
+  background: #dcfce7;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 600;
+  color: #166534;
+}
+
+/* Moment 9: Knows me */
+.tone-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tone-card {
+  padding: 16px;
+  background: #fafaf8;
+  border-radius: 10px;
+}
+
+.tone-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tone-badge {
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tone-badge.casual { background: #ede9fe; color: #5b21b6; }
+.tone-badge.professional { background: #dbeafe; color: #1e40af; }
+
+.tone-card-to {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.tone-card-body {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-body);
+  font-style: italic;
+}
+
+.tone-label {
+  text-align: center;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* ═══════════════════════════
+   SECTION 4 — TRUST / PRIVACY
+═══════════════════════════ */
+.trust-section {
+  padding: var(--section-py) 0;
+}
+
+.trust-section .section-head {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.trust-card {
+  text-align: center;
+  padding: 44px 28px;
+}
+
+.trust-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #f5f3ee;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.trust-card h3 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.trust-card p {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.trust-banner {
+  margin-top: 48px;
+  text-align: center;
+  padding: 28px;
+  background: var(--card);
+  border-radius: var(--r-card);
+  box-shadow: var(--card-shadow);
+}
+
+.trust-banner p {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-style: italic;
+  color: var(--text-head);
+}
+
+/* ═══════════════════════════
+   SECTION 5 — TESTIMONIALS
+═══════════════════════════ */
+.testimonials-section {
+  padding: var(--section-py) 0;
+}
+
+.testimonials-section .section-head {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.testimonial-card {
+  padding: 36px 28px;
+}
+
+.testimonial-stars {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 20px;
+  color: #f59e0b;
+  font-size: 16px;
+}
+
+.testimonial-quote {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-head);
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.testimonial-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e0d6c4, #c8bca6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-head);
+}
+
+.testimonial-meta .name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-head);
+}
+
+.testimonial-meta .role {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* ═══════════════════════════
+   SECTION 6 — FAQ
+═══════════════════════════ */
+.faq-section {
+  padding: var(--section-py) 0;
+}
+
+.faq-section .section-head {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.faq-list {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 28px 0;
+}
+
+.faq-item:first-child { border-top: 1px solid var(--border); }
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  gap: 16px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-head);
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-sans);
+  line-height: 1.4;
+}
+
+.faq-question .faq-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f5f3ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+  transition: transform 0.3s ease;
+  color: var(--text-body);
+}
+
+.faq-item.open .faq-toggle {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 300px;
+  padding-top: 16px;
+}
+
+.faq-answer p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-muted);
+  padding-right: 44px;
+}
+
+/* ═══════════════════════════
+   SECTION 7 — FINAL CTA
+═══════════════════════════ */
+.final-cta-section {
+  padding: 120px 0 140px;
+  text-align: center;
+}
+
+.final-cta-section h2 {
+  max-width: 640px;
+  margin: 0 auto;
+  letter-spacing: -0.01em;
+}
+
+.final-cta-section .section-sub {
+  max-width: 480px;
+}
+
+.final-cta-buttons {
+  margin-top: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* ═══════════════════════════
+   FOOTER
+═══════════════════════════ */
+footer {
+  border-top: 1px solid rgba(0,0,0,0.08);
+  padding: 48px 0;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+}
+
+.footer-links a {
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--text-head); }
+
+/* ═══════════════════════════
+   RESPONSIVE
+═══════════════════════════ */
+@media (max-width: 768px) {
+  :root { --section-py: 72px; }
+
+  .container { padding: 0 20px; }
+
+  .hero { padding: 80px 0 60px; }
+
+  .hero-cta { flex-direction: column; }
+
+  .hero-scene { height: 280px; border-radius: 16px; }
+
+  .float-card { display: none; }
+
+  .auto-grid,
+  .trust-grid,
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .relief-moment,
+  .relief-moment:nth-child(even) {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    direction: ltr;
+  }
+
+  .relief-moment:nth-child(even) > * {
+    direction: ltr;
+  }
+
+  .hero-proof { flex-direction: column; gap: 12px; }
+
+  .footer-inner {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .final-cta-buttons { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 36px; }
+  h2 { font-size: 30px; }
+
+  .hero-sub { font-size: 17px; }
+
+  .btn-primary { width: 100%; justify-content: center; }
+
+  .nav-cta { padding: 8px 16px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════
+     AMBIENT BACKGROUND — calm, warm atmosphere
+═══════════════════════════ -->
+<div class="ambient-bg">
+  <div class="ambient-shape ambient-shape--1"></div>
+  <div class="ambient-shape ambient-shape--2"></div>
+  <div class="ambient-shape ambient-shape--3"></div>
+  <div class="ambient-shape ambient-shape--4"></div>
+  <div class="ambient-horizon"></div>
+  <div class="ambient-clouds"></div>
+  <div class="ambient-grain"></div>
+</div>
+
+<!-- ═══════════════════════════
+     NAVIGATION
+═══════════════════════════ -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">⚡</div>
+      EmailZap
+    </a>
+    <a href="#get-started" class="nav-cta">Get Early Access</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════
+     SECTION 1 — HERO
+═══════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <h1>Nothing important missed.<br>Nothing unimportant <em>seen.</em></h1>
+    <p class="hero-sub">EmailZap quietly separates what matters from what doesn't. Your inbox runs itself — you just show up for what counts.</p>
+
+    <div class="hero-cta">
+      <a href="#get-started" class="btn-primary">
+        Get Early Access
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#how" class="btn-secondary">
+        See how it works
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v10m0 0l4-4m-4 4L4 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    <div class="hero-proof">
+      <span>✓ Free while in beta</span>
+      <span>✓ Works with Gmail</span>
+      <span>✓ Set up in 2 minutes</span>
+    </div>
+
+    <!-- Hero visual — calm scene with floating system signals -->
+    <div class="hero-visual">
+      <div class="hero-scene">
+        <div class="hero-floating-cards">
+          <div class="float-card">
+            <div class="float-icon green">✓</div>
+            3 emails need you today
+          </div>
+          <div class="float-card">
+            <div class="float-icon red">✕</div>
+            42 noise emails — handled
+          </div>
+          <div class="float-card">
+            <div class="float-icon blue">↗</div>
+            Auto-replied to shipping update
+          </div>
+        </div>
+        <div class="hero-scene-content">
+          <div class="hero-scene-pill">
+            <span class="dot"></span>
+            Your inbox is running quietly
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     SECTION 2 — WHAT HAPPENS AUTOMATICALLY
+═══════════════════════════ -->
+<section class="auto-section" id="how">
+  <div class="container">
+    <div class="section-head">
+      <h2>What happens<br>automatically</h2>
+      <p class="section-sub">You don't configure anything. You don't manage anything. These things just happen from day one.</p>
+    </div>
+
+    <div class="auto-grid">
+      <div class="card auto-card">
+        <div class="auto-card-icon surface">↑</div>
+        <h3>Important emails surface</h3>
+        <p>Emails from real people, about real things, that actually need you — rise to the top. Everything else steps aside.</p>
+      </div>
+
+      <div class="card auto-card">
+        <div class="auto-card-icon vanish">✦</div>
+        <h3>Everything else disappears</h3>
+        <p>Promotions, notifications, automated noise — silently separated. Still accessible, but never in your way.</p>
+      </div>
+
+      <div class="card auto-card">
+        <div class="auto-card-icon action">⚡</div>
+        <h3>Actions happen instantly</h3>
+        <p>One-click replies, auto-categorization, cross-app actions. The email is handled before you finish reading it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     SECTION 3 — RELIEF MOMENTS
+═══════════════════════════ -->
+<section class="relief-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>What your mornings<br>feel like now</h2>
+      <p class="section-sub">Not features. Not settings. Just moments of relief you feel every day.</p>
+    </div>
+
+    <div class="relief-moments">
+
+      <!-- Moment 1: Clean inbox -->
+      <div class="relief-moment">
+        <div class="relief-text">
+          <div class="relief-label">Morning relief</div>
+          <h3>You open your inbox.<br>Only 3 emails. All important.</h3>
+          <p>No scanning 47 messages. No micro-decisions. EmailZap already separated the noise. You see only what needs you — nothing else.</p>
+        </div>
+        <div class="relief-visual">
+          <div class="relief-visual-inner">
+            <div class="inbox-preview">
+              <div class="inbox-row">
+                <span class="inbox-dot"></span>
+                <span class="inbox-sender">Sarah Chen</span>
+                <span class="inbox-subject">Re: Q2 launch timeline — need your sign-off</span>
+                <span class="inbox-time">9:12 AM</span>
+              </div>
+              <div class="inbox-row">
+                <span class="inbox-dot"></span>
+                <span class="inbox-sender">Priya Kapoor</span>
+                <span class="inbox-subject">Dinner tonight — still 7:30?</span>
+                <span class="inbox-time">8:45 AM</span>
+              </div>
+              <div class="inbox-row">
+                <span class="inbox-dot"></span>
+                <span class="inbox-sender">David Park</span>
+                <span class="inbox-subject">Contract renewal docs attached</span>
+                <span class="inbox-time">8:20 AM</span>
+              </div>
+            </div>
+            <div class="inbox-badge">
+              <span>✓</span> Only important — 41 others handled silently
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moment 2: Noise gone -->
+      <div class="relief-moment">
+        <div class="relief-text">
+          <div class="relief-label">Silent cleanup</div>
+          <h3>41 noise emails.<br>Gone before you woke up.</h3>
+          <p>Promotions, social notifications, automated alerts — all separated silently. No manual deleting. No unsubscribe whack-a-mole. Just quiet.</p>
+        </div>
+        <div class="relief-visual">
+          <div class="relief-visual-inner">
+            <div class="noise-demo">
+              <div class="noise-row">
+                <span class="noise-sender">LinkedIn</span>
+                <span class="noise-subject">12 people viewed your profile</span>
+              </div>
+              <div class="noise-row">
+                <span class="noise-sender">Notion</span>
+                <span class="noise-subject">Weekly digest: 8 pages updated</span>
+              </div>
+              <div class="noise-row">
+                <span class="noise-sender">Shopify</span>
+                <span class="noise-subject">Flash sale: 40% off everything</span>
+              </div>
+              <div class="noise-row">
+                <span class="noise-sender">GitHub</span>
+                <span class="noise-subject">New comment on PR #847</span>
+              </div>
+            </div>
+            <div class="noise-zapped">
+              ⚡ 41 emails silently handled
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moment 3: Instant action (Job 5) -->
+      <div class="relief-moment">
+        <div class="relief-text">
+          <div class="relief-label">Instant action</div>
+          <h3>One click. Email handled.<br>Ticket created. Done.</h3>
+          <p>Read a bug report, click "Create ticket" — it's in Linear with the right details. Or say "reply saying we're on it." Both happen. No app-switching.</p>
+        </div>
+        <div class="relief-visual">
+          <div class="relief-visual-inner">
+            <div class="action-demo">
+              <div class="action-email-preview">
+                <div class="from">From: Alex Rivera — Customer Support</div>
+                Users are reporting a crash on the checkout page when applying discount codes. Started after yesterday's deploy...
+              </div>
+              <div class="action-buttons">
+                <button class="action-btn highlight">⚡ Create Linear Ticket</button>
+                <button class="action-btn">💬 Reply</button>
+                <button class="action-btn">📤 Forward to Team</button>
+                <button class="action-btn">🔔 Remind Later</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moment 4: Categories (Job 3) -->
+      <div class="relief-moment">
+        <div class="relief-text">
+          <div class="relief-label">Browse, don't scroll</div>
+          <h3>Sunday morning.<br>Tap Newsletters. Just newsletters.</h3>
+          <p>Receipts at tax time. Travel docs at the airport. Newsletters with coffee. Every email auto-sorted into categories you can browse when you want — not when they arrive.</p>
+        </div>
+        <div class="relief-visual">
+          <div class="relief-visual-inner">
+            <div class="category-tabs">
+              <button class="cat-tab active">Newsletters</button>
+              <button class="cat-tab">Receipts</button>
+              <button class="cat-tab">Travel</button>
+              <button class="cat-tab">Social</button>
+              <button class="cat-tab">+ Custom</button>
+            </div>
+            <div class="category-items">
+              <div class="cat-item">
+                <div class="cat-item-icon newsletter">📰</div>
+                <div class="cat-item-text">
+                  <div class="cat-sender">Stratechery</div>
+                  <div class="cat-subject">The AI Value Chain Reshuffles</div>
+                </div>
+              </div>
+              <div class="cat-item">
+                <div class="cat-item-icon newsletter">📰</div>
+                <div class="cat-item-text">
+                  <div class="cat-sender">Lenny's Newsletter</div>
+                  <div class="cat-subject">The most underrated growth lever</div>
+                </div>
+              </div>
+              <div class="cat-item">
+                <div class="cat-item-icon newsletter">📰</div>
+                <div class="cat-item-text">
+                  <div class="cat-sender">Dense Discovery</div>
+                  <div class="cat-subject">Issue #284 — Design tools, digital gardens</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moment 5: Daily brief (Job 4) -->
+      <div class="relief-moment">
+        <div class="relief-text">
+          <div class="relief-label">Daily brief</div>
+          <h3>3 things need you today.<br>Without opening a single email.</h3>
+          <p>Action items, deadlines, and pending replies — extracted automatically. No scanning 30 emails to figure out what matters. You just see it.</p>
+        </div>
+        <div class="relief-visual">
+          <div class="relief-visual-inner">
+            <div class="brief-card">
+              <div class="brief-header">
+                <span class="brief-count">3</span>
+                Things need you today
+              </div>
+              <div class="brief-items">
+                <div class="brief-item">
+                  <span class="brief-item-priority high"></span>
+                  <div class="brief-item-content">
+                    <div class="brief-action">Reply to client proposal from Sarah</div>
+                    <div class="brief-meta">Deadline: Friday · Sent 18 hours ago · Unresponded</div>
+                  </div>
+                </div>
+                <div class="brief-item">
+                  <span class="brief-item-priority med"></span>
+                  <div class="brief-item-content">
+                    <div class="brief-action">Confirm dinner with Priya</div>
+                    <div class="brief-meta">Tonight at 7:30 · Waiting for your reply</div>
+                  </div>
+                </div>
+                <div class="brief-item">
+                  <span class="brief-item-priority low"></span>
+                  <div class="brief-item-content">
+                    <div class="brief-action">Send tax docs to accountant</div>
+                    <div class="brief-meta">Mentioned in thread from Monday · No action taken</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moment 6: Unified inbox (Job 2) -->
+      <div class="relief-moment">
+        <div class="relief-text">
+          <div class="relief-label">All accounts, one view</div>
+          <h3>3 Gmail accounts.<br>One calm inbox. Nothing slips.</h3>
+          <p>Work, personal, side project — all in one view. No more forgotten secondary accounts. No more "I emailed you last week" sitting unread somewhere else.</p>
+        </div>
+        <div class="relief-visual">
+          <div class="relief-visual-inner">
+            <div class="unified-preview">
+              <div class="unified-row">
+                <span class="account-badge work">W</span>
+                <span class="unified-sender">Sarah Chen</span>
+                <span class="unified-subject">Q2 launch timeline — need your sign-off</span>
+                <span class="unified-account-label">Work</span>
+              </div>
+              <div class="unified-row">
+                <span class="account-badge personal">P</span>
+                <span class="unified-sender">Priya Kapoor</span>
+                <span class="unified-subject">Dinner tonight — still 7:30?</span>
+                <span class="unified-account-label">Personal</span>
+              </div>
+              <div class="unified-row">
+                <span class="account-badge side">S</span>
+                <span class="unified-sender">Stripe</span>
+                <span class="unified-subject">Your payout of $2,400 is on the way</span>
+                <span class="unified-account-label">Side project</span>
+              </div>
+              <div class="unified-row">
+                <span class="account-badge work">W</span>
+                <span class="unified-sender">David Park</span>
+                <span class="unified-subject">Contract renewal docs attached</span>
+                <span class="unified-account-label">Work</span>
+              </div>
+            </div>
+            <div class="unified-legend">
+              <div class="legend-item"><span class="legend-dot work"></span> Work</div>
+              <div class="legend-item"><span class="legend-dot personal"></span> Personal</div>
+              <div class="legend-item"><span class="legend-dot side"></span> Side project</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moment 7: Decisions stick (Job 6) -->
+      <div class="relief-moment">
+        <div class="relief-text">
+          <div class="relief-label">Decisions that stick</div>
+          <h3>Deleted this sender 8 times.<br>Never again — one click.</h3>
+          <p>EmailZap notices when you keep ignoring the same sender. It offers to auto-handle them forever. One click and it's done — silently, permanently. No filter builder, no settings menu.</p>
+        </div>
+        <div class="relief-visual">
+          <div class="relief-visual-inner">
+            <div class="decision-demo">
+              <div class="decision-pattern">
+                <span class="streak">8× deleted</span>
+                Emails from DealMart Weekly over the last month
+              </div>
+              <div class="decision-suggestion">
+                <div class="decision-suggestion-header">
+                  ⚡ EmailZap noticed a pattern
+                </div>
+                <p>You've deleted every email from DealMart Weekly. Want to auto-delete them going forward?</p>
+                <div class="decision-actions">
+                  <button class="decision-btn confirm">Auto-delete forever</button>
+                  <button class="decision-btn dismiss">Keep seeing them</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moment 8: Find anything (Job 7) -->
+      <div class="relief-moment">
+        <div class="relief-text">
+          <div class="relief-label">Just ask</div>
+          <h3>What was my Goa hotel booking?<br>Answered in seconds.</h3>
+          <p>No keywords. No opening 12 emails. Just ask in plain English and get the answer — pulled from the right email, across all your accounts.</p>
+        </div>
+        <div class="relief-visual">
+          <div class="relief-visual-inner">
+            <div class="search-demo">
+              <div class="search-query">
+                <span class="search-icon">🔍</span>
+                <span class="query-text">What was the hotel for my Goa trip?</span>
+              </div>
+              <div class="search-answer">
+                <div class="search-answer-label">Answer</div>
+                <div class="search-answer-text">Taj Holiday Village Resort & Spa, Goa. Check-in: March 22. Check-out: March 25. Confirmation #TJ-882941.</div>
+                <div class="search-source">
+                  <span class="source-badge">Personal</span>
+                  From: MakeMyTrip · Feb 14 · "Your booking is confirmed"
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moment 9: Knows me (Job 8) -->
+      <div class="relief-moment">
+        <div class="relief-text">
+          <div class="relief-label">It knows you</div>
+          <h3>Casual to friends.<br>Professional to clients.<br>Automatically.</h3>
+          <p>EmailZap learns your tone from how you actually write. Drafts sound like you — not a robot. It knows your relationships, your projects, your priorities. No settings needed.</p>
+        </div>
+        <div class="relief-visual">
+          <div class="relief-visual-inner">
+            <div class="tone-demo">
+              <div class="tone-card">
+                <div class="tone-card-header">
+                  <span class="tone-badge casual">Casual</span>
+                  <span class="tone-card-to">Replying to Priya Kapoor</span>
+                </div>
+                <div class="tone-card-body">"Yep 7:30 works! See you there 🙌"</div>
+              </div>
+              <div class="tone-card">
+                <div class="tone-card-header">
+                  <span class="tone-badge professional">Professional</span>
+                  <span class="tone-card-to">Replying to Sarah Chen — Client</span>
+                </div>
+                <div class="tone-card-body">"Hi Sarah, thanks for sending this over. I've reviewed the proposal and everything looks good on our end. Happy to jump on a call Thursday to finalize the details."</div>
+              </div>
+              <div class="tone-label">Same person. Different context. EmailZap adapts.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     SECTION 4 — TRUST / PRIVACY
+═══════════════════════════ -->
+<section class="trust-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Your email stays yours.</h2>
+      <p class="section-sub">We don't read your emails. We understand patterns. Here's what that means.</p>
+    </div>
+
+    <div class="trust-grid">
+      <div class="card trust-card">
+        <div class="trust-icon">🔒</div>
+        <h3>Private by design</h3>
+        <p>Your email content is never stored on our servers. Classification happens in real-time and nothing is retained.</p>
+      </div>
+
+      <div class="card trust-card">
+        <div class="trust-icon">🛡️</div>
+        <h3>No training. Ever.</h3>
+        <p>Your data is never used to train AI models. Not ours. Not anyone else's. That's a permanent commitment, not a setting.</p>
+      </div>
+
+      <div class="card trust-card">
+        <div class="trust-icon">🎛️</div>
+        <h3>You're in control</h3>
+        <p>Override any decision. Undo any automation. Delete your data anytime. EmailZap works for you — not the other way around.</p>
+      </div>
+    </div>
+
+    <div class="trust-banner">
+      <p>"We don't read your emails. We understand patterns.<br>No training. No selling. Ever."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     SECTION 5 — TESTIMONIALS
+═══════════════════════════ -->
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Inbox anxiety, gone.</h2>
+      <p class="section-sub">What people say after their first week with EmailZap.</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="card testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">"The inbox anxiety is gone. I used to dread opening Gmail. Now there's nothing to dread — it's already clean."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">S</div>
+          <div class="testimonial-meta">
+            <div class="name">Sophie L.</div>
+            <div class="role">Product Manager</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">"I have 3 Gmail accounts. I used to forget my freelance inbox for days. Now everything is in one place — I haven't missed an email since."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">A</div>
+          <div class="testimonial-meta">
+            <div class="name">Ankit R.</div>
+            <div class="role">Freelance Designer</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">"Sunday mornings I tap Newsletters and just read — no work emails, no invoices. It's like email finally has chapters."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">M</div>
+          <div class="testimonial-meta">
+            <div class="name">Maya T.</div>
+            <div class="role">Content Strategist</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonials-grid" style="margin-top: 24px;">
+      <div class="card testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">"I asked 'what was my accountant's last email about?' and got the answer in 2 seconds. I would've spent 10 minutes searching."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">R</div>
+          <div class="testimonial-meta">
+            <div class="name">Ravi M.</div>
+            <div class="role">Startup Founder</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">"It suggested auto-deleting a newsletter I'd been manually trashing for months. One click and it's gone forever. Why wasn't this always a thing?"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">J</div>
+          <div class="testimonial-meta">
+            <div class="name">James K.</div>
+            <div class="role">Engineering Lead</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">"The daily brief is magic. '3 things need you today' — I know exactly what to do without reading a single email. End-of-day anxiety is gone."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">N</div>
+          <div class="testimonial-meta">
+            <div class="name">Nina P.</div>
+            <div class="role">Operations Lead</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     SECTION 6 — FAQ
+═══════════════════════════ -->
+<section class="faq-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Questions</h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question">
+          Will it accidentally hide important emails?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>No. EmailZap errs on the side of showing you more, not less. Any email you mark as important instantly trains the system. And separated emails are always one tap away — nothing is ever deleted without your permission.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          Does EmailZap read my emails?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>EmailZap analyzes email metadata and patterns — sender, subject, your behavior — to classify importance. Email content is processed in real-time for features like action extraction but is never stored on our servers or used for training.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          Does it work with multiple Gmail accounts?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Yes. Connect as many Gmail accounts as you want. EmailZap shows all your important emails in one unified view — across every account. No more switching tabs or forgetting to check.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          How is this different from Gmail's tabs?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Gmail's Promotions/Social tabs are blunt categories. Important emails end up in Promotions. Junk lands in Primary. EmailZap uses AI to understand what actually matters to you specifically — not which category an email fits in.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          Is it free?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>EmailZap is free while in beta. We'll introduce pricing later, but early users will always get the best deal. You'll never be surprised by a charge.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          How long does setup take?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>About 2 minutes. Connect your Gmail account, and EmailZap starts working immediately. No configuration, no rules to set up, no onboarding quiz. It learns from your behavior automatically.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     SECTION 7 — FINAL CTA
+═══════════════════════════ -->
+<section class="final-cta-section" id="get-started">
+  <div class="container">
+    <h2>Turn your inbox off.<br><em>Without missing anything.</em></h2>
+    <p class="section-sub">Join the beta. Two minutes to set up. Your first morning without inbox anxiety starts tomorrow.</p>
+
+    <div class="final-cta-buttons">
+      <a href="#" class="btn-primary">
+        Get Early Access
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     FOOTER
+═══════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <span>© 2026 EmailZap. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════
+     FAQ TOGGLE SCRIPT
+═══════════════════════════ -->
+<script>
+document.querySelectorAll('.faq-question').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    const wasOpen = item.classList.contains('open');
+
+    // Close all
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+
+    // Toggle current
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+</script>
+
+</body>
+</html>
