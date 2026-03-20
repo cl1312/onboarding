@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap — Product UI (macOS Theme)</title>
+<style>
+/* ═══ DESIGN TOKENS (macOS theme) ═══ */
+:root {
+  --blue:       #d65a5a;
+  --blue-lt:    #f5eded;
+  --blue-mid:   #c04e4e;
+  --text:       #1d1d1f;
+  --text2:      #4a4a4a;
+  --text3:      #86868b;
+  --bg:         #f4f4f4;
+  --surface:    #f7f7f7;
+  --hover:      #f5f5f7;
+  --border:     #e5e5e5;
+  --border-lt:  #ededed;
+  --danger:     #d65a5a;
+  --danger-dk:  #b84a4a;
+  --important:  #e8a82e;
+  --success:    #4cd964;
+  --nimp-bg:    #fef2f2;
+  --nimp-bd:    #f5c6c0;
+  --a1: #5a8fd6; --a2: #4cd964; --a3: #e8a82e;
+  --a4: #d65a5a; --a5: #9b6fd6; --a6: #5ac4c4;
+  --ai:         #d65a5a;
+  --ai-lt:      #fef7f7;
+  --ai-mid:     #c04e4e;
+  --ai-border:  #f0d0d0;
+  --ai-gradient: linear-gradient(90deg, #d65a5a, #c07878);
+  --sh-sm: 0 1px 3px rgba(0,0,0,.04);
+  --sh-md: 0 8px 20px rgba(0,0,0,0.08);
+  --sh-lg: 0 8px 28px rgba(0,0,0,0.12);
+  --r-xl:   16px;
+  --r-lg:   16px;
+  --r-md:   12px;
+  --r-sm:   8px;
+  --r-xs:   6px;
+  --r-pill: 999px;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  --font-heading: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  --t-fast: 100ms;
+  --t-med:  150ms;
+  --t-slow: 250ms;
+  --sidebar-w:  256px;
+  --topbar-h:   54px;
+  --erow-h:     54px;
+  --focus-ring: 0 0 0 3px rgba(214,90,90,.15);
+
+  /* Account colors */
+  --acct-work: #5a8fd6;
+  --acct-personal: #4cd964;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app { display: flex; height: 100vh; }
+
+/* ═══ GMAIL SIDEBAR (narrow icon rail) ═══ */
+.gmail-sidebar {
+  width: 68px;
+  background: #f6f8fc;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.gs-logo {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+.gs-item {
+  width: 52px; height: 44px;
+  border-radius: 16px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px; cursor: pointer;
+  font-size: 10px; color: #5f6368;
+  transition: background var(--t-fast);
+  position: relative;
+}
+.gs-item:hover { background: #e8eaed; }
+.gs-item .gs-icon { font-size: 18px; }
+.gs-item .gs-badge {
+  position: absolute; top: 4px; right: 6px;
+  background: var(--danger); color: #fff;
+  font-size: 9px; font-weight: 700;
+  padding: 1px 5px; border-radius: 10px;
+}
+.gs-divider { width: 28px; height: 1px; background: #dadce0; margin: 8px 0; }
+.gs-item.ez-item.active {
+  background: var(--ai-lt); color: var(--ai);
+}
+
+/* ═══ EMAILZAP MAIN PANEL ═══ */
+.ez-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* ── Top Bar ── */
+.ez-topbar {
+  height: var(--topbar-h);
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.ez-logo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 600; color: var(--text);
+  font-family: var(--font-heading);
+  flex-shrink: 0;
+}
+.ez-logo-mark {
+  width: 26px; height: 26px;
+  background: var(--ai-gradient);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px;
+}
+.ez-search {
+  flex: 1; max-width: 480px;
+  display: flex; align-items: center;
+  background: var(--hover);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  height: 36px; padding: 0 12px; gap: 8px;
+  cursor: pointer;
+  transition: border-color var(--t-med);
+}
+.ez-search:focus-within {
+  border-color: var(--blue);
+  box-shadow: var(--focus-ring);
+}
+.ez-search-icon { font-size: 14px; color: var(--text3); }
+.ez-search input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 13px; font-family: var(--font-body); color: var(--text);
+}
+.ez-search input::placeholder { color: #a0a0a0; }
+.ez-search-kbd {
+  font-size: 10px; color: var(--text3); background: var(--surface);
+  padding: 2px 6px; border-radius: 5px; border: 1px solid var(--border);
+}
+
+/* Top bar nav buttons (Task List, Settings, Automations) */
+.ez-topbar-nav {
+  display: flex; align-items: center; gap: 2px;
+  margin-left: 8px;
+}
+.ez-topbar-btn {
+  display: flex; align-items: center; gap: 5px;
+  height: 30px; padding: 0 10px;
+  border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 400; color: var(--text2);
+  cursor: pointer; border: none; background: none;
+  font-family: var(--font-body);
+  transition: background var(--t-fast), color var(--t-fast);
+  white-space: nowrap;
+}
+.ez-topbar-btn:hover { background: var(--hover); color: var(--text); }
+.ez-topbar-btn.active { background: var(--hover); color: var(--text); font-weight: 500; }
+.ez-topbar-btn .btn-icon { font-size: 14px; }
+.topbar-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+
+.ez-topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.ez-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--acct-work);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+
+/* ── Body ── */
+.ez-body { flex: 1; display: flex; overflow: hidden; position: relative; }
+
+/* ═══ LEFT NAV ═══ */
+.ez-nav {
+  width: 200px;
+  background: #ffffff;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 14px 10px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.ez-nav::-webkit-scrollbar { display: none; }
+.ez-nav-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text3); padding: 12px 10px 6px;
+}
+.ez-nav-item {
+  display: flex; align-items: center; gap: 8px;
+  height: 36px; padding: 0 10px;
+  border-radius: var(--r-sm); cursor: pointer;
+  font-size: 13px; font-weight: 400; color: var(--text2);
+  transition: background var(--t-fast);
+}
+.ez-nav-item:hover { background: var(--hover); }
+.ez-nav-item.active {
+  background: var(--ai-lt); color: var(--ai); font-weight: 500;
+}
+.ez-nav-icon { width: 18px; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ez-nav-count {
+  margin-left: auto; font-size: 10px; font-weight: 500;
+  color: var(--text3); background: var(--surface);
+  padding: 1px 6px; border-radius: 8px;
+}
+.ez-nav-item.active .ez-nav-count { background: rgba(214,90,90,.1); color: var(--ai); }
+.ez-nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.nav-divider { height: 1px; background: var(--border); margin: 6px 10px; }
+.ez-nav-item .suggestions-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #9b6fd6; margin-left: auto; flex-shrink: 0;
+}
+
+/* ═══ CENTER — TABS + EMAIL LIST ═══ */
+.ez-center {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; min-width: 0;
+}
+
+/* Category tabs */
+.ez-tabs {
+  display: flex; align-items: stretch;
+  height: 44px; background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  padding: 0 14px; gap: 0; flex-shrink: 0;
+  overflow-x: auto;
+}
+.ez-tabs::-webkit-scrollbar { display: none; }
+.ez-tab {
+  padding: 0 14px; font-size: 13px; font-weight: 400;
+  color: #86868b; cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 2px solid transparent;
+  transition: color var(--t-med), border-color var(--t-med);
+  white-space: nowrap; flex-shrink: 0;
+}
+.ez-tab:hover { color: var(--text); }
+.ez-tab.active { color: #1d1d1f; border-bottom-color: #1d1d1f; font-weight: 500; }
+.ez-tab .tab-count {
+  font-size: 10px; font-weight: 600;
+  background: var(--surface); color: var(--text3);
+  padding: 1px 5px; border-radius: 8px;
+}
+.ez-tab.active .tab-count { background: rgba(0,0,0,.08); color: #1d1d1f; }
+.ez-tab.tab-noise.active { color: var(--danger); border-bottom-color: var(--danger); }
+.ez-tab.tab-noise.active .tab-count { background: rgba(214,90,90,.1); color: var(--danger); }
+.tab-sep {
+  width: 1px; height: 16px; background: var(--border);
+  margin: auto 4px; flex-shrink: 0;
+}
+
+/* Sub-labels */
+.sub-labels {
+  display: none; align-items: center;
+  height: 34px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px; gap: 6px; flex-shrink: 0;
+}
+.sub-labels.visible { display: flex; }
+.sub-label {
+  font-size: 11px; font-weight: 400;
+  padding: 4px 12px; border-radius: var(--r-pill);
+  background: #fff; border: 1px solid var(--border);
+  color: var(--text2); cursor: pointer;
+  transition: all var(--t-fast); white-space: nowrap;
+}
+.sub-label:hover { border-color: var(--text3); }
+.sub-label.active {
+  background: #333; color: #fff; border-color: #333;
+}
+
+/* ═══ EMAIL LIST ═══ */
+.email-list {
+  flex: 1; overflow-y: auto; padding: 0;
+  background: #ffffff;
+}
+.email-list::-webkit-scrollbar { width: 5px; }
+.email-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.email-row {
+  display: flex; align-items: center;
+  height: var(--erow-h);
+  padding: 0 20px 0 12px;
+  cursor: pointer;
+  transition: background var(--t-fast);
+  gap: 0;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--border-lt);
+}
+.email-row:hover { background: var(--hover); }
+.email-row.selected { background: #e9e9e9; }
+.email-row.unread .er-sender { font-weight: 500; color: var(--text); }
+.email-row.read .er-sender { font-weight: 400; color: var(--text2); }
+.email-row.read .er-subject { font-weight: 400; }
+.email-row[data-account="work"] { border-left-color: var(--acct-work); }
+.email-row[data-account="personal"] { border-left-color: var(--acct-personal); }
+
+.er-star {
+  font-size: 14px; color: var(--border);
+  transition: color var(--t-med); line-height: 1;
+  width: 24px; text-align: center; margin-right: 2px;
+  cursor: pointer; flex-shrink: 0;
+}
+.er-star.starred { color: var(--important); }
+.email-row:hover .er-star { color: var(--text3); }
+
+.er-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.er-sender {
+  font-size: 13px; font-weight: 400;
+  width: 140px; margin-right: 8px;
+  color: var(--text2); flex-shrink: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.er-content {
+  flex: 1; display: flex; align-items: center;
+  gap: 6px; min-width: 0;
+}
+.er-subject {
+  font-size: 13px; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.email-row.unread .er-subject { font-weight: 500; color: var(--text); }
+.er-snippet {
+  font-size: 13px; color: var(--text3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex-shrink: 1;
+}
+
+.er-meta {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-left: 12px;
+}
+.er-account-tag {
+  font-size: 9px; font-weight: 600; padding: 2px 6px;
+  border-radius: var(--r-pill); white-space: nowrap;
+}
+.er-account-tag.work { background: rgba(90,143,214,.12); color: var(--acct-work); }
+.er-account-tag.personal { background: rgba(76,217,100,.12); color: #2d8a4e; }
+.er-label {
+  font-size: 9px; font-weight: 600;
+  padding: 2px 7px; border-radius: var(--r-pill); white-space: nowrap;
+}
+.er-label.newsletter { background: #f0e6ff; color: #7c3aed; }
+.er-label.receipt    { background: #ecfdf5; color: #059669; }
+.er-label.travel     { background: #f0f7ff; color: #2563eb; }
+.er-time {
+  font-size: 12px; color: var(--text3);
+  white-space: nowrap; min-width: 46px; text-align: right;
+}
+.email-row.unread .er-time { color: var(--text2); }
+
+/* Nudge row */
+.nudge-row {
+  display: flex; align-items: center;
+  padding: 7px 16px; gap: 8px;
+  background: var(--nimp-bg);
+  cursor: pointer; margin: 0;
+  border-left: 3px solid var(--danger);
+  border-bottom: 1px solid var(--nimp-bd);
+}
+.nudge-row:hover { background: #fde8e8; }
+.nudge-icon { font-size: 12px; color: var(--danger); }
+.nudge-text { font-size: 12px; color: var(--danger); font-weight: 500; }
+.nudge-text strong { font-weight: 700; }
+.nudge-time { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+/* ═══ NOISE VIEW ═══ */
+.noise-view { display: none; flex: 1; overflow-y: auto; padding: 0; }
+.noise-view.visible { display: block; }
+.noise-view::-webkit-scrollbar { width: 5px; }
+.noise-view::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.noise-toolbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; background: var(--nimp-bg);
+  border-bottom: 1px solid var(--nimp-bd);
+}
+.noise-toolbar-text { font-size: 12px; color: var(--danger); font-weight: 500; flex: 1; }
+.noise-toolbar-btn {
+  font-size: 12px; font-weight: 500;
+  padding: 5px 12px; border-radius: var(--r-sm);
+  cursor: pointer; font-family: var(--font-body);
+  transition: background var(--t-fast); border: none;
+  background: var(--danger); color: #fff;
+}
+.noise-toolbar-btn:hover { background: var(--danger-dk); }
+
+.noise-email-row {
+  display: flex; align-items: center;
+  padding: 8px 16px; gap: 10px;
+  cursor: pointer; transition: background var(--t-fast);
+  opacity: .65;
+}
+.noise-email-row:hover { background: var(--hover); opacity: 1; }
+.ne-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--text3); flex-shrink: 0;
+}
+.ne-info { flex: 1; min-width: 0; }
+.ne-sender2 { font-size: 13px; font-weight: 400; color: var(--text3); }
+.ne-subject2 { font-size: 12px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ne-time { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+.ne-actions {
+  display: flex; align-items: center; gap: 4px;
+  flex-shrink: 0; opacity: 0; transition: opacity var(--t-fast);
+}
+.noise-email-row:hover .ne-actions { opacity: 1; }
+.ne-move, .ne-block {
+  font-size: 11px; font-weight: 400;
+  padding: 4px 8px; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: #fff; color: var(--text3);
+  cursor: pointer; font-family: var(--font-body);
+  transition: all var(--t-fast); white-space: nowrap;
+  position: relative;
+}
+.ne-move:hover { border-color: var(--acct-work); color: var(--acct-work); background: #f0f7ff; }
+.ne-block:hover { border-color: var(--danger); color: var(--danger); background: var(--nimp-bg); }
+.ne-dropdown {
+  position: absolute; top: 100%; right: 0;
+  margin-top: 4px;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--r-sm); box-shadow: var(--sh-md);
+  z-index: 80; min-width: 140px;
+  display: none; flex-direction: column; padding: 4px 0;
+}
+.ne-dropdown.open { display: flex; }
+.ne-dropdown-item {
+  font-size: 12px; font-weight: 400;
+  padding: 6px 12px; color: var(--text2);
+  cursor: pointer; transition: background var(--t-fast);
+  display: flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.ne-dropdown-item:hover { background: var(--hover); }
+.ne-dropdown-item .ndi-icon { font-size: 12px; width: 16px; text-align: center; }
+
+/* ═══ ACTIONABLE VIEW ═══ */
+.actionable-view { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding: 0; }
+.actionable-view.visible { display: flex; }
+.actionable-view::-webkit-scrollbar { width: 5px; }
+.actionable-view::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.actionable-group-label {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .04em; text-transform: uppercase;
+  color: var(--text3); padding: 14px 16px 6px;
+  display: flex; align-items: center; gap: 6px;
+}
+.actionable-group-label .agl-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.actionable-group-label.today { color: var(--danger); }
+.actionable-group-label.today .agl-dot { background: var(--danger); }
+.actionable-group-label.tomorrow { color: #92400e; }
+.actionable-group-label.tomorrow .agl-dot { background: #e8a82e; }
+.actionable-group-label.this-week { color: #1d4ed8; }
+.actionable-group-label.this-week .agl-dot { background: #5a8fd6; }
+.actionable-email-row {
+  display: flex; align-items: flex-start;
+  padding: 12px 16px 12px 8px;
+  cursor: pointer;
+  transition: background var(--t-fast);
+  gap: 0;
+  border-left: 3px solid transparent;
+}
+.actionable-email-row:hover { background: var(--hover); }
+.actionable-email-row[data-account="work"] { border-left-color: var(--acct-work); }
+.actionable-email-row[data-account="personal"] { border-left-color: var(--acct-personal); }
+.actionable-email-row .er-avatar { margin-top: 2px; }
+.actionable-action-summary {
+  font-size: 12px; color: var(--ai); font-weight: 400;
+  margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.actionable-content-wrap { flex: 1; min-width: 0; }
+
+/* ═══ EMAIL DETAIL — HALF SCREEN SLIDE-OVER ═══ */
+.detail-overlay {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 50%;
+  background: #fff;
+  box-shadow: -4px 0 24px rgba(0,0,0,.08);
+  z-index: 50;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--t-slow) cubic-bezier(.4,0,.2,1);
+}
+.detail-overlay.open { transform: translateX(0); }
+
+.do-header {
+  display: flex; align-items: center;
+  padding: 12px 20px; gap: 10px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.do-close {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text3); cursor: pointer;
+  transition: background var(--t-fast); border: none; background: none;
+  font-family: var(--font-body);
+}
+.do-close:hover { background: var(--hover); color: var(--text); }
+.do-subject {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  font-family: var(--font-heading);
+  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.do-account-tag {
+  font-size: 9px; font-weight: 600; padding: 2px 7px;
+  border-radius: var(--r-pill); flex-shrink: 0;
+}
+.do-meta {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px; flex-shrink: 0;
+}
+.do-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: #fff; flex-shrink: 0;
+}
+.do-meta-text { flex: 1; }
+.do-from { font-size: 14px; font-weight: 600; color: var(--text); }
+.do-from-email { font-size: 12px; color: var(--text2); font-weight: 400; }
+.do-date { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.do-body { flex: 1; overflow-y: auto; padding: 0 20px 20px; }
+.do-body::-webkit-scrollbar { width: 4px; }
+.do-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.do-body-text { font-size: 13px; line-height: 1.6; color: var(--text); }
+
+.do-action-items {
+  margin-top: 14px; padding: 12px;
+  background: var(--ai-lt); border: 1px solid var(--ai-border);
+  border-radius: var(--r-sm);
+}
+.do-ai-label {
+  font-size: 9px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--ai);
+  margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
+}
+.do-ai-item {
+  font-size: 13px; color: var(--text2); padding: 3px 0;
+  display: flex; align-items: flex-start; gap: 6px;
+}
+.do-ai-bullet {
+  width: 4px; height: 4px; background: var(--ai);
+  border-radius: 50%; margin-top: 6px; flex-shrink: 0;
+}
+
+.do-actions {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface); flex-shrink: 0;
+}
+.do-actions-label {
+  font-size: 9px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--text3); margin-bottom: 8px;
+}
+.do-actions-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.qa-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 12px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 400;
+  font-family: var(--font-body);
+  cursor: pointer; border: 1px solid var(--border);
+  background: #fff; color: var(--text2);
+  transition: all var(--t-fast);
+}
+.qa-btn:hover { border-color: var(--text3); background: var(--hover); }
+.qa-btn.primary {
+  background: var(--ai); color: #fff; border-color: var(--ai);
+}
+.qa-btn.primary:hover { background: var(--ai-mid); border-color: var(--ai-mid); }
+.qa-btn.add-task { background: #fff; color: var(--text2); border-color: var(--border); }
+.qa-btn.add-task.added {
+  background: rgba(76,217,100,.1); color: #2d8a4e; border-color: var(--success);
+  pointer-events: none;
+}
+
+.do-chat {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  background: #fff; flex-shrink: 0;
+}
+.do-chat-wrap { display: flex; align-items: center; gap: 8px; }
+.do-chat-input {
+  flex: 1; border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 8px 12px;
+  font-size: 13px; font-family: var(--font-body);
+  color: var(--text); background: #fff;
+  outline: none; transition: border-color var(--t-med);
+}
+.do-chat-input:focus { border-color: var(--ai); box-shadow: var(--focus-ring); }
+.do-chat-input::placeholder { color: #a0a0a0; }
+.do-chat-send {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--ai); color: #fff;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+  transition: background var(--t-fast);
+  font-family: var(--font-body);
+}
+.do-chat-send:hover { background: var(--ai-mid); }
+.do-chat-hints { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.do-chat-hint {
+  font-size: 11px; color: var(--text3);
+  padding: 3px 8px; border-radius: var(--r-sm);
+  background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer; transition: all var(--t-fast);
+  font-family: var(--font-body);
+}
+.do-chat-hint:hover { border-color: var(--ai); color: var(--ai); }
+
+/* ═══ SUGGESTIONS PANEL ═══ */
+.suggestions-overlay {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 380px;
+  background: #fff;
+  box-shadow: -4px 0 24px rgba(0,0,0,.08);
+  z-index: 50;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--t-slow) cubic-bezier(.4,0,.2,1);
+}
+.suggestions-overlay.open { transform: translateX(0); }
+.sg-header {
+  display: flex; align-items: center;
+  padding: 14px 20px; gap: 10px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.sg-close {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text3); cursor: pointer;
+  border: none; background: none; font-family: var(--font-body);
+}
+.sg-close:hover { background: var(--hover); color: var(--text); }
+.sg-title { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; font-family: var(--font-heading); }
+.sg-badge {
+  font-size: 10px; font-weight: 600; background: #9b6fd6;
+  color: #fff; padding: 2px 8px; border-radius: 10px;
+}
+.sg-list { flex: 1; overflow-y: auto; padding: 12px; }
+.sg-list::-webkit-scrollbar { width: 4px; }
+.sg-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.sg-card {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  margin-bottom: 10px;
+  transition: border-color var(--t-med);
+}
+.sg-card:hover { border-color: var(--text3); }
+.sg-card-icon { font-size: 20px; margin-bottom: 8px; }
+.sg-card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.sg-card-desc { font-size: 12px; color: var(--text3); line-height: 1.5; margin-bottom: 10px; }
+.sg-card-actions { display: flex; gap: 6px; }
+.sg-btn {
+  font-size: 12px; font-weight: 500;
+  padding: 5px 14px; border-radius: var(--r-sm);
+  cursor: pointer; font-family: var(--font-body);
+  transition: all var(--t-fast); border: none;
+}
+.sg-btn.accept { background: #333; color: #fff; }
+.sg-btn.accept:hover { background: #1a1a1a; }
+.sg-btn.dismiss { background: var(--surface); color: var(--text2); }
+.sg-btn.dismiss:hover { background: var(--border); }
+
+/* ═══ SEARCH OVERLAY ═══ */
+.search-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.15);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: none; align-items: flex-start; justify-content: center;
+  padding-top: 80px;
+}
+.search-overlay.visible { display: flex; }
+.search-modal {
+  width: 560px; background: #fff;
+  border-radius: var(--r-lg); box-shadow: var(--sh-lg); overflow: hidden;
+}
+.sm-input-wrap {
+  display: flex; align-items: center;
+  padding: 14px 18px; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.sm-icon { font-size: 16px; color: var(--text3); }
+.sm-input {
+  flex: 1; border: none; outline: none;
+  font-size: 15px; font-family: var(--font-body); color: var(--text);
+}
+.sm-input::placeholder { color: var(--text3); }
+.sm-kbd {
+  font-size: 10px; color: var(--text3); background: var(--surface);
+  padding: 2px 7px; border-radius: 5px; border: 1px solid var(--border);
+}
+.sm-results { padding: 10px; max-height: 360px; overflow-y: auto; }
+.sm-hint {
+  padding: 20px; text-align: center; color: var(--text3); font-size: 13px;
+}
+.sm-hint em {
+  font-style: italic;
+  display: block; margin-top: 4px; color: var(--text2); font-size: 12px;
+}
+
+/* ═══ GLOBAL CHATBOT ═══ */
+.chat-fab {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--ai-gradient);
+  color: #fff; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; z-index: 60;
+  box-shadow: 0 4px 16px rgba(214,90,90,.35);
+  transition: transform var(--t-med), box-shadow var(--t-med);
+  font-family: var(--font-body);
+}
+.chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(214,90,90,.4); }
+
+.chat-panel {
+  position: fixed; bottom: 84px; right: 24px;
+  width: 380px; max-height: 480px;
+  background: #fff; border-radius: var(--r-lg);
+  box-shadow: var(--sh-lg); z-index: 60;
+  display: none; flex-direction: column; overflow: hidden;
+}
+.chat-panel.open { display: flex; }
+.chat-panel-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+}
+.chat-panel-logo {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: var(--ai-gradient);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 11px;
+}
+.chat-panel-title { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.chat-panel-close {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text3); cursor: pointer;
+  border: none; background: none;
+}
+.chat-panel-close:hover { background: var(--hover); color: var(--text); }
+.chat-panel-messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px; min-height: 200px;
+}
+.chat-panel-messages::-webkit-scrollbar { width: 4px; }
+.chat-panel-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.chat-msg {
+  max-width: 85%; font-size: 13px; line-height: 1.55;
+  padding: 8px 12px; border-radius: 12px;
+}
+.chat-msg.assistant {
+  align-self: flex-start;
+  background: var(--surface); color: var(--text2);
+  border-bottom-left-radius: 4px;
+}
+.chat-msg.user {
+  align-self: flex-end;
+  background: var(--ai); color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-panel-input {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 14px; border-top: 1px solid var(--border);
+}
+.chat-panel-input input {
+  flex: 1; border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 8px 12px;
+  font-size: 13px; font-family: var(--font-body);
+  color: var(--text); outline: none;
+  transition: border-color var(--t-med);
+}
+.chat-panel-input input:focus { border-color: var(--ai); }
+.chat-panel-input input::placeholder { color: #a0a0a0; }
+.chat-panel-input button {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--ai); color: #fff;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+  font-family: var(--font-body);
+}
+.chat-panel-input button:hover { background: var(--ai-mid); }
+.chat-suggestions { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 14px 10px; }
+.chat-suggestion {
+  font-size: 11px; color: var(--text3);
+  padding: 4px 10px; border-radius: var(--r-sm);
+  background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer; transition: all var(--t-fast);
+  font-family: var(--font-body);
+}
+.chat-suggestion:hover { border-color: var(--ai); color: var(--ai); }
+
+/* ═══ TOAST ═══ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #333; color: #fff;
+  padding: 10px 20px; border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 400;
+  box-shadow: var(--sh-lg); z-index: 2000;
+  display: flex; align-items: center; gap: 8px;
+  transition: transform 300ms cubic-bezier(.34,1.56,.64,1), opacity 300ms;
+  opacity: 0; pointer-events: none;
+}
+.toast.visible {
+  transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto;
+}
+.toast-undo { color: var(--ai); font-weight: 500; cursor: pointer; margin-left: 6px; }
+
+/* ═══ EMAIL ROW HOVER ACTIONS ═══ */
+.er-hover-actions {
+  display: none; align-items: center; gap: 4px;
+  flex-shrink: 0; margin-left: 8px;
+}
+.email-row:hover .er-hover-actions { display: flex; }
+.email-row:hover .er-time { display: none; }
+.er-hover-btn {
+  font-size: 11px; font-weight: 400;
+  padding: 4px 8px; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: #fff; color: var(--text3);
+  cursor: pointer; font-family: var(--font-body);
+  transition: all var(--t-fast); white-space: nowrap;
+  position: relative;
+}
+.er-hover-btn:hover { border-color: var(--text3); color: var(--text2); background: var(--hover); }
+.er-hover-btn.block:hover { border-color: var(--danger); color: var(--danger); background: var(--nimp-bg); }
+.er-hover-dropdown {
+  position: absolute; top: 100%; right: 0;
+  margin-top: 4px;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--r-sm); box-shadow: var(--sh-md);
+  z-index: 80; min-width: 180px;
+  display: none; flex-direction: column; padding: 4px 0;
+}
+.er-hover-dropdown.open { display: flex; }
+.er-hover-dropdown-item {
+  font-size: 12px; font-weight: 400;
+  padding: 6px 12px; color: var(--text2);
+  cursor: pointer; transition: background var(--t-fast);
+  display: flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.er-hover-dropdown-item:hover { background: var(--hover); }
+.er-hover-dropdown-item .hdi-icon { font-size: 12px; width: 16px; text-align: center; }
+.er-hover-dropdown-sep {
+  height: 1px; background: var(--border); margin: 4px 0;
+}
+.er-hover-dropdown-item.create-new { color: var(--ai); font-weight: 500; }
+
+/* ═══ EMAIL LABEL TAGS (in All view) ═══ */
+.er-label.actionable { background: rgba(214,90,90,.1); color: var(--ai); }
+.er-label.actioned   { background: rgba(76,217,100,.12); color: #2d8a4e; }
+
+/* ═══ ACTIONABLE CHECKBOXES ═══ */
+.actionable-check {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--t-med);
+  font-size: 10px; color: transparent;
+  margin-right: 8px; margin-top: 2px;
+}
+.actionable-check:hover { border-color: var(--success); }
+.actionable-check.done { border-color: var(--success); background: var(--success); color: #fff; }
+
+/* ═══ COMPLETED SECTION (collapsed by default) ═══ */
+.completed-section { border-top: 1px solid var(--border); }
+.completed-toggle {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 16px; cursor: pointer;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .04em; text-transform: uppercase;
+  color: var(--text3); user-select: none;
+  transition: background var(--t-fast);
+}
+.completed-toggle:hover { background: var(--hover); }
+.completed-toggle .toggle-arrow {
+  font-size: 10px; transition: transform var(--t-med);
+  display: inline-block;
+}
+.completed-toggle .toggle-arrow.expanded { transform: rotate(90deg); }
+.completed-items { display: none; }
+.completed-items.visible { display: block; }
+.completed-items .actionable-email-row { opacity: 0.5; }
+.completed-items .actionable-email-row .er-sender { text-decoration: line-through; }
+.completed-items .actionable-email-row .er-subject { text-decoration: line-through; }
+
+/* ═══ ACTIONABLE HOVER ACTIONS ═══ */
+.actionable-hover-actions {
+  display: none; align-items: center; gap: 4px;
+  flex-shrink: 0; margin-left: 8px;
+}
+.actionable-email-row:hover .actionable-hover-actions { display: flex; }
+.actionable-email-row:hover .er-time { display: none; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: slideIn 200ms ease-out; }
+
+/* ═══ GREETING (Act tab) ═══ */
+.act-greeting {
+  padding: 20px 16px 8px;
+}
+.act-greeting-name {
+  font-size: 22px; font-weight: 600;
+  font-family: var(--font-heading);
+  color: var(--text);
+  line-height: 1.3;
+}
+.act-greeting-summary {
+  font-size: 13px; color: var(--text3);
+  margin-top: 4px; font-weight: 400;
+}
+
+/* ═══ KNOW VIEW ═══ */
+.know-view { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding: 0; }
+.know-view.visible { display: flex; }
+.know-view::-webkit-scrollbar { width: 5px; }
+.know-view::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.know-row {
+  display: flex; align-items: center;
+  height: var(--erow-h);
+  padding: 0 20px 0 16px;
+  cursor: pointer;
+  transition: background var(--t-fast);
+  border-bottom: 1px solid var(--border-lt);
+  gap: 12px;
+}
+.know-row:hover { background: var(--hover); }
+.know-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.know-info { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.know-sender { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+.know-subject { font-size: 13px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.know-summary { font-size: 12px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: auto; flex-shrink: 1; max-width: 280px; }
+.know-time { font-size: 12px; color: var(--text3); white-space: nowrap; flex-shrink: 0; min-width: 50px; text-align: right; }
+
+/* ═══ KNOW MOVE BANNER ═══ */
+.know-move-banner {
+  display: none;
+  padding: 10px 20px;
+  background: #f0f4ff;
+  border-top: 1px solid #d6e0f0;
+  font-size: 12px; color: #3b5998;
+  font-weight: 400;
+  flex-shrink: 0;
+  align-items: center; gap: 6px;
+}
+.know-move-banner.visible { display: flex; }
+.know-move-banner .kmb-icon { font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══ GMAIL SIDEBAR ═══ -->
+  <div class="gmail-sidebar">
+    <div class="gs-logo">
+      <svg viewBox="0 0 24 24" width="28" height="28">
+        <path fill="#EA4335" d="M1 5.64L12 13.14L23 5.64V18C23 19.1 22.1 20 21 20H3C1.9 20 1 19.1 1 18V5.64Z" opacity=".3"/>
+        <path fill="#4285F4" d="M23 5.64V18C23 19.1 22.1 20 21 20H19V9.28L12 14.77L5 9.28V20H3C1.9 20 1 19.1 1 18V5.64L3 4H21L23 5.64Z"/>
+        <path fill="#34A853" d="M5 9.28V20H3C1.9 20 1 19.1 1 18V5.64L5 9.28Z"/>
+        <path fill="#FBBC04" d="M1 5.64L3 4H21L23 5.64L12 13.14L1 5.64Z" opacity=".25"/>
+        <path fill="#C5221F" d="M19 9.28V20H21C22.1 20 23 19.1 23 18V5.64L19 9.28Z"/>
+      </svg>
+    </div>
+    <div class="gs-item" title="Inbox"><span class="gs-icon">📥</span><span class="gs-badge">14</span></div>
+    <div class="gs-item" title="Starred"><span class="gs-icon">⭐</span></div>
+    <div class="gs-item" title="Sent"><span class="gs-icon">📤</span></div>
+    <div class="gs-divider"></div>
+    <div class="gs-item ez-item active" title="All Inboxes — EmailZap" id="ez-trigger">
+      <span class="gs-icon" style="color:var(--ai);">⚡</span>
+      <span style="font-size:9px;font-weight:600;">All Inboxes</span>
+    </div>
+  </div>
+
+  <!-- ═══ EMAILZAP PANEL ═══ -->
+  <div class="ez-panel">
+
+    <!-- Top Bar -->
+    <div class="ez-topbar">
+      <div class="ez-logo">
+        <div class="ez-logo-mark">⚡</div>
+        EmailZap
+      </div>
+      <div class="ez-search" id="search-trigger">
+        <span class="ez-search-icon">🔍</span>
+        <input type="text" placeholder="Ask anything about your email..." readonly>
+        <span class="ez-search-kbd">⌘K</span>
+      </div>
+
+      <!-- Task List, Automations, Settings — moved here -->
+      <div class="ez-topbar-nav">
+        <button class="ez-topbar-btn" id="topbar-automations" data-view="automations">
+          <span class="btn-icon">🤖</span> Automations
+        </button>
+        <div class="topbar-sep"></div>
+        <button class="ez-topbar-btn" id="topbar-settings" data-view="settings">
+          <span class="btn-icon">⚙️</span> Settings
+        </button>
+      </div>
+
+      <div class="ez-topbar-right">
+        <div class="ez-avatar">CL</div>
+      </div>
+    </div>
+
+    <div class="ez-body">
+
+      <!-- Left Nav -->
+      <div class="ez-nav">
+        <div class="ez-nav-item active" data-view="all-inboxes">
+          <span class="ez-nav-icon">📨</span> All
+          <span class="ez-nav-count">6</span>
+        </div>
+
+        <div class="nav-divider"></div>
+
+        <div class="ez-nav-item" data-view="work">
+          <span class="ez-nav-dot" style="background:var(--acct-work);"></span> nandan@work.com
+          <span class="ez-nav-count">4</span>
+        </div>
+        <div class="ez-nav-item" data-view="personal">
+          <span class="ez-nav-dot" style="background:var(--acct-personal);"></span> nandan@gmail.com
+          <span class="ez-nav-count">2</span>
+        </div>
+      </div>
+
+      <!-- Center -->
+      <div class="ez-center">
+
+        <!-- Category Tabs -->
+        <div class="ez-tabs">
+          <div class="ez-tab active" data-tab="actionable">⚡ Act <span class="tab-count">5</span></div>
+          <div class="ez-tab" data-tab="know">📋 Know <span class="tab-count">5</span></div>
+          <div class="tab-sep"></div>
+          <div class="ez-tab" data-tab="all">All <span class="tab-count">47</span></div>
+          <div class="ez-tab" data-tab="newsletters">Newsletters <span class="tab-count">8</span></div>
+          <div class="ez-tab" data-tab="travel">Travel <span class="tab-count">1</span></div>
+          <div class="ez-tab" data-tab="receipts">Receipts <span class="tab-count">3</span></div>
+          <div class="ez-tab" data-tab="notifications">Notifications <span class="tab-count">7</span></div>
+          <div class="ez-tab" data-tab="social">Social <span class="tab-count">12</span></div>
+          <div class="ez-tab" data-tab="groups">Groups <span class="tab-count">12</span></div>
+          <div class="ez-tab" data-tab="cold-outreach">Cold Outreach <span class="tab-count">23</span></div>
+        </div>
+
+        <!-- Sub-labels for Travel -->
+        <div class="sub-labels" id="sub-travel">
+          <span class="sub-label active">All trips</span>
+          <span class="sub-label">Goa — Mar 2026</span>
+          <span class="sub-label">London — Jan 2026</span>
+          <span class="sub-label">Jaipur — Nov 2025</span>
+        </div>
+
+        <!-- Sub-labels for Newsletters -->
+        <div class="sub-labels" id="sub-newsletters">
+          <span class="sub-label active">All newsletters</span>
+          <span class="sub-label">Lenny's Newsletter</span>
+          <span class="sub-label">ESPNcricinfo</span>
+          <span class="sub-label">Anthropic Blog</span>
+          <span class="sub-label">The Hustle</span>
+          <span class="sub-label">History Extra</span>
+        </div>
+
+        <!-- NO assistant brief section — removed -->
+
+        <!-- Noise View -->
+        <div class="noise-view" id="noise-view">
+          <div class="noise-toolbar">
+            <span class="noise-toolbar-text">41 emails handled silently — none of these needed you</span>
+            <button class="noise-toolbar-btn" onclick="showToast('All 41 noise emails cleared')">Clear All</button>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">LI</div>
+            <div class="ne-info"><div class="ne-sender2">LinkedIn</div><div class="ne-subject2">12 people viewed your profile this week</div></div>
+            <span class="ne-time">8:30 AM</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Newsletters')"><span class="ndi-icon">📰</span> Newsletters</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Social')"><span class="ndi-icon">💬</span> Social</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'LinkedIn')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">NO</div>
+            <div class="ne-info"><div class="ne-sender2">Notion</div><div class="ne-subject2">Weekly digest: 8 pages updated in your workspace</div></div>
+            <span class="ne-time">7:00 AM</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Notifications')"><span class="ndi-icon">🔔</span> Notifications</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Notion')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">EC</div>
+            <div class="ne-info"><div class="ne-sender2">ESPNcricinfo</div><div class="ne-subject2">IPL 2026: Today's match preview — MI vs CSK</div></div>
+            <span class="ne-time">6:45 AM</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Newsletters')"><span class="ndi-icon">📰</span> Newsletters</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'ESPNcricinfo')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">AN</div>
+            <div class="ne-info"><div class="ne-sender2">Anthropic</div><div class="ne-subject2">Claude Code update: New agent features and MCP support</div></div>
+            <span class="ne-time">Yesterday</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Anthropic')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">ST</div>
+            <div class="ne-info"><div class="ne-sender2">Stripe</div><div class="ne-subject2">Your monthly statement is ready</div></div>
+            <span class="ne-time">Yesterday</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Receipts')"><span class="ndi-icon">🧾</span> Receipts</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Stripe')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">SL</div>
+            <div class="ne-info"><div class="ne-sender2">Slack</div><div class="ne-subject2">5 new messages in #general</div></div>
+            <span class="ne-time">Yesterday</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Notifications')"><span class="ndi-icon">🔔</span> Notifications</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Slack')">Block</button>
+            </div>
+          </div>
+          <div class="noise-email-row">
+            <div class="ne-avatar">FI</div>
+            <div class="ne-info"><div class="ne-sender2">Figma</div><div class="ne-subject2">New AI design plugin: Generate mockups with prompts</div></div>
+            <span class="ne-time">Mar 17</span>
+            <div class="ne-actions">
+              <button class="ne-move" onclick="event.stopPropagation();toggleDropdown(this)">Move to ↓
+                <div class="ne-dropdown">
+                  <div class="ne-dropdown-item" onclick="event.stopPropagation();moveNoise(this,'Important')"><span class="ndi-icon">🔥</span> Important</div>
+                </div>
+              </button>
+              <button class="ne-block" onclick="event.stopPropagation();blockNoise(this,'Figma')">Block</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actionable View — Overdue + Active with checkboxes, Completed collapsed -->
+        <div class="actionable-view visible" id="actionable-view">
+
+          <div class="act-greeting">
+            <div class="act-greeting-name">Good morning, Nandan</div>
+            <div class="act-greeting-summary">5 emails need your attention &middot; 41 handled automatically</div>
+          </div>
+
+          <div class="actionable-group-label today"><span class="agl-dot"></span> Overdue</div>
+
+          <div class="actionable-email-row" data-email="4" data-account="work" onclick="selectEmail('4')">
+            <div class="actionable-check" onclick="event.stopPropagation();completeActionable(this)"></div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#d65a5a,#c04e4e);">AR</div>
+            <div class="actionable-content-wrap" style="margin-left:10px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="er-sender" style="font-weight:600;color:var(--text);width:auto;margin:0;">Alex Rivera</span>
+                <span style="color:var(--text3);font-size:12px;">·</span>
+                <span class="er-subject" style="font-weight:500;color:var(--text);">User research findings — onboarding drop-off</span>
+              </div>
+              <div class="actionable-action-summary">⚡ Triage onboarding drop-off findings by Thursday — 62% drop at connect step</div>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-time">Yesterday</span>
+              <div class="actionable-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="actionable-email-row" data-email="1" data-account="work" onclick="selectEmail('1')">
+            <div class="actionable-check" onclick="event.stopPropagation();completeActionable(this)"></div>
+            <div class="er-avatar" style="background:var(--acct-work);">SC</div>
+            <div class="actionable-content-wrap" style="margin-left:10px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="er-sender" style="font-weight:600;color:var(--text);width:auto;margin:0;">Sarah Chen</span>
+                <span style="color:var(--text3);font-size:12px;">·</span>
+                <span class="er-subject" style="font-weight:500;color:var(--text);">Re: PRD review — notifications feature</span>
+              </div>
+              <div class="actionable-action-summary">⚡ Review and sign off on notifications PRD by Friday</div>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-time">9:12 AM</span>
+              <div class="actionable-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="actionable-email-row" data-email="2" data-account="personal" onclick="selectEmail('2')">
+            <div class="actionable-check" onclick="event.stopPropagation();completeActionable(this)"></div>
+            <div class="er-avatar" style="background:var(--acct-personal);">PK</div>
+            <div class="actionable-content-wrap" style="margin-left:10px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="er-sender" style="font-weight:600;color:var(--text);width:auto;margin:0;">Priya Kapoor</span>
+                <span style="color:var(--text3);font-size:12px;">·</span>
+                <span class="er-subject" style="font-weight:500;color:var(--text);">IPL tonight — watching at mine?</span>
+              </div>
+              <div class="actionable-action-summary">⚡ Confirm plans for IPL watch tonight at 7:30</div>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag personal">Personal</span>
+              <span class="er-time">8:45 AM</span>
+              <div class="actionable-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="actionable-group-label this-week"><span class="agl-dot"></span> This Week</div>
+
+          <div class="actionable-email-row" data-email="5" data-account="work" onclick="selectEmail('5')">
+            <div class="actionable-check" onclick="event.stopPropagation();completeActionable(this)"></div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#9b6fd6,#7c3aed);">ML</div>
+            <div class="actionable-content-wrap" style="margin-left:10px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="er-sender" style="font-weight:400;color:var(--text2);width:auto;margin:0;">Maya Lin</span>
+                <span style="color:var(--text3);font-size:12px;">·</span>
+                <span class="er-subject">Design specs ready — settings page redesign</span>
+              </div>
+              <div class="actionable-action-summary">⚡ Review Figma specs and make scope decisions for settings redesign</div>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-time">Yesterday</span>
+              <div class="actionable-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="actionable-email-row" data-email="3" data-account="work" onclick="selectEmail('3')">
+            <div class="actionable-check" onclick="event.stopPropagation();completeActionable(this)"></div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#b07d4f,#8b6240);">DP</div>
+            <div class="actionable-content-wrap" style="margin-left:10px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="er-sender" style="font-weight:400;color:var(--text2);width:auto;margin:0;">David Park</span>
+                <span style="color:var(--text3);font-size:12px;">·</span>
+                <span class="er-subject">Analytics vendor contract — needs your approval</span>
+              </div>
+              <div class="actionable-action-summary">⚡ Review PostHog migration contract — sign off by March 25</div>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-time">8:20 AM</span>
+              <div class="actionable-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Section (collapsed by default) -->
+          <div class="completed-section">
+            <div class="completed-toggle" onclick="toggleCompleted()">
+              <span class="toggle-arrow" id="completed-arrow">▶</span>
+              Completed <span style="font-weight:400;text-transform:none;letter-spacing:0;" id="completed-count">(0)</span>
+            </div>
+            <div class="completed-items" id="completed-items">
+              <!-- Completed actionable emails will be moved here -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Know View -->
+        <div class="know-view" id="know-view">
+          <div class="know-row" data-email="k1" onclick="selectKnowEmail('k1')">
+            <span class="know-icon">📦</span>
+            <div class="know-info">
+              <span class="know-sender">Amazon</span>
+              <span class="know-subject">Your order #402-8837 has shipped</span>
+            </div>
+            <span class="know-summary">Arriving March 22 — 2 books</span>
+            <span class="know-time">10:15 AM</span>
+          </div>
+          <div class="know-row" data-email="k2" onclick="selectKnowEmail('k2')">
+            <span class="know-icon">💳</span>
+            <div class="know-info">
+              <span class="know-sender">Stripe</span>
+              <span class="know-subject">Payment of $49.99 received</span>
+            </div>
+            <span class="know-summary">Monthly subscription — EmailZap Pro</span>
+            <span class="know-time">9:40 AM</span>
+          </div>
+          <div class="know-row" data-email="k3" onclick="selectKnowEmail('k3')">
+            <span class="know-icon">✈️</span>
+            <div class="know-info">
+              <span class="know-sender">United Airlines</span>
+              <span class="know-subject">Flight confirmation</span>
+            </div>
+            <span class="know-summary">DEL→SFO, April 5, 2:30 PM</span>
+            <span class="know-time">8:55 AM</span>
+          </div>
+          <div class="know-row" data-email="k4" onclick="selectKnowEmail('k4')">
+            <span class="know-icon">🔄</span>
+            <div class="know-info">
+              <span class="know-sender">Netflix</span>
+              <span class="know-subject">Your subscription renewed</span>
+            </div>
+            <span class="know-summary">$15.99 charged to Visa ending 4242</span>
+            <span class="know-time">Yesterday</span>
+          </div>
+          <div class="know-row" data-email="k5" onclick="selectKnowEmail('k5')">
+            <span class="know-icon">🏦</span>
+            <div class="know-info">
+              <span class="know-sender">HDFC Bank</span>
+              <span class="know-subject">Transaction alert</span>
+            </div>
+            <span class="know-summary">₹12,500 debited — Amazon India</span>
+            <span class="know-time">Yesterday</span>
+          </div>
+        </div>
+
+        <!-- Email List -->
+        <div class="email-list" id="email-list" style="display:none;">
+
+
+          <div class="email-row unread" data-email="1" data-account="work">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:var(--acct-work);">SC</div>
+            <div class="er-sender">Sarah Chen</div>
+            <div class="er-content">
+              <span class="er-subject">Re: PRD review — notifications feature</span>
+              <span class="er-snippet">— I've gone through the PRD. A few things to flag before we commit to the sprint...</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-label actionable" data-email-label="1">Act</span>
+              <span class="er-time">9:12 AM</span>
+              <div class="er-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="email-row unread" data-email="2" data-account="personal">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:var(--acct-personal);">PK</div>
+            <div class="er-sender">Priya Kapoor</div>
+            <div class="er-content">
+              <span class="er-subject">IPL tonight — watching at mine?</span>
+              <span class="er-snippet">— MI vs CSK tonight — you coming over to watch? Kickoff's at 7:30.</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag personal">Personal</span>
+              <span class="er-label actionable" data-email-label="2">Act</span>
+              <span class="er-time">8:45 AM</span>
+              <div class="er-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="email-row unread" data-email="3" data-account="work">
+            <div class="er-star starred">★</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#b07d4f,#8b6240);">DP</div>
+            <div class="er-sender">David Park</div>
+            <div class="er-content">
+              <span class="er-subject">Analytics vendor contract — needs your approval</span>
+              <span class="er-snippet">— Legal reviewed the Mixpanel → PostHog migration contract. Need your sign-off...</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-label actionable" data-email-label="3">Act</span>
+              <span class="er-time">8:20 AM</span>
+              <div class="er-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="email-row" data-email="4" data-account="work">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#d65a5a,#c04e4e);">AR</div>
+            <div class="er-sender">Alex Rivera</div>
+            <div class="er-content">
+              <span class="er-subject">User research findings — onboarding drop-off</span>
+              <span class="er-snippet">— 62% drop-off at the "connect email" step. Need your triage by Thursday...</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-label actionable" data-email-label="4">Act</span>
+              <span class="er-time">Yesterday</span>
+              <div class="er-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="email-row" data-email="5" data-account="work">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#9b6fd6,#7c3aed);">ML</div>
+            <div class="er-sender">Maya Lin</div>
+            <div class="er-content">
+              <span class="er-subject">Design specs ready — settings page redesign</span>
+              <span class="er-snippet">— Design specs for settings page are in Figma. Need your PM call on scope decisions...</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag work">Work</span>
+              <span class="er-label actionable" data-email-label="5">Act</span>
+              <span class="er-time">Yesterday</span>
+              <div class="er-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="email-row" data-email="6" data-account="personal">
+            <div class="er-star">☆</div>
+            <div class="er-avatar" style="background:linear-gradient(135deg,#059669,#047857);">JW</div>
+            <div class="er-sender">James Wong</div>
+            <div class="er-content">
+              <span class="er-subject">Tax documents ready</span>
+              <span class="er-snippet">— Your 2025 tax documents are ready for download. Please review before filing...</span>
+            </div>
+            <div class="er-meta">
+              <span class="er-account-tag personal">Personal</span>
+              <span class="er-label receipt" data-email-label="6">Receipt</span>
+              <span class="er-time">Mar 17</span>
+              <div class="er-hover-actions">
+                <button class="er-hover-btn block" onclick="event.stopPropagation();blockForever(this)">Block forever</button>
+                <button class="er-hover-btn" onclick="event.stopPropagation();toggleShowInDropdown(this)">Always show in →
+                  <div class="er-hover-dropdown">
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Actionable')"><span class="hdi-icon">⚡</span> Actionable</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Newsletters')"><span class="hdi-icon">📰</span> Newsletters</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Travel')"><span class="hdi-icon">✈️</span> Travel</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Receipts')"><span class="hdi-icon">🧾</span> Receipts</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Notifications')"><span class="hdi-icon">🔔</span> Notifications</div>
+                    <div class="er-hover-dropdown-item" onclick="event.stopPropagation();showInCategory(this,'Social')"><span class="hdi-icon">💬</span> Social</div>
+                    <div class="er-hover-dropdown-sep"></div>
+                    <div class="er-hover-dropdown-item create-new" onclick="event.stopPropagation();createNewCategory(this)"><span class="hdi-icon">+</span> Create new category</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══ EMAIL DETAIL SLIDE-OVER ═══ -->
+      <div class="detail-overlay" id="detail-overlay">
+        <div class="do-header">
+          <button class="do-close" id="detail-close">←</button>
+          <div class="do-subject" id="do-subject">Re: PRD review — notifications feature</div>
+          <div class="do-account-tag" id="do-account-tag">Work</div>
+        </div>
+        <div class="do-meta">
+          <div class="do-avatar" id="do-avatar" style="background:var(--acct-work);">SC</div>
+          <div class="do-meta-text">
+            <div class="do-from"><span id="do-from">Sarah Chen</span> <span class="do-from-email" id="do-email">&lt;sarah@work.com&gt;</span></div>
+            <div class="do-date" id="do-date">9:12 AM today · nandan@work.com</div>
+          </div>
+        </div>
+        <div class="do-body">
+          <div class="do-body-text" id="do-body">
+            Hey Nandan,<br><br>
+            I've gone through the PRD for the notifications feature...
+          </div>
+          <div class="do-action-items" id="do-action-items">
+            <div class="do-ai-label"><span>⚡</span> Action items detected</div>
+          </div>
+        </div>
+        <div class="do-actions">
+          <div class="do-actions-label">Quick Actions</div>
+          <div class="do-actions-grid" id="do-actions-grid"></div>
+        </div>
+        <div class="know-move-banner" id="know-move-banner">
+          <span class="kmb-icon">ℹ️</span>
+          <span id="know-move-text">This email will be moved to Receipts tab</span>
+        </div>
+        <div class="do-chat">
+          <div class="do-chat-wrap">
+            <input class="do-chat-input" id="do-chat-input" type="text" placeholder="Tell EmailZap what to do with this email...">
+            <button class="do-chat-send" id="do-chat-send">↑</button>
+          </div>
+          <div class="do-chat-hints">
+            <span class="do-chat-hint" data-msg="Reply saying we're on it">Reply "we're on it"</span>
+            <span class="do-chat-hint" data-msg="Forward to the team with a summary">Forward + summarize</span>
+            <span class="do-chat-hint" data-msg="Create a Linear ticket from this">Create ticket</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SUGGESTIONS PANEL ═══ -->
+      <div class="suggestions-overlay" id="suggestions-overlay">
+        <div class="sg-header">
+          <button class="sg-close" id="sg-close">←</button>
+          <div class="sg-title">Suggestions</div>
+          <span class="sg-badge">3</span>
+        </div>
+        <div class="sg-list">
+          <div class="sg-card">
+            <div class="sg-card-icon">🗑️</div>
+            <div class="sg-card-title">Auto-delete Promo Weekly?</div>
+            <div class="sg-card-desc">You've deleted 8 emails from this sender in the last month. Want to auto-delete future ones?</div>
+            <div class="sg-card-actions">
+              <button class="sg-btn accept" onclick="showToast('Auto-delete enabled for Promo Weekly')">Auto-delete</button>
+              <button class="sg-btn dismiss">Dismiss</button>
+            </div>
+          </div>
+          <div class="sg-card">
+            <div class="sg-card-icon">📦</div>
+            <div class="sg-card-title">Auto-archive vendor invoices?</div>
+            <div class="sg-card-desc">You always archive emails from billing@aws.com within a minute. Should we do it for you?</div>
+            <div class="sg-card-actions">
+              <button class="sg-btn accept" onclick="showToast('Auto-archive enabled for billing@aws.com')">Auto-archive</button>
+              <button class="sg-btn dismiss">Dismiss</button>
+            </div>
+          </div>
+          <div class="sg-card">
+            <div class="sg-card-icon">🏷️</div>
+            <div class="sg-card-title">New category: "Client Contracts"?</div>
+            <div class="sg-card-desc">You've received 12 contract-related emails in the past 2 months. Want a dedicated category?</div>
+            <div class="sg-card-actions">
+              <button class="sg-btn accept" onclick="showToast('Category created: Client Contracts')">Create</button>
+              <button class="sg-btn dismiss">Dismiss</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /ez-body -->
+  </div><!-- /ez-panel -->
+</div><!-- /app -->
+
+<!-- Search overlay -->
+<div class="search-overlay" id="search-overlay">
+  <div class="search-modal">
+    <div class="sm-input-wrap">
+      <span class="sm-icon">🔍</span>
+      <input class="sm-input" id="search-input" type="text" placeholder="Ask anything about your email..." autofocus>
+      <span class="sm-kbd">ESC</span>
+    </div>
+    <div class="sm-results" id="search-results">
+      <div class="sm-hint">
+        Try natural language search<br>
+        <em>"What was the hotel booking for my Goa trip?"</em><br>
+        <em>"Invoices from last month"</em><br>
+        <em>"Anything from Sarah about the launch"</em>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Global Chatbot FAB -->
+<button class="chat-fab" id="chat-fab" title="Chat with EmailZap">✨</button>
+
+<!-- Global Chat Panel -->
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-panel-header">
+    <div class="chat-panel-logo">⚡</div>
+    <div class="chat-panel-title">EmailZap Assistant</div>
+    <button class="chat-panel-close" id="chat-panel-close">×</button>
+  </div>
+  <div class="chat-panel-messages" id="chat-messages">
+    <div class="chat-msg assistant">Hey Nandan! I'm managing your inbox. You have 5 actionable items — mostly PRD reviews and research findings. Everything else is organized by category. What would you like to do?</div>
+  </div>
+  <div class="chat-suggestions" id="chat-suggestions">
+    <span class="chat-suggestion" data-msg="Summarize my inbox for today">Summarize today</span>
+    <span class="chat-suggestion" data-msg="What's urgent right now?">What's urgent?</span>
+    <span class="chat-suggestion" data-msg="Reply to Sarah saying I'll review the PRD by Thursday">Reply to Sarah</span>
+    <span class="chat-suggestion" data-msg="Block all promotional emails">Block all promos</span>
+    <span class="chat-suggestion" data-msg="Find the hotel booking for my Goa trip">Find Goa booking</span>
+  </div>
+  <div class="chat-panel-input">
+    <input type="text" id="chat-global-input" placeholder="Tell me what to do...">
+    <button id="chat-global-send">↑</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toast-text"></span>
+  <span class="toast-undo">Undo</span>
+</div>
+
+<script>
+// ═══ DATA ═══
+const emails = {
+  '1': {
+    subject: 'Re: PRD review — notifications feature',
+    from: 'Sarah Chen', email: 'sarah@work.com',
+    avatar: 'SC', avatarBg: 'var(--acct-work)',
+    account: 'work', date: '9:12 AM today · nandan@work.com',
+    body: `Hey Nandan,<br><br>I've gone through the PRD for the notifications feature. A few things I want to flag before we commit to the sprint:<br><br>1. The success metrics section needs a primary KPI — right now it lists 5 metrics with no hierarchy<br>2. Edge case: what happens when a user has notifications disabled at the OS level? The PRD doesn't address this<br>3. The eng estimate came back at 3 sprints, but the PRD scope feels like 2. Can we cut the "smart grouping" from v1?<br><br>I need your sign-off by <strong>Friday</strong> so we can lock the sprint scope with eng.<br><br>Also — should we loop in design for the edge case discussion or handle async?<br><br>Best,<br>Sarah`,
+    actions: ['Review and sign off on notifications PRD by <strong>Friday</strong>', 'Decide: cut "smart grouping" from v1 scope', 'Decide: loop design into edge case discussion'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated' },
+      { icon: '📋', label: 'Create Ticket', toast: 'Linear ticket created: PRD Sign-off — Notifications' },
+      { icon: '💬', label: 'Slack Team', toast: 'Posted to #engineering' },
+      { icon: '🔔', label: 'Remind Me', toast: 'Reminder set for tomorrow 9 AM' },
+    ],
+  },
+  '2': {
+    subject: 'IPL tonight — watching at mine?',
+    from: 'Priya Kapoor', email: 'priya@gmail.com',
+    avatar: 'PK', avatarBg: 'var(--acct-personal)',
+    account: 'personal', date: '8:45 AM today · nandan@gmail.com',
+    body: `Hey! MI vs CSK tonight — you coming over to watch? Kickoff's at 7:30.<br><br>Also saw that Bumrah's been rested for this one. Could be interesting!<br><br>Let me know if you're bringing snacks 😊`,
+    actions: ['Confirm plans for IPL watch tonight at 7:30'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated — casual tone' },
+      { icon: '📅', label: 'Add to Calendar', toast: 'IPL watch added to calendar at 7:30 PM' },
+      { icon: '🔔', label: 'Remind at 6pm', toast: 'Reminder set for 6:00 PM' },
+    ],
+  },
+  '3': {
+    subject: 'Analytics vendor contract — needs your approval',
+    from: 'David Park', email: 'david.park@legal.co',
+    avatar: 'DP', avatarBg: 'linear-gradient(135deg,#b07d4f,#8b6240)',
+    account: 'work', date: '8:20 AM today · nandan@work.com',
+    body: `Hi Nandan,<br><br>Legal has reviewed the Mixpanel → PostHog migration contract. Here's what changed from the last draft:<br><br>— Section 3: Data retention clause updated to 24 months (was 12)<br>— Section 7: Added a clause for GDPR-compliant data export<br>— Pricing: $18k/year, locked for 2 years<br><br>Since you're the product owner driving this migration, we need your sign-off by <strong>March 25</strong>. Eng has already approved the technical requirements.<br><br>Regards,<br>David Park<br>Senior Counsel`,
+    actions: ['Review updated analytics vendor contract', 'Sign off by <strong>March 25</strong>'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated — professional tone' },
+      { icon: '📋', label: 'Create Review Task', toast: 'Linear ticket created: Vendor Contract Review' },
+      { icon: '📤', label: 'Forward to Legal', toast: 'Forwarded to legal@work.com' },
+      { icon: '🔔', label: 'Remind Mar 24', toast: 'Reminder set for March 24' },
+    ],
+  },
+  '4': {
+    subject: 'User research findings — onboarding drop-off',
+    from: 'Alex Rivera', email: 'alex.r@research.com',
+    avatar: 'AR', avatarBg: 'linear-gradient(135deg,#d65a5a,#c04e4e)',
+    account: 'work', date: 'Yesterday 3:12 PM · nandan@work.com',
+    body: `Hey Nandan,<br><br>Just wrapped up the user research sessions on onboarding. Key findings:<br><br>1. <strong>62% drop-off at the "connect email" step</strong> — users don't trust OAuth permissions screen<br>2. Users who completed onboarding in under 2 min had 3x higher retention at Day 7<br>3. The "skip for now" option is being used by 40% of users, and most never come back<br><br>I've attached the full report with session recordings. We need to prioritize which of these to tackle for the next sprint — can you triage by <strong>Thursday</strong>?<br><br>— Alex<br>UX Research`,
+    actions: ['Triage onboarding drop-off findings by <strong>Thursday</strong>', 'Review user research session recordings'],
+    quickActions: [
+      { icon: '📋', label: 'Create Tickets', primary: true, toast: 'Linear tickets created: Onboarding improvements' },
+      { icon: '✍️', label: 'Reply with priorities', toast: 'Draft reply generated with triage notes' },
+      { icon: '💬', label: 'Share in #product', toast: 'Posted to #product on Slack' },
+    ],
+  },
+  '5': {
+    subject: 'Design specs ready — settings page redesign',
+    from: 'Maya Lin', email: 'maya@work.com',
+    avatar: 'ML', avatarBg: 'linear-gradient(135deg,#9b6fd6,#7c3aed)',
+    account: 'work', date: 'Yesterday · nandan@work.com',
+    body: `Hey Nandan,<br><br>Design specs for the settings page redesign are in Figma. A few things I need your PM call on before eng picks it up:<br><br>1. <strong>Scope decision:</strong> Do we include the "connected accounts" section in v1 or defer?<br>2. <strong>Copy review:</strong> I used placeholder microcopy — can you finalize the empty states and error messages?<br>3. <strong>Priority call:</strong> We have two layout options for mobile — need your input on which aligns better with the JTBD<br><br>Overall the Figma file is ready for handoff once you sign off. Let's sync tomorrow to finalize.<br><br>— Maya`,
+    actions: ['Review Figma specs and make scope decisions', 'Finalize microcopy for empty states and errors', 'Sync with Maya to finalize handoff'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated' },
+      { icon: '📋', label: 'Create Tasks', toast: '3 Linear tickets created from design specs' },
+      { icon: '📅', label: 'Schedule Sync', toast: 'Meeting scheduled with Maya' },
+    ],
+  },
+  '6': {
+    subject: 'Tax documents ready',
+    from: 'James Wong', email: 'james@taxservices.com',
+    avatar: 'JW', avatarBg: 'linear-gradient(135deg,#059669,#047857)',
+    account: 'personal', date: 'Mar 17 · nandan@gmail.com',
+    body: `Dear Nandan,<br><br>Your 2025 tax documents are ready for download. Please review before the filing deadline of <strong>April 15</strong>.<br><br>Documents included:<br>— Form 16 (TDS Certificate)<br>— Investment Summary<br>— Deduction Worksheet<br><br>Best regards,<br>James Wong`,
+    actions: ['Review tax documents before <strong>April 15</strong>'],
+    quickActions: [
+      { icon: '✍️', label: 'Draft Reply', primary: true, toast: 'Draft reply generated' },
+      { icon: '🔔', label: 'Remind Apr 10', toast: 'Reminder set for April 10' },
+      { icon: '📥', label: 'Download Docs', toast: 'Documents downloaded' },
+    ],
+  },
+  'nudge': {
+    subject: 'User research findings — onboarding drop-off',
+    from: 'Alex Rivera', email: 'alex.r@research.com',
+    avatar: 'AR', avatarBg: 'linear-gradient(135deg,#d65a5a,#c04e4e)',
+    account: 'work', date: 'Yesterday 3:12 PM · nandan@work.com',
+    body: `Hey Nandan,<br><br>Just wrapped up the user research sessions on onboarding. 62% drop-off at the "connect email" step. Need your triage by Thursday.<br><br>— Alex`,
+    actions: ['Reply to Alex — triage onboarding research findings'],
+    quickActions: [
+      { icon: '✍️', label: 'Reply with priorities', primary: true, toast: 'Replied: "Reviewing now, will triage by EOD"' },
+      { icon: '📋', label: 'Create Tickets', toast: 'Linear tickets created' },
+    ],
+  },
+  'k1': {
+    subject: 'Your order #402-8837 has shipped',
+    from: 'Amazon', email: 'ship-confirm@amazon.com',
+    avatar: 'AZ', avatarBg: '#ff9900',
+    account: 'personal', date: '10:15 AM today · nandan@gmail.com',
+    knowCategory: 'Receipts',
+    body: `Hello Nandan,<br><br>Great news! Your order has shipped.<br><br><strong>Order #402-8837</strong><br>"Inspired" by Marty Cagan &amp; "The Mughal Empire" by John F. Richards<br><br>Estimated delivery: <strong>March 22, 2026</strong><br>Carrier: Amazon Logistics<br>Tracking: AZ-4492837<br><br>You can track your package in the Amazon app.<br><br>Thanks for shopping with us!<br>Amazon.com`,
+    actions: ['Track shipment — arriving March 22'],
+    quickActions: [
+      { icon: '📦', label: 'Track Package', primary: true, toast: 'Opening tracking page' },
+      { icon: '🔔', label: 'Remind on delivery', toast: 'Reminder set for March 22' },
+    ],
+  },
+  'k2': {
+    subject: 'Payment of $49.99 received',
+    from: 'Stripe', email: 'receipts@stripe.com',
+    avatar: 'ST', avatarBg: '#635bff',
+    account: 'work', date: '9:40 AM today · nandan@work.com',
+    knowCategory: 'Receipts',
+    body: `Hi Nandan,<br><br>We received a payment of <strong>$49.99</strong> for your subscription.<br><br>Product: EmailZap Pro (Monthly)<br>Date: March 20, 2026<br>Card: Visa ending 4242<br>Invoice: INV-2026-0320<br><br>You can view your receipt at dashboard.stripe.com.<br><br>Thanks,<br>Stripe`,
+    actions: ['Payment confirmed — no action needed'],
+    quickActions: [
+      { icon: '🧾', label: 'View Invoice', primary: true, toast: 'Opening invoice' },
+      { icon: '📥', label: 'Download Receipt', toast: 'Receipt downloaded' },
+    ],
+  },
+  'k3': {
+    subject: 'Flight confirmation — DEL to SFO',
+    from: 'United Airlines', email: 'reservations@united.com',
+    avatar: 'UA', avatarBg: '#0033a0',
+    account: 'personal', date: '8:55 AM today · nandan@gmail.com',
+    knowCategory: 'Travel',
+    body: `Dear Nandan Luthra,<br><br>Your flight is confirmed!<br><br><strong>United Airlines UA 37</strong><br>Delhi (DEL) → San Francisco (SFO)<br>Date: April 5, 2026<br>Departure: 2:30 PM IST<br>Arrival: 6:45 PM PST<br>Seat: 12A (Window)<br>Confirmation: UAXK47<br><br>Check in opens 24 hours before departure.<br><br>Safe travels!<br>United Airlines`,
+    actions: ['Flight confirmed — check in opens April 4'],
+    quickActions: [
+      { icon: '📅', label: 'Add to Calendar', primary: true, toast: 'Flight added to calendar' },
+      { icon: '✈️', label: 'Check In', toast: 'Check-in not yet available' },
+    ],
+  },
+  'k4': {
+    subject: 'Your subscription renewed',
+    from: 'Netflix', email: 'info@netflix.com',
+    avatar: 'NF', avatarBg: '#e50914',
+    account: 'personal', date: 'Yesterday · nandan@gmail.com',
+    knowCategory: 'Receipts',
+    body: `Hi Nandan,<br><br>Your Netflix subscription has been renewed.<br><br>Plan: Standard<br>Amount: <strong>$15.99/month</strong><br>Payment method: Visa ending 4242<br>Next billing date: April 19, 2026<br><br>Enjoy streaming!<br>The Netflix Team`,
+    actions: ['Subscription renewed — $15.99 charged'],
+    quickActions: [
+      { icon: '🧾', label: 'View Receipt', primary: true, toast: 'Opening receipt' },
+      { icon: '⚙️', label: 'Manage Plan', toast: 'Opening Netflix settings' },
+    ],
+  },
+  'k5': {
+    subject: 'Transaction alert — ₹12,500 debited',
+    from: 'HDFC Bank', email: 'alerts@hdfcbank.net',
+    avatar: 'HB', avatarBg: '#004b87',
+    account: 'personal', date: 'Yesterday · nandan@gmail.com',
+    knowCategory: 'Receipts',
+    body: `Dear Customer,<br><br>A transaction has been made from your HDFC Bank account.<br><br>Amount: <strong>₹12,500.00</strong><br>To: Amazon India<br>Date: March 19, 2026<br>Ref: HDFC293847561<br>Available balance: ₹1,24,350.00<br><br>If you did not authorize this transaction, please call our helpline immediately.<br><br>HDFC Bank`,
+    actions: ['₹12,500 debited from HDFC — Amazon India purchase'],
+    quickActions: [
+      { icon: '🧾', label: 'View Statement', primary: true, toast: 'Opening bank statement' },
+      { icon: '🚨', label: 'Report Fraud', toast: 'Opening fraud report form' },
+    ],
+  }
+};
+
+// ═══ SELECT EMAIL ═══
+let openedFromKnow = false;
+function selectEmail(id) {
+  const d = emails[id];
+  if (!d) return;
+  if (!openedFromKnow) {
+    document.getElementById('know-move-banner').classList.remove('visible');
+  }
+  document.getElementById('suggestions-overlay').classList.remove('open');
+  document.getElementById('do-subject').textContent = d.subject;
+  document.getElementById('do-from').textContent = d.from;
+  document.getElementById('do-email').textContent = '<' + d.email + '>';
+  document.getElementById('do-avatar').textContent = d.avatar;
+  document.getElementById('do-avatar').style.background = d.avatarBg;
+  document.getElementById('do-date').textContent = d.date;
+  document.getElementById('do-body').innerHTML = d.body;
+  const accTag = document.getElementById('do-account-tag');
+  accTag.textContent = d.account === 'work' ? 'Work' : 'Personal';
+  accTag.className = 'do-account-tag er-account-tag ' + d.account;
+  const aiBox = document.getElementById('do-action-items');
+  aiBox.innerHTML = '<div class="do-ai-label"><span>⚡</span> Action items detected</div>';
+  d.actions.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'do-ai-item';
+    div.innerHTML = '<span class="do-ai-bullet"></span><span>' + a + '</span>';
+    aiBox.appendChild(div);
+  });
+  const grid = document.getElementById('do-actions-grid');
+  grid.innerHTML = '';
+  d.quickActions.forEach(qa => {
+    const btn = document.createElement('button');
+    btn.className = 'qa-btn' + (qa.primary ? ' primary' : '');
+    btn.innerHTML = '<span>' + qa.icon + '</span> ' + qa.label;
+    btn.onclick = (e) => { e.stopPropagation(); showToast(qa.toast); };
+    grid.appendChild(btn);
+  });
+  // Add to Tasks button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'qa-btn add-task';
+  addBtn.innerHTML = '<span>☑️</span> Add to Tasks';
+  addBtn.onclick = (e) => {
+    e.stopPropagation();
+    addBtn.classList.add('added');
+    addBtn.innerHTML = '<span>✓</span> Added to Tasks';
+    showToast('Added to your task list');
+  };
+  grid.appendChild(addBtn);
+  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('selected'));
+  const row = document.querySelector('[data-email="' + id + '"].email-row');
+  if (row) row.classList.add('selected');
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+// ═══ SELECT KNOW EMAIL ═══
+function selectKnowEmail(id) {
+  openedFromKnow = true;
+  selectEmail(id);
+  const d = emails[id];
+  const banner = document.getElementById('know-move-banner');
+  const bannerText = document.getElementById('know-move-text');
+  if (d && d.knowCategory) {
+    bannerText.textContent = 'This email will be moved to ' + d.knowCategory + ' tab';
+    banner.classList.add('visible');
+  }
+}
+
+// Close detail
+document.getElementById('detail-close').addEventListener('click', () => {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.getElementById('know-move-banner').classList.remove('visible');
+  openedFromKnow = false;
+  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('selected'));
+});
+
+// Email row clicks
+document.querySelectorAll('.email-row, .nudge-row').forEach(el => {
+  el.addEventListener('click', () => {
+    const id = el.dataset.email;
+    if (id) selectEmail(id);
+  });
+});
+
+// ═══ TABS ═══
+document.querySelectorAll('.ez-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ez-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const t = tab.dataset.tab;
+    document.getElementById('sub-travel').classList.toggle('visible', t === 'travel');
+    document.getElementById('sub-newsletters').classList.toggle('visible', t === 'newsletters');
+    const noiseView = document.getElementById('noise-view');
+    const emailList = document.getElementById('email-list');
+    const actionableView = document.getElementById('actionable-view');
+    const knowView = document.getElementById('know-view');
+    noiseView.classList.remove('visible');
+    actionableView.classList.remove('visible');
+    knowView.classList.remove('visible');
+    emailList.style.display = '';
+    // Deactivate topbar buttons
+    document.querySelectorAll('.ez-topbar-btn').forEach(b => b.classList.remove('active'));
+    if (t === 'noise') {
+      noiseView.classList.add('visible');
+      emailList.style.display = 'none';
+    } else if (t === 'actionable') {
+      actionableView.classList.add('visible');
+      emailList.style.display = 'none';
+    } else if (t === 'know') {
+      knowView.classList.add('visible');
+      emailList.style.display = 'none';
+    }
+    document.querySelectorAll('.ez-nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelector('.ez-nav-item[data-view="all-inboxes"]').classList.add('active');
+  });
+});
+
+// Sub-label clicks
+document.querySelectorAll('.sub-label').forEach(sl => {
+  sl.addEventListener('click', () => {
+    sl.parentElement.querySelectorAll('.sub-label').forEach(s => s.classList.remove('active'));
+    sl.classList.add('active');
+  });
+});
+
+// ═══ SUGGESTIONS PANEL ═══
+document.getElementById('nav-suggestions').addEventListener('click', () => {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.getElementById('suggestions-overlay').classList.toggle('open');
+});
+document.getElementById('sg-close').addEventListener('click', () => {
+  document.getElementById('suggestions-overlay').classList.remove('open');
+});
+document.querySelectorAll('.sg-btn.dismiss').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const card = btn.closest('.sg-card');
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(20px)';
+    card.style.transition = 'all 200ms';
+    setTimeout(() => card.remove(), 200);
+  });
+});
+
+// ═══ NAV ITEMS ═══
+document.querySelectorAll('.ez-nav-item[data-view]').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.ez-nav-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    const view = item.dataset.view;
+    const noiseView = document.getElementById('noise-view');
+    const emailList = document.getElementById('email-list');
+    const actionableView = document.getElementById('actionable-view');
+    const knowView = document.getElementById('know-view');
+    noiseView.classList.remove('visible');
+    actionableView.classList.remove('visible');
+    knowView.classList.remove('visible');
+    emailList.style.display = '';
+    document.querySelectorAll('.ez-topbar-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.ez-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('sub-travel').classList.remove('visible');
+    document.getElementById('sub-newsletters').classList.remove('visible');
+    if (view === 'actionable') {
+      actionableView.classList.add('visible');
+      emailList.style.display = 'none';
+      document.querySelector('.ez-tab[data-tab="actionable"]').classList.add('active');
+    } else if (view === 'know') {
+      knowView.classList.add('visible');
+      emailList.style.display = 'none';
+      document.querySelector('.ez-tab[data-tab="know"]').classList.add('active');
+    } else {
+      document.querySelector('.ez-tab[data-tab="all"]').classList.add('active');
+    }
+  });
+});
+
+// ═══ TOP BAR BUTTONS (Automations, Settings) ═══
+document.querySelectorAll('.ez-topbar-btn[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    const wasActive = btn.classList.contains('active');
+    document.querySelectorAll('.ez-topbar-btn').forEach(b => b.classList.remove('active'));
+    if (wasActive) return;
+    btn.classList.add('active');
+    if (view === 'settings' || view === 'automations') {
+      showToast(view === 'settings' ? 'Settings panel coming soon' : 'Automations panel coming soon');
+    }
+  });
+});
+
+// ═══ SEARCH ═══
+document.getElementById('search-trigger').addEventListener('click', () => {
+  document.getElementById('search-overlay').classList.add('visible');
+  document.getElementById('search-input').focus();
+});
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('search-overlay').classList.add('visible');
+    document.getElementById('search-input').focus();
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('search-overlay').classList.remove('visible');
+    document.getElementById('detail-overlay').classList.remove('open');
+    document.getElementById('suggestions-overlay').classList.remove('open');
+    document.getElementById('know-move-banner').classList.remove('visible');
+    openedFromKnow = false;
+    document.querySelectorAll('.email-row').forEach(r => r.classList.remove('selected'));
+  }
+});
+document.getElementById('search-overlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('visible');
+});
+document.getElementById('search-input').addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  const results = document.getElementById('search-results');
+  if (!q) {
+    results.innerHTML = '<div class="sm-hint">Try natural language search<br><em>"What was the hotel booking for my Goa trip?"</em><br><em>"Invoices from last month"</em><br><em>"Anything from Sarah about the launch"</em></div>';
+    return;
+  }
+  let html = '';
+  const searchable = [
+    { q: ['sarah','prd','notifications','sprint'], from: 'Sarah Chen', subj: 'Re: PRD review — notifications feature', time: '9:12 AM', acc: 'nandan@work.com' },
+    { q: ['ipl','priya','cricket','tonight'], from: 'Priya Kapoor', subj: 'IPL tonight — watching at mine?', time: '8:45 AM', acc: 'nandan@gmail.com' },
+    { q: ['contract','david','vendor','analytics','posthog'], from: 'David Park', subj: 'Analytics vendor contract — needs your approval', time: '8:20 AM', acc: 'nandan@work.com' },
+    { q: ['research','alex','onboarding','drop-off','user'], from: 'Alex Rivera', subj: 'User research findings — onboarding drop-off', time: 'Yesterday', acc: 'nandan@work.com' },
+    { q: ['tax','document','james','filing'], from: 'James Wong', subj: 'Tax documents ready', time: 'Mar 17', acc: 'nandan@gmail.com' },
+    { q: ['design','maya','specs','settings','figma'], from: 'Maya Lin', subj: 'Design specs ready — settings page redesign', time: 'Yesterday', acc: 'nandan@work.com' },
+  ];
+  searchable.forEach(s => {
+    if (s.q.some(k => q.includes(k))) {
+      const initials = s.from.split(' ').map(w => w[0]).join('');
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;" onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text2);flex-shrink:0;">${initials}</div>
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:500;color:var(--text);">${s.from}</div><div style="font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.subj}</div></div>
+        <div style="text-align:right;flex-shrink:0;"><div style="font-size:11px;color:var(--text3);">${s.time}</div><div style="font-size:9px;color:var(--text3);">${s.acc}</div></div>
+      </div>`;
+    }
+  });
+  results.innerHTML = html || '<div class="sm-hint" style="padding:14px;">Searching all accounts...<br><em style="color:var(--text3);">No results yet</em></div>';
+});
+
+// ═══ STAR TOGGLE ═══
+document.querySelectorAll('.er-star').forEach(star => {
+  star.addEventListener('click', (e) => {
+    e.stopPropagation();
+    star.classList.toggle('starred');
+    star.textContent = star.classList.contains('starred') ? '★' : '☆';
+  });
+});
+
+// ═══ NOISE ACTIONS ═══
+function toggleDropdown(btn) {
+  document.querySelectorAll('.ne-dropdown.open').forEach(d => {
+    if (d !== btn.querySelector('.ne-dropdown')) d.classList.remove('open');
+  });
+  btn.querySelector('.ne-dropdown').classList.toggle('open');
+}
+function moveNoise(item, category) {
+  const row = item.closest('.noise-email-row');
+  const sender = row.querySelector('.ne-sender2').textContent;
+  showToast('Moved "' + sender + '" to ' + category + ' — future emails will go there too');
+  row.style.opacity = '0'; row.style.transform = 'translateX(-20px)';
+  row.style.transition = 'all 200ms';
+  setTimeout(() => row.remove(), 200);
+}
+function blockNoise(btn, sender) {
+  const row = btn.closest('.noise-email-row');
+  showToast(sender + ' blocked forever');
+  row.style.opacity = '0'; row.style.transform = 'translateX(20px)';
+  row.style.transition = 'all 200ms';
+  setTimeout(() => row.remove(), 200);
+}
+document.addEventListener('click', () => {
+  document.querySelectorAll('.ne-dropdown.open').forEach(d => d.classList.remove('open'));
+});
+
+// ═══ EMAIL DETAIL CHAT ═══
+function sendEmailChat() {
+  const input = document.getElementById('do-chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  showToast('Got it: "' + msg + '" — working on it...');
+  input.value = '';
+}
+document.getElementById('do-chat-send').addEventListener('click', sendEmailChat);
+document.getElementById('do-chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendEmailChat(); });
+document.querySelectorAll('.do-chat-hint').forEach(hint => {
+  hint.addEventListener('click', () => {
+    document.getElementById('do-chat-input').value = hint.dataset.msg;
+    sendEmailChat();
+  });
+});
+
+// ═══ GLOBAL CHATBOT ═══
+document.getElementById('chat-fab').addEventListener('click', () => {
+  document.getElementById('chat-panel').classList.toggle('open');
+});
+document.getElementById('chat-panel-close').addEventListener('click', () => {
+  document.getElementById('chat-panel').classList.remove('open');
+});
+function sendGlobalChat() {
+  const input = document.getElementById('chat-global-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const messages = document.getElementById('chat-messages');
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-msg user';
+  userMsg.textContent = msg;
+  messages.appendChild(userMsg);
+  input.value = '';
+  document.getElementById('chat-suggestions').style.display = 'none';
+  setTimeout(() => {
+    const reply = document.createElement('div');
+    reply.className = 'chat-msg assistant';
+    const lower = msg.toLowerCase();
+    if (lower.includes('summarize') || lower.includes('summary')) {
+      reply.textContent = 'You have 5 actionable items. Today: Alex\'s user research on onboarding drop-off needs triage by Thursday, Sarah needs your PRD sign-off by Friday, and Priya wants to confirm IPL watch plans. This week: Maya\'s design specs for settings page and David\'s analytics vendor contract (due Mar 25).';
+    } else if (lower.includes('urgent')) {
+      reply.textContent = 'Most urgent: Triage Alex Rivera\'s onboarding research findings — 62% drop-off at connect step, due Thursday. Also, Sarah Chen needs your PRD sign-off for the notifications feature by Friday.';
+    } else if (lower.includes('reply') && lower.includes('sarah')) {
+      reply.textContent = 'Done! I\'ve drafted a reply to Sarah: "Thanks Sarah, I\'ll review the PRD and sign off by Thursday. Let\'s cut smart grouping from v1 and handle the edge case async with design." Want me to send it?';
+    } else if (lower.includes('block') && lower.includes('promo')) {
+      reply.textContent = 'Done! I\'ve blocked all promotional emails. 12 senders have been auto-blocked. You can manage this in Automations anytime.';
+    } else if (lower.includes('goa') || lower.includes('hotel') || lower.includes('booking')) {
+      reply.textContent = 'Found it! Your Goa trip booking is at The Leela, Cavelossim — check-in March 22, check-out March 26. Confirmation #LG-449821. From nandan@gmail.com.';
+    } else {
+      reply.textContent = 'On it! I\'ll take care of "' + msg + '" right now.';
+    }
+    messages.appendChild(reply);
+    messages.scrollTop = messages.scrollHeight;
+  }, 600);
+  messages.scrollTop = messages.scrollHeight;
+}
+document.getElementById('chat-global-send').addEventListener('click', sendGlobalChat);
+document.getElementById('chat-global-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendGlobalChat(); });
+document.querySelectorAll('.chat-suggestion').forEach(s => {
+  s.addEventListener('click', () => {
+    document.getElementById('chat-global-input').value = s.dataset.msg;
+    sendGlobalChat();
+  });
+});
+
+// ═══ TOAST ═══
+let toastTimer;
+function showToast(msg) {
+  clearTimeout(toastTimer);
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('visible');
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 3000);
+}
+
+// ═══ ACTIONABLE — row clicks already handled via onclick ═══
+
+// ═══ ACTIONABLE COMPLETION ═══
+let completedCount = 0;
+function completeActionable(checkEl) {
+  const row = checkEl.closest('.actionable-email-row');
+  const emailId = row.dataset.email;
+
+  // Mark checkbox
+  checkEl.classList.add('done');
+  checkEl.textContent = '✓';
+
+  // Animate row out and move to completed
+  row.style.transition = 'opacity 300ms, transform 300ms';
+  row.style.opacity = '0';
+  row.style.transform = 'translateX(-20px)';
+
+  setTimeout(() => {
+    // Clone row to completed section
+    const clone = row.cloneNode(true);
+    clone.style.opacity = '';
+    clone.style.transform = '';
+    // Remove the check click handler from clone (already completed)
+    const cloneCheck = clone.querySelector('.actionable-check');
+    if (cloneCheck) {
+      cloneCheck.classList.add('done');
+      cloneCheck.textContent = '✓';
+      cloneCheck.onclick = null;
+      cloneCheck.style.pointerEvents = 'none';
+    }
+    document.getElementById('completed-items').appendChild(clone);
+
+    // Remove original row
+    row.remove();
+
+    // Update completed count
+    completedCount++;
+    document.getElementById('completed-count').textContent = '(' + completedCount + ')';
+
+    // Update label in All view to "Actioned"
+    const labelEl = document.querySelector('[data-email-label="' + emailId + '"]');
+    if (labelEl) {
+      labelEl.textContent = 'Actioned';
+      labelEl.className = 'er-label actioned';
+    }
+
+    showToast('Marked as completed');
+  }, 300);
+}
+
+function toggleCompleted() {
+  const items = document.getElementById('completed-items');
+  const arrow = document.getElementById('completed-arrow');
+  items.classList.toggle('visible');
+  arrow.classList.toggle('expanded');
+}
+
+// ═══ HOVER ACTIONS (Block forever, Always show in) ═══
+function blockForever(btn) {
+  const row = btn.closest('.email-row') || btn.closest('.actionable-email-row') || btn.closest('.noise-email-row');
+  const sender = row.querySelector('.er-sender')?.textContent || row.querySelector('.ne-sender2')?.textContent || 'Sender';
+  showToast(sender + ' blocked forever');
+  row.style.opacity = '0'; row.style.transform = 'translateX(20px)';
+  row.style.transition = 'all 200ms';
+  setTimeout(() => row.remove(), 200);
+}
+
+function toggleShowInDropdown(btn) {
+  // Close all other dropdowns first
+  document.querySelectorAll('.er-hover-dropdown.open').forEach(d => {
+    if (d !== btn.querySelector('.er-hover-dropdown')) d.classList.remove('open');
+  });
+  btn.querySelector('.er-hover-dropdown').classList.toggle('open');
+}
+
+function showInCategory(item, category) {
+  const row = item.closest('.email-row') || item.closest('.actionable-email-row');
+  const sender = row?.querySelector('.er-sender')?.textContent || 'Sender';
+  showToast('Emails from ' + sender + ' will always show in ' + category);
+  // Close dropdown
+  item.closest('.er-hover-dropdown').classList.remove('open');
+}
+
+function createNewCategory(item) {
+  const name = prompt('New category name:');
+  if (name) {
+    showToast('Category "' + name + '" created');
+  }
+  item.closest('.er-hover-dropdown').classList.remove('open');
+}
+
+// Close hover dropdowns on outside click
+document.addEventListener('click', () => {
+  document.querySelectorAll('.er-hover-dropdown.open').forEach(d => d.classList.remove('open'));
+});
+</script>
+
+</body>
+</html>
