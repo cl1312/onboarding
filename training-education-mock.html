@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap — Training Education Mock</title>
+<style>
+:root {
+  --blue: #d65a5a;
+  --blue-lt: #f5eded;
+  --text: #1d1d1f;
+  --text2: #4a4a4a;
+  --text3: #86868b;
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --hover: #f5f5f7;
+  --border: #e8e8ed;
+  --border-lt: #f0f0f5;
+  --danger: #d65a5a;
+  --danger-lt: #fef2f2;
+  --success: #34c759;
+  --success-lt: #ecfdf5;
+  --ai: #d65a5a;
+  --ai-lt: #fef7f7;
+  --ai-mid: #c04e4e;
+  --ai-border: #f0d0d0;
+  --ai-gradient: linear-gradient(135deg, #d65a5a, #c07878);
+  --acct-work: #5a8fd6;
+  --acct-personal: #4cd964;
+  --sh-sm: 0 1px 3px rgba(0,0,0,.04);
+  --sh-md: 0 4px 12px rgba(0,0,0,.06);
+  --sh-lg: 0 8px 28px rgba(0,0,0,.1);
+  --r-xl: 16px;
+  --r-lg: 12px;
+  --r-md: 10px;
+  --r-sm: 8px;
+  --r-xs: 6px;
+  --r-pill: 999px;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  --t-fast: 120ms;
+  --t-med: 200ms;
+  --t-slow: 300ms;
+  --topbar-h: 52px;
+  --tabbar-h: 42px;
+  --important: #e8a82e;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: #e8eaed;
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ═══ SCREEN NAVIGATION ═══ */
+.screen-nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: #1d1d1f;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; height: 44px; z-index: 500;
+  padding: 0 20px;
+}
+.screen-nav-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .1em; color: rgba(255,255,255,.4);
+  margin-right: 16px;
+}
+.screen-btn {
+  height: 44px; padding: 0 20px;
+  font-size: 12px; font-weight: 500; color: rgba(255,255,255,.5);
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font); transition: all var(--t-fast);
+  border-bottom: 2px solid transparent;
+  display: flex; align-items: center; gap: 6px;
+}
+.screen-btn:hover { color: rgba(255,255,255,.8); }
+.screen-btn.active { color: #fff; border-bottom-color: var(--ai); }
+.screen-btn .step-num {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600;
+}
+.screen-btn.active .step-num { background: var(--ai); }
+
+/* ═══ SCREENS ═══ */
+.screen { display: none; height: calc(100vh - 44px); margin-top: 44px; overflow-y: auto; }
+.screen.visible { display: flex; }
+
+/* ═══════════════════════════════════
+   SCREEN 1: EMAIL IN GMAIL INBOX
+═══════════════════════════════════ */
+.gmail-shell {
+  width: 100%; height: 100%;
+  background: #fff;
+  display: flex; flex-direction: column;
+}
+.gmail-topbar {
+  height: 64px; padding: 0 16px;
+  display: flex; align-items: center; gap: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.gmail-logo { display: flex; align-items: center; gap: 8px; }
+.gmail-logo img { height: 28px; }
+.gmail-logo-text { font-size: 22px; font-weight: 400; color: #5f6368; letter-spacing: -.5px; }
+.gmail-logo-text span { color: #1a73e8; font-weight: 500; }
+.gmail-search {
+  flex: 1; max-width: 720px;
+  background: #f1f3f4; border-radius: 8px;
+  height: 46px; display: flex; align-items: center;
+  padding: 0 16px; gap: 12px;
+}
+.gmail-search-icon { color: #5f6368; font-size: 18px; }
+.gmail-search input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 16px; color: #202124; font-family: 'Google Sans', Arial, sans-serif;
+}
+.gmail-search input::placeholder { color: #5f6368; }
+
+.gmail-body { display: flex; flex: 1; overflow: hidden; }
+.gmail-sidebar {
+  width: 72px; padding: 8px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.gmail-sidebar-btn {
+  width: 56px; height: 32px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; transition: background var(--t-fast);
+  border: none; background: none; color: #444;
+}
+.gmail-sidebar-btn:hover { background: #e8eaed; }
+.gmail-sidebar-btn.active { background: #d3e3fd; color: #001d35; }
+.gmail-sidebar-label {
+  font-size: 10px; color: #444; text-align: center;
+  margin-bottom: 8px; font-weight: 500;
+}
+
+.gmail-inbox { flex: 1; overflow-y: auto; border-left: 1px solid #e0e0e0; }
+.gmail-inbox-header {
+  padding: 8px 16px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.gmail-inbox-header .checkbox {
+  width: 18px; height: 18px; border: 2px solid #c4c7c5;
+  border-radius: 2px; cursor: pointer;
+}
+.gmail-inbox-header .refresh {
+  font-size: 18px; color: #5f6368; cursor: pointer;
+  background: none; border: none; padding: 4px;
+}
+
+.gmail-tabs {
+  display: flex; border-bottom: 1px solid #e0e0e0;
+}
+.gmail-tab {
+  padding: 12px 24px; font-size: 13px; font-weight: 500;
+  color: #5f6368; cursor: pointer; border-bottom: 3px solid transparent;
+  transition: all var(--t-fast); background: none; border-top: none;
+  border-left: none; border-right: none; font-family: 'Google Sans', Arial, sans-serif;
+}
+.gmail-tab:hover { background: #f6f8fc; }
+.gmail-tab.active { color: #1a73e8; border-bottom-color: #1a73e8; }
+
+/* Gmail email rows */
+.gmail-row {
+  display: flex; align-items: center;
+  padding: 0 16px; height: 40px; cursor: pointer;
+  border-bottom: 1px solid #f1f3f4;
+  transition: box-shadow var(--t-fast);
+}
+.gmail-row:hover { box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); z-index: 1; }
+.gmail-row.unread { background: #f2f6fc; }
+.gmail-row.unread .gr-sender { font-weight: 700; color: #202124; }
+.gmail-row.highlight {
+  background: #fff8e1;
+  border-left: 3px solid var(--ai);
+  animation: pulseHighlight 2s ease-in-out;
+}
+@keyframes pulseHighlight {
+  0% { background: #fff3cd; }
+  50% { background: #fff8e1; }
+  100% { background: #fff8e1; }
+}
+.gr-checkbox { width: 20px; flex-shrink: 0; }
+.gr-checkbox input { display: none; }
+.gr-star { width: 20px; flex-shrink: 0; font-size: 16px; color: #c4c7c5; cursor: pointer; }
+.gr-avatar-small {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #fff;
+  flex-shrink: 0; margin-right: 10px;
+}
+.gr-sender {
+  width: 170px; flex-shrink: 0; font-size: 14px; color: #5f6368;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.gr-content {
+  flex: 1; display: flex; align-items: center; gap: 4px;
+  min-width: 0;
+}
+.gr-subject { font-size: 14px; color: #202124; white-space: nowrap; }
+.gr-snippet { font-size: 14px; color: #5f6368; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gr-snippet::before { content: ' — '; color: #5f6368; }
+.gr-time { font-size: 12px; color: #5f6368; flex-shrink: 0; margin-left: 8px; white-space: nowrap; }
+.gr-time.unread { font-weight: 700; color: #202124; }
+.gr-label {
+  font-size: 10px; font-weight: 600; padding: 1px 6px;
+  border-radius: 3px; flex-shrink: 0; margin-left: 8px;
+}
+.gr-label.emailzap {
+  background: linear-gradient(135deg, #d65a5a, #c07878);
+  color: #fff;
+}
+
+/* ═══════════════════════════════════
+   SCREEN 2: EMAIL OPENED
+═══════════════════════════════════ */
+.email-view {
+  width: 100%; max-width: 680px;
+  margin: 40px auto; padding: 0 24px;
+}
+.email-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.04);
+  overflow: hidden;
+}
+.email-header-bar {
+  padding: 20px 28px 0;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.email-ez-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--ai-gradient);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; flex-shrink: 0; margin-top: 2px;
+}
+.email-header-info { flex: 1; }
+.email-subject {
+  font-size: 20px; font-weight: 600; color: var(--text);
+  font-family: var(--font-display); letter-spacing: -.02em;
+  line-height: 1.3; margin-bottom: 4px;
+}
+.email-from-line {
+  font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 6px;
+}
+.email-from-name { font-weight: 600; color: var(--text); }
+.email-from-addr { color: var(--text3); }
+.email-date { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+.email-body-content {
+  padding: 24px 28px 28px;
+}
+.email-body-content p {
+  font-size: 15px; line-height: 1.7; color: #333;
+  margin-bottom: 16px;
+}
+.email-body-content .greeting-line {
+  font-size: 15px; color: #333; margin-bottom: 16px;
+}
+.email-body-content .signoff {
+  font-size: 15px; color: #333; margin-top: 24px;
+}
+.email-body-content .signoff-name {
+  font-weight: 600; color: var(--text);
+}
+
+/* Inline visual: training how-to */
+.training-visual {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 20px;
+  margin: 20px 0;
+}
+.tv-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--ai);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+.tv-label .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--ai);
+}
+
+/* Mini email row inside the visual */
+.tv-row {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.tv-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; color: #fff; flex-shrink: 0;
+}
+.tv-sender { font-size: 12px; font-weight: 600; width: 100px; flex-shrink: 0; }
+.tv-subject { font-size: 12px; color: var(--text2); flex: 1; }
+.tv-badge {
+  font-size: 9px; font-weight: 700; padding: 2px 8px;
+  border-radius: var(--r-pill); flex-shrink: 0;
+}
+.tv-badge.imp { background: rgba(232,168,46,.12); color: #b8860b; }
+.tv-badge.nimp { background: var(--danger-lt); color: var(--danger); }
+
+/* Toggle buttons that appear on hover of tv-row */
+.tv-toggle-area {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  display: none; gap: 4px; align-items: center;
+}
+.tv-row:hover .tv-toggle-area { display: flex; }
+.tv-row:hover .tv-badge { opacity: 0; }
+.tv-toggle-btn {
+  font-size: 10px; padding: 4px 10px; border-radius: var(--r-xs);
+  border: 1px solid var(--border); background: #fff; color: var(--text3);
+  cursor: pointer; font-family: var(--font); transition: all var(--t-fast);
+  white-space: nowrap;
+}
+.tv-toggle-btn:hover { border-color: #bbb; color: var(--text2); }
+.tv-toggle-btn.mark-imp:hover { border-color: #e8a82e; color: #b8860b; background: rgba(232,168,46,.08); }
+.tv-toggle-btn.mark-nimp:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-lt); }
+
+.tv-caption {
+  font-size: 11px; color: var(--text3); text-align: center;
+  margin-top: 8px; line-height: 1.5;
+}
+.tv-caption strong { color: var(--text2); font-weight: 600; }
+
+/* CTA button */
+.email-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px; border-radius: var(--r-pill);
+  background: var(--ai-gradient); color: #fff;
+  font-size: 14px; font-weight: 600; text-decoration: none;
+  border: none; cursor: pointer; font-family: var(--font);
+  box-shadow: 0 4px 16px rgba(214,90,90,.3);
+  transition: all var(--t-med);
+  margin-top: 4px;
+}
+.email-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(214,90,90,.4); }
+.email-cta .arrow { font-size: 16px; }
+
+.email-footer {
+  padding: 20px 28px;
+  border-top: 1px solid var(--border-lt);
+  background: #fafafa;
+}
+.email-footer p {
+  font-size: 11px; color: var(--text3); line-height: 1.6; margin: 0;
+}
+.email-footer a { color: var(--ai); text-decoration: none; }
+
+/* ═══════════════════════════════════
+   SCREEN 3: IN-APP TRAINING NUDGE
+═══════════════════════════════════ */
+.app-shell {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+}
+.topbar {
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 16px; flex-shrink: 0;
+}
+.topbar-logo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 600;
+  font-family: var(--font-display); flex-shrink: 0;
+}
+.topbar-logo-mark {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--ai-gradient);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px;
+}
+.topbar-search {
+  flex: 1; max-width: 420px;
+  display: flex; align-items: center;
+  background: var(--hover); border: 1px solid var(--border);
+  border-radius: var(--r-sm); height: 34px;
+  padding: 0 12px; gap: 8px; cursor: pointer;
+  margin-left: auto;
+}
+.topbar-search input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 12.5px; font-family: var(--font); color: var(--text);
+}
+.topbar-search input::placeholder { color: #aaa; }
+.topbar-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--acct-work);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 11px; font-weight: 600; cursor: pointer;
+  margin-left: 4px;
+}
+
+.tabbar {
+  height: var(--tabbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: stretch;
+  padding: 0 20px; flex-shrink: 0;
+}
+.tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 16px; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: var(--text3);
+  border-bottom: 2px solid transparent;
+  user-select: none;
+}
+.tab:hover { color: var(--text2); }
+.tab.active { color: var(--text); border-bottom-color: var(--ai); font-weight: 600; }
+.tab-badge {
+  font-size: 10px; font-weight: 600;
+  padding: 1px 6px; border-radius: 10px;
+  background: var(--hover); color: var(--text3);
+}
+.tab.active .tab-badge { background: rgba(214,90,90,.1); color: var(--ai); }
+
+.content-area {
+  flex: 1; overflow-y: auto; background: var(--bg);
+}
+.tab-inner { max-width: 740px; margin: 0 auto; padding: 28px 24px 60px; }
+
+/* All tab email list */
+.all-email-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: visible;
+}
+.all-email-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background var(--t-fast);
+  border-bottom: 1px solid var(--border-lt);
+  position: relative;
+}
+.all-email-row:first-child { border-radius: var(--r-md) var(--r-md) 0 0; }
+.all-email-row:last-child { border-bottom: none; border-radius: 0 0 var(--r-md) var(--r-md); }
+.all-email-row:hover { background: var(--hover); }
+.all-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0;
+}
+.all-sender {
+  font-size: 12.5px; font-weight: 500; color: var(--text);
+  width: 130px; flex-shrink: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.all-subject {
+  font-size: 12.5px; color: var(--text2); flex: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0;
+}
+.all-category-tag {
+  font-size: 9px; font-weight: 600; padding: 2px 7px;
+  border-radius: var(--r-pill); flex-shrink: 0; white-space: nowrap;
+}
+.all-category-tag.imp { background: rgba(232,168,46,.1); color: #b8860b; }
+.all-category-tag.nimp { background: var(--danger-lt); color: var(--danger); }
+.all-category-tag.act { background: rgba(214,90,90,.1); color: var(--ai); }
+.all-time { font-size: 11px; color: var(--text3); flex-shrink: 0; white-space: nowrap; }
+
+/* Hover actions on email rows */
+.row-hover-actions {
+  position: absolute; top: 50%; right: 14px; transform: translateY(-50%);
+  display: none; gap: 4px; align-items: center; z-index: 2;
+}
+.all-email-row:hover .row-hover-actions { display: flex; }
+.all-email-row:hover .all-time { opacity: 0; }
+.all-email-row:hover .all-category-tag { opacity: 0; }
+.row-hover-btn {
+  font-size: 10px; padding: 4px 8px; border-radius: var(--r-xs);
+  border: 1px solid var(--border); background: #fff; color: var(--text3);
+  cursor: pointer; font-family: var(--font); transition: all var(--t-fast);
+  white-space: nowrap;
+}
+.row-hover-btn:hover { border-color: #bbb; color: var(--text2); }
+.row-hover-btn.mark-imp:hover { border-color: #e8a82e; color: #b8860b; background: rgba(232,168,46,.08); }
+.row-hover-btn.mark-nimp:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-lt); }
+
+/* ═══ THE TRAINING NUDGE TOOLTIP ═══ */
+.training-nudge {
+  position: absolute;
+  top: -68px; right: 6px;
+  background: #1d1d1f;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  font-size: 12px; line-height: 1.5;
+  width: 260px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  z-index: 20;
+  animation: nudgeFadeIn 500ms ease-out;
+}
+.training-nudge::after {
+  content: '';
+  position: absolute; bottom: -6px; right: 40px;
+  width: 12px; height: 12px;
+  background: #1d1d1f;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+.training-nudge .nudge-text { margin-bottom: 6px; }
+.training-nudge .nudge-text strong { color: #fff; font-weight: 600; }
+.training-nudge .nudge-dismiss {
+  font-size: 11px; color: rgba(255,255,255,.5);
+  cursor: pointer; background: none; border: none;
+  font-family: var(--font); padding: 0;
+  transition: color var(--t-fast);
+}
+.training-nudge .nudge-dismiss:hover { color: rgba(255,255,255,.8); }
+
+@keyframes nudgeFadeIn {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Nudge pulse ring on the hover action area */
+.nudge-ring {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 26px; height: 26px; border-radius: 50%;
+  z-index: 15;
+  pointer-events: none;
+}
+.nudge-ring::before {
+  content: '';
+  position: absolute; inset: 0;
+  border: 2px solid var(--ai);
+  border-radius: 50%;
+  animation: ringPulse 2s ease-in-out infinite;
+}
+@keyframes ringPulse {
+  0% { transform: scale(1); opacity: .7; }
+  50% { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Trust banner */
+.all-trust-banner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 12px; color: var(--text3);
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ═══ SCREEN 2 WRAPPER ═══ */
+.screen-2-bg {
+  background: #f5f5f7;
+  width: 100%; height: 100%;
+  display: flex; align-items: flex-start; justify-content: center;
+  overflow-y: auto;
+}
+
+/* ═══ TOAST ═══ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #333; color: #fff;
+  padding: 10px 20px; border-radius: var(--r-sm);
+  font-size: 13px; box-shadow: var(--sh-lg);
+  z-index: 300; display: flex; align-items: center; gap: 8px;
+  transition: transform 300ms cubic-bezier(.34,1.56,.64,1), opacity 300ms;
+  opacity: 0; pointer-events: none;
+}
+.toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ═══ SCREEN NAV ═══ -->
+<div class="screen-nav">
+  <span class="screen-nav-label">Mock Screens</span>
+  <button class="screen-btn active" onclick="showScreen(1)">
+    <span class="step-num">1</span> Email in Inbox
+  </button>
+  <button class="screen-btn" onclick="showScreen(2)">
+    <span class="step-num">2</span> Email Opened
+  </button>
+  <button class="screen-btn" onclick="showScreen(3)">
+    <span class="step-num">3</span> In-App Nudge
+  </button>
+</div>
+
+<!-- ═════════════════════════════════════════
+     SCREEN 1: EMAIL IN GMAIL INBOX
+═════════════════════════════════════════ -->
+<div class="screen visible" id="screen-1">
+  <div class="gmail-shell">
+    <div class="gmail-topbar">
+      <div class="gmail-logo">
+        <span style="font-size:28px;">📧</span>
+        <span class="gmail-logo-text"><span>G</span>mail</span>
+      </div>
+      <div class="gmail-search">
+        <span class="gmail-search-icon">🔍</span>
+        <input type="text" placeholder="Search mail">
+      </div>
+    </div>
+    <div class="gmail-body">
+      <div class="gmail-sidebar">
+        <button class="gmail-sidebar-btn active" title="Inbox">📥</button>
+        <span class="gmail-sidebar-label">Inbox</span>
+        <button class="gmail-sidebar-btn" title="Starred">⭐</button>
+        <span class="gmail-sidebar-label">Starred</span>
+        <button class="gmail-sidebar-btn" title="Sent">📤</button>
+        <span class="gmail-sidebar-label">Sent</span>
+      </div>
+      <div class="gmail-inbox">
+        <div class="gmail-tabs">
+          <button class="gmail-tab active">Primary</button>
+          <button class="gmail-tab">Promotions</button>
+          <button class="gmail-tab">Social</button>
+        </div>
+
+        <!-- EmailZap email — highlighted -->
+        <div class="gmail-row unread highlight" onclick="showScreen(2)" style="cursor:pointer;">
+          <span class="gr-checkbox"><input type="checkbox"></span>
+          <span class="gr-star">☆</span>
+          <span class="gr-avatar-small" style="background: linear-gradient(135deg, #d65a5a, #c07878);">⚡</span>
+          <span class="gr-sender" style="font-weight:700; color:#202124;">EmailZap</span>
+          <span class="gr-content">
+            <span class="gr-subject" style="font-weight:700;">We sorted your inbox — did we get it right?</span>
+            <span class="gr-snippet">Hey! Your inbox has been processed and importance labels are live. Some might be off — here's how to fix them in 2 seconds</span>
+          </span>
+          <span class="gr-label emailzap">EmailZap</span>
+          <span class="gr-time unread">2:34 PM</span>
+        </div>
+
+        <!-- Other emails for context -->
+        <div class="gmail-row unread">
+          <span class="gr-checkbox"><input type="checkbox"></span>
+          <span class="gr-star">☆</span>
+          <span class="gr-avatar-small" style="background:#1a73e8;">G</span>
+          <span class="gr-sender" style="font-weight:700; color:#202124;">Google Cloud</span>
+          <span class="gr-content">
+            <span class="gr-subject" style="font-weight:700;">Your March invoice is ready</span>
+            <span class="gr-snippet">Your Google Cloud invoice for March 2026 is now available for download</span>
+          </span>
+          <span class="gr-time unread">1:15 PM</span>
+        </div>
+
+        <div class="gmail-row">
+          <span class="gr-checkbox"><input type="checkbox"></span>
+          <span class="gr-star">☆</span>
+          <span class="gr-avatar-small" style="background:#34a853;">S</span>
+          <span class="gr-sender">Stripe</span>
+          <span class="gr-content">
+            <span class="gr-subject">Payment receipt for $49.00</span>
+            <span class="gr-snippet">Your payment of $49.00 has been successfully processed</span>
+          </span>
+          <span class="gr-time">12:42 PM</span>
+        </div>
+
+        <div class="gmail-row">
+          <span class="gr-checkbox"><input type="checkbox"></span>
+          <span class="gr-star">☆</span>
+          <span class="gr-avatar-small" style="background:#ea4335;">N</span>
+          <span class="gr-sender">Notion</span>
+          <span class="gr-content">
+            <span class="gr-subject">Weekly digest: 4 pages updated</span>
+            <span class="gr-snippet">Here's what changed in your workspace this week</span>
+          </span>
+          <span class="gr-time">11:30 AM</span>
+        </div>
+
+        <div class="gmail-row">
+          <span class="gr-checkbox"><input type="checkbox"></span>
+          <span class="gr-star">☆</span>
+          <span class="gr-avatar-small" style="background:#5a8fd6;">A</span>
+          <span class="gr-sender">Alex Morrison</span>
+          <span class="gr-content">
+            <span class="gr-subject">Re: Q2 planning doc</span>
+            <span class="gr-snippet">Looks good to me, let's discuss in tomorrow's standup</span>
+          </span>
+          <span class="gr-time">10:08 AM</span>
+        </div>
+
+        <div class="gmail-row">
+          <span class="gr-checkbox"><input type="checkbox"></span>
+          <span class="gr-star">☆</span>
+          <span class="gr-avatar-small" style="background:#f9ab00;">L</span>
+          <span class="gr-sender">Linear</span>
+          <span class="gr-content">
+            <span class="gr-subject">3 issues assigned to you</span>
+            <span class="gr-snippet">EMA-612, EMA-615, EMA-618 have been assigned to you</span>
+          </span>
+          <span class="gr-time">9:45 AM</span>
+        </div>
+
+        <div class="gmail-row">
+          <span class="gr-checkbox"><input type="checkbox"></span>
+          <span class="gr-star">☆</span>
+          <span class="gr-avatar-small" style="background:#a142f4;">F</span>
+          <span class="gr-sender">Figma</span>
+          <span class="gr-content">
+            <span class="gr-subject">You were mentioned in "Homepage Redesign"</span>
+            <span class="gr-snippet">Priya left a comment: "Can we try the darker variant here?"</span>
+          </span>
+          <span class="gr-time">Yesterday</span>
+        </div>
+
+        <div class="gmail-row">
+          <span class="gr-checkbox"><input type="checkbox"></span>
+          <span class="gr-star">☆</span>
+          <span class="gr-avatar-small" style="background:#0077b5;">L</span>
+          <span class="gr-sender">LinkedIn</span>
+          <span class="gr-content">
+            <span class="gr-subject">Sarah Chen viewed your profile</span>
+            <span class="gr-snippet">See who's looking at your profile and more</span>
+          </span>
+          <span class="gr-time">Yesterday</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════
+     SCREEN 2: EMAIL OPENED
+═════════════════════════════════════════ -->
+<div class="screen" id="screen-2">
+  <div class="screen-2-bg">
+    <div class="email-view">
+      <div class="email-container">
+        <div class="email-header-bar">
+          <div class="email-ez-avatar">⚡</div>
+          <div class="email-header-info">
+            <div class="email-subject">We sorted your inbox — did we get it right?</div>
+            <div class="email-from-line">
+              <span class="email-from-name">EmailZap</span>
+              <span class="email-from-addr">&lt;hello@emailzap.com&gt;</span>
+            </div>
+            <div class="email-date">Today, 2:34 PM · to me</div>
+          </div>
+        </div>
+
+        <div class="email-body-content">
+          <p class="greeting-line">Hey there 👋</p>
+
+          <p>Your inbox has been processed — every email now has an importance label. You'll see emails marked as <strong style="color:#b8860b;">Important</strong> or <strong style="color:#d65a5a;">Not Important</strong> in your EmailZap view.</p>
+
+          <p>Here's the thing: <strong>we probably got a few wrong.</strong></p>
+
+          <p>That's expected — and easy to fix. When you hover over any email, you can change its importance with one click. This teaches EmailZap what matters to you, and it applies to <strong>all future emails from that sender.</strong></p>
+
+          <!-- Interactive visual showing how training works -->
+          <div class="training-visual">
+            <div class="tv-label"><span class="dot"></span> How it works</div>
+
+            <div class="tv-row" id="tv-row-1">
+              <span class="tv-avatar" style="background:#5a8fd6;">A</span>
+              <span class="tv-sender">Amazon</span>
+              <span class="tv-subject">Your order #1284 has shipped</span>
+              <span class="tv-badge nimp" id="tv-badge-1">Not Important</span>
+              <div class="tv-toggle-area">
+                <button class="tv-toggle-btn mark-imp" onclick="trainDemo(1, 'imp')">✓ Important</button>
+                <button class="tv-toggle-btn mark-nimp" onclick="trainDemo(1, 'nimp')">✗ Not Important</button>
+              </div>
+            </div>
+
+            <div class="tv-row" id="tv-row-2">
+              <span class="tv-avatar" style="background:#ea4335;">N</span>
+              <span class="tv-sender">Netflix</span>
+              <span class="tv-subject">New arrivals you might like</span>
+              <span class="tv-badge nimp" id="tv-badge-2">Not Important</span>
+              <div class="tv-toggle-area">
+                <button class="tv-toggle-btn mark-imp" onclick="trainDemo(2, 'imp')">✓ Important</button>
+                <button class="tv-toggle-btn mark-nimp" onclick="trainDemo(2, 'nimp')">✗ Not Important</button>
+              </div>
+            </div>
+
+            <div class="tv-row" id="tv-row-3">
+              <span class="tv-avatar" style="background:#34a853;">S</span>
+              <span class="tv-sender">Slack</span>
+              <span class="tv-subject">New message from #engineering</span>
+              <span class="tv-badge imp" id="tv-badge-3">Important</span>
+              <div class="tv-toggle-area">
+                <button class="tv-toggle-btn mark-imp" onclick="trainDemo(3, 'imp')">✓ Important</button>
+                <button class="tv-toggle-btn mark-nimp" onclick="trainDemo(3, 'nimp')">✗ Not Important</button>
+              </div>
+            </div>
+
+            <div class="tv-caption">
+              <strong>Hover over any row above to try it.</strong><br>
+              Your change applies to all future emails from that sender.
+            </div>
+          </div>
+
+          <p>Most people fix 3–5 classifications and then EmailZap gets the rest right. It takes less than a minute.</p>
+
+          <button class="email-cta" onclick="showScreen(3)">
+            Review my inbox <span class="arrow">→</span>
+          </button>
+
+          <div class="signoff">
+            <p>Happy sorting,</p>
+            <p class="signoff-name">The EmailZap team</p>
+          </div>
+        </div>
+
+        <div class="email-footer">
+          <p>You're receiving this because you recently signed up for EmailZap. <a href="#">Unsubscribe</a> · <a href="#">Manage preferences</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════
+     SCREEN 3: IN-APP TRAINING NUDGE
+═════════════════════════════════════════ -->
+<div class="screen" id="screen-3">
+  <div class="app-shell">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-logo">
+        <div class="topbar-logo-mark">⚡</div>
+        EmailZap
+      </div>
+      <div class="topbar-search">
+        <span style="font-size:13px; color:var(--text3);">🔍</span>
+        <input type="text" placeholder="Search emails...">
+      </div>
+      <div class="topbar-avatar">CL</div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tabbar">
+      <div class="tab" style="color:var(--text3);">Act <span class="tab-badge">3</span></div>
+      <div class="tab" style="color:var(--text3);">Know</div>
+      <div class="tab active">All <span class="tab-badge">142</span></div>
+      <div class="tab" style="color:var(--text3);">Categories</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+      <div class="tab-inner">
+        <div class="all-trust-banner">
+          <span style="color:var(--success); font-size:14px;">✓</span>
+          <span><strong style="font-weight:600; color:var(--text2);">142 emails</strong> processed · Labels are live</span>
+        </div>
+
+        <div class="all-email-list">
+          <!-- Row 1 -->
+          <div class="all-email-row">
+            <span class="all-avatar" style="background:#1a73e8;">G</span>
+            <span class="all-sender">Google Cloud</span>
+            <span class="all-subject">Your March invoice is ready</span>
+            <span class="all-category-tag imp">Important</span>
+            <span class="all-time">1:15 PM</span>
+            <div class="row-hover-actions">
+              <button class="row-hover-btn mark-nimp">✗ Not Important</button>
+            </div>
+          </div>
+
+          <!-- Row 2 — This is the one with the nudge -->
+          <div class="all-email-row" id="nudge-row" style="z-index:10;">
+            <span class="all-avatar" style="background:#ea4335;">N</span>
+            <span class="all-sender">Notion</span>
+            <span class="all-subject">Weekly digest: 4 pages updated</span>
+            <span class="all-category-tag nimp" id="nudge-tag">Not Important</span>
+            <span class="all-time" id="nudge-time">11:30 AM</span>
+            <div class="row-hover-actions" id="nudge-hover-actions">
+              <button class="row-hover-btn mark-imp" onclick="doNudgeTrain('imp')">✓ Important</button>
+              <button class="row-hover-btn mark-nimp" onclick="doNudgeTrain('nimp')">✗ Not Important</button>
+            </div>
+            <div class="nudge-ring" id="nudge-ring"></div>
+            <!-- The tooltip -->
+            <div class="training-nudge" id="training-nudge">
+              <div class="nudge-text">
+                <strong>Not right?</strong> Hover and click to change.<br>
+                This trains EmailZap for all future emails from this sender.
+              </div>
+              <button class="nudge-dismiss" onclick="dismissNudge()">Got it</button>
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="all-email-row">
+            <span class="all-avatar" style="background:#34a853;">S</span>
+            <span class="all-sender">Stripe</span>
+            <span class="all-subject">Payment receipt for $49.00</span>
+            <span class="all-category-tag imp">Important</span>
+            <span class="all-time">12:42 PM</span>
+            <div class="row-hover-actions">
+              <button class="row-hover-btn mark-nimp">✗ Not Important</button>
+            </div>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="all-email-row">
+            <span class="all-avatar" style="background:#5a8fd6;">A</span>
+            <span class="all-sender">Alex Morrison</span>
+            <span class="all-subject">Re: Q2 planning doc</span>
+            <span class="all-category-tag act">Action needed</span>
+            <span class="all-time">10:08 AM</span>
+            <div class="row-hover-actions">
+              <button class="row-hover-btn">📩 Reply</button>
+              <button class="row-hover-btn">⏰ Remind</button>
+            </div>
+          </div>
+
+          <!-- Row 5 -->
+          <div class="all-email-row">
+            <span class="all-avatar" style="background:#f9ab00;">L</span>
+            <span class="all-sender">Linear</span>
+            <span class="all-subject">3 issues assigned to you</span>
+            <span class="all-category-tag imp">Important</span>
+            <span class="all-time">9:45 AM</span>
+            <div class="row-hover-actions">
+              <button class="row-hover-btn mark-nimp">✗ Not Important</button>
+            </div>
+          </div>
+
+          <!-- Row 6 -->
+          <div class="all-email-row">
+            <span class="all-avatar" style="background:#a142f4;">F</span>
+            <span class="all-sender">Figma</span>
+            <span class="all-subject">You were mentioned in "Homepage Redesign"</span>
+            <span class="all-category-tag imp">Important</span>
+            <span class="all-time">Yesterday</span>
+            <div class="row-hover-actions">
+              <button class="row-hover-btn mark-nimp">✗ Not Important</button>
+            </div>
+          </div>
+
+          <!-- Row 7 -->
+          <div class="all-email-row">
+            <span class="all-avatar" style="background:#0077b5;">L</span>
+            <span class="all-sender">LinkedIn</span>
+            <span class="all-subject">Sarah Chen viewed your profile</span>
+            <span class="all-category-tag nimp">Not Important</span>
+            <span class="all-time">Yesterday</span>
+            <div class="row-hover-actions">
+              <button class="row-hover-btn mark-imp">✓ Important</button>
+            </div>
+          </div>
+
+          <!-- Row 8 -->
+          <div class="all-email-row">
+            <span class="all-avatar" style="background:#00bcd4;">P</span>
+            <span class="all-sender">ProductHunt</span>
+            <span class="all-subject">Daily digest: Top 5 products</span>
+            <span class="all-category-tag nimp">Not Important</span>
+            <span class="all-time">Yesterday</span>
+            <div class="row-hover-actions">
+              <button class="row-hover-btn mark-imp">✓ Important</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toast-icon">✓</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ═══ SCREEN NAVIGATION ═══
+function showScreen(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.screen-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + n).classList.add('visible');
+  document.querySelectorAll('.screen-btn')[n - 1].classList.add('active');
+}
+
+// ═══ EMAIL VISUAL: TRAINING DEMO ═══
+function trainDemo(row, type) {
+  const badge = document.getElementById('tv-badge-' + row);
+  if (type === 'imp') {
+    badge.className = 'tv-badge imp';
+    badge.textContent = 'Important';
+    showToast('✓', 'Marked as Important — applies to all future emails from this sender');
+  } else {
+    badge.className = 'tv-badge nimp';
+    badge.textContent = 'Not Important';
+    showToast('✓', 'Marked as Not Important — applies to all future emails from this sender');
+  }
+}
+
+// ═══ IN-APP NUDGE ═══
+function dismissNudge() {
+  const nudge = document.getElementById('training-nudge');
+  const ring = document.getElementById('nudge-ring');
+  nudge.style.opacity = '0';
+  nudge.style.transform = 'translateY(6px)';
+  nudge.style.transition = 'all 200ms ease';
+  ring.style.opacity = '0';
+  ring.style.transition = 'opacity 200ms';
+  setTimeout(() => {
+    nudge.style.display = 'none';
+    ring.style.display = 'none';
+  }, 200);
+}
+
+function doNudgeTrain(type) {
+  dismissNudge();
+  const tag = document.getElementById('nudge-tag');
+  if (type === 'imp') {
+    tag.className = 'all-category-tag imp';
+    tag.textContent = 'Important';
+    showToast('✓', 'Notion marked as Important — all future Notion emails will be Important');
+  } else {
+    tag.className = 'all-category-tag nimp';
+    tag.textContent = 'Not Important';
+    showToast('✓', 'Confirmed — Notion stays Not Important');
+  }
+}
+
+// ═══ TOAST ═══
+let toastTimer;
+function showToast(icon, msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-msg').textContent = msg;
+  toast.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+</script>
+</body>
+</html>
