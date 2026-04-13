@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap — Group Email Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #f0efe9; font-family: 'Poppins', sans-serif; color: #141413; min-height: 100vh; padding: 40px 20px; }
+
+  /* Flow selector */
+  .flow-nav { display: flex; gap: 12px; max-width: 900px; margin: 0 auto 24px; }
+  .flow-nav button {
+    flex: 1; padding: 12px 20px; border: 1px solid #e8e6dc; background: #fff; border-radius: 10px;
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: #5a5850; cursor: pointer; transition: all 0.2s;
+  }
+  .flow-nav button.active { background: #141413; color: #fff; border-color: #141413; }
+  .flow-nav button:hover:not(.active) { background: #faf9f5; }
+
+  /* Main container */
+  .mock-container {
+    max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+    overflow: hidden; position: relative;
+  }
+
+  /* ========== DARK HEADER BAR ========== */
+  .header-bar {
+    background: #141413; display: flex; align-items: center; padding: 0 16px; height: 44px;
+  }
+  .header-tab {
+    padding: 0 14px; height: 44px; display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.45); cursor: pointer;
+    transition: color 0.15s; position: relative; white-space: nowrap;
+  }
+  .header-tab:hover { color: rgba(255,255,255,0.7); }
+  .header-tab.active { color: #fff; }
+  .header-tab.active::after {
+    content: ''; position: absolute; bottom: 0; left: 14px; right: 14px;
+    height: 2px; background: #fff; border-radius: 1px;
+  }
+  .header-tab .tab-icon { font-size: 14px; opacity: 0.7; }
+  .header-tab .tab-badge {
+    font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.15);
+    padding: 1px 7px; border-radius: 100px; color: rgba(255,255,255,0.6);
+  }
+  .header-tab.active .tab-badge { background: #fff; color: #141413; }
+
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+  .header-action {
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 14px;
+    transition: all 0.15s; border: 1px solid rgba(255,255,255,0.08);
+  }
+  .header-action:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.06); }
+  .header-count { font-size: 11px; color: rgba(255,255,255,0.35); margin-left: 8px; white-space: nowrap; }
+
+  /* ========== SUB-LABEL BAR ========== */
+  .sublabel-bar {
+    background: #1c1c1b; display: flex; align-items: center; padding: 8px 16px; gap: 6px;
+    overflow: visible; border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: relative; z-index: 30;
+  }
+  .sublabel-bar::-webkit-scrollbar { display: none; }
+  .sublabel-pill {
+    display: flex; align-items: center; gap: 5px; padding: 5px 12px;
+    border-radius: 100px; font-size: 12px; font-weight: 500;
+    color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s;
+    white-space: nowrap; border: 1px solid transparent; position: relative;
+    overflow: visible;
+  }
+  .sublabel-pill:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
+  .sublabel-pill.active {
+    background: #fff; color: #141413; font-weight: 600;
+  }
+  .sublabel-pill .pill-count {
+    font-size: 11px; opacity: 0.6;
+  }
+  .sublabel-pill.active .pill-count { opacity: 0.5; }
+
+  /* Train button on sub-label (visible on hover) */
+  .sublabel-train {
+    display: none; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 4px; margin-left: 2px;
+    font-size: 9px; color: rgba(255,255,255,0.5); cursor: pointer;
+    transition: all 0.1s;
+  }
+  .sublabel-pill:hover .sublabel-train { display: flex; }
+  .sublabel-pill.active .sublabel-train { display: flex; color: #9e9a92; }
+  .sublabel-train:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .sublabel-pill.active .sublabel-train:hover { background: #e8e6dc; color: #141413; }
+
+  /* Trained indicator dot on pill */
+  .pill-trained-dot {
+    width: 6px; height: 6px; border-radius: 50%; display: none; flex-shrink: 0;
+  }
+  .pill-trained-dot.visible { display: block; }
+  .pill-trained-dot.act { background: #d97757; }
+  .pill-trained-dot.know { background: #788c5d; }
+
+  /* ========== EMAIL LIST ========== */
+  .email-list { padding: 0; }
+  .email-row {
+    display: flex; align-items: center; padding: 12px 20px; border-bottom: 1px solid #f0efe9;
+    cursor: pointer; transition: background 0.12s; position: relative;
+  }
+  .email-row:hover { background: #faf9f5; }
+  .email-row:last-child { border-bottom: none; }
+
+  .email-avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: #e8e6dc;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: #5a5850; flex-shrink: 0;
+  }
+  .email-body { flex: 1; margin-left: 12px; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+  .email-sender { font-size: 13px; font-weight: 600; color: #141413; flex-shrink: 0; }
+  .email-subject {
+    font-size: 13px; color: #9e9a92; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; font-family: 'Lora', serif;
+  }
+  .email-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: 12px; }
+  .email-time { font-size: 11px; color: #9e9a92; }
+  .group-tag {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.3px; color: #5a5850;
+    background: rgba(217,119,87,0.08); padding: 2px 8px; border-radius: 100px;
+  }
+
+  /* Always show in CTA */
+  .always-show-cta {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    background: #141413; color: #fff; font-size: 11px; font-weight: 600;
+    padding: 6px 14px; border-radius: 100px; cursor: pointer;
+    opacity: 0; transition: opacity 0.15s; z-index: 2; white-space: nowrap;
+  }
+  .email-row:hover .always-show-cta { opacity: 1; }
+  .email-row.show-cta .always-show-cta { opacity: 1; }
+
+  /* ========== DROPDOWN ========== */
+  .dropdown {
+    position: absolute; background: #fff; border: 1px solid #e8e6dc; border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 50; min-width: 170px;
+    overflow: hidden; animation: dropIn 0.12s ease;
+  }
+  @keyframes dropIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .dropdown-header {
+    padding: 9px 14px; font-size: 10px; font-weight: 600; color: #9e9a92;
+    text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f0efe9;
+  }
+  .dropdown-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    font-size: 13px; font-weight: 500; color: #141413; cursor: pointer; transition: background 0.1s;
+  }
+  .dropdown-item:hover { background: #faf9f5; }
+  .dropdown-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dropdown-item .dot.act { background: #d97757; }
+  .dropdown-item .dot.know { background: #788c5d; }
+
+  /* ========== DISAMBIGUATION MODAL ========== */
+  .disambig-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(20,20,19,0.35); z-index: 50; align-items: center; justify-content: center;
+  }
+  .disambig-overlay.visible { display: flex; }
+  .disambig-card {
+    background: #fff; border-radius: 14px; padding: 28px; width: 400px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15); animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+
+  .disambig-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .disambig-subtitle { font-size: 13px; color: #5a5850; margin-bottom: 20px; font-family: 'Lora', serif; line-height: 1.5; }
+  .disambig-option {
+    display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
+    border: 1px solid #e8e6dc; border-radius: 10px; cursor: pointer;
+    transition: all 0.12s; margin-bottom: 8px;
+  }
+  .disambig-option:hover { border-color: #141413; background: #faf9f5; }
+  .disambig-option:last-child { margin-bottom: 0; }
+  .disambig-radio {
+    width: 18px; height: 18px; border: 2px solid #d4d2c8; border-radius: 50%;
+    flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.12s;
+  }
+  .disambig-option:hover .disambig-radio { border-color: #141413; }
+  .disambig-radio .inner { width: 8px; height: 8px; border-radius: 50%; background: #141413; display: none; }
+  .disambig-option.selected .disambig-radio { border-color: #141413; }
+  .disambig-option.selected .disambig-radio .inner { display: block; }
+  .disambig-label { font-size: 13px; font-weight: 600; }
+  .disambig-desc { font-size: 12px; color: #5a5850; margin-top: 2px; line-height: 1.4; }
+
+  /* ========== TOAST ========== */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #141413; color: #fff; padding: 10px 22px; border-radius: 100px;
+    font-size: 13px; font-weight: 500; z-index: 60; display: flex; align-items: center; gap: 8px;
+    transition: transform 0.25s ease; white-space: nowrap;
+  }
+  .toast.visible { transform: translateX(-50%) translateY(0); }
+  .toast .check { font-size: 14px; }
+  .toast .check.act { color: #d97757; }
+  .toast .check.know { color: #788c5d; }
+
+  /* ========== STEP INDICATOR ========== */
+  .step-bar {
+    display: flex; align-items: center; gap: 8px; padding: 14px 20px;
+    background: #faf9f5; border-bottom: 1px solid #e8e6dc; font-size: 12px; color: #9e9a92;
+  }
+  .step-num {
+    width: 20px; height: 20px; border-radius: 50%; background: #e8e6dc;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: #9e9a92; flex-shrink: 0;
+  }
+  .step-num.active { background: #141413; color: #fff; }
+  .step-num.done { background: #788c5d; color: #fff; }
+  .step-line { width: 16px; height: 1px; background: #e8e6dc; }
+  .step-text { font-weight: 500; margin-left: 6px; }
+
+  .reset-btn {
+    position: absolute; top: 10px; right: 10px; font-size: 11px; color: #9e9a92;
+    background: none; border: 1px solid #e8e6dc; padding: 4px 12px; border-radius: 100px;
+    cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 500; z-index: 5;
+  }
+  .reset-btn:hover { border-color: #9e9a92; color: #5a5850; }
+
+  .flow-section { display: none; }
+  .flow-section.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="flow-nav">
+  <button class="active" onclick="switchFlow('flow1')">Flow 1: "Always Show In" on Group Email</button>
+  <button onclick="switchFlow('flow2')">Flow 2: Train from Group Sub-label</button>
+</div>
+
+<!-- ====================== FLOW 1 ====================== -->
+<div id="flow1" class="flow-section active">
+  <div class="mock-container">
+    <button class="reset-btn" onclick="resetFlow1()">Reset</button>
+
+    <!-- Steps -->
+    <div class="step-bar" id="f1-steps">
+      <div class="step-num active" id="f1-s1">1</div><div class="step-line"></div>
+      <div class="step-num" id="f1-s2">2</div><div class="step-line"></div>
+      <div class="step-num" id="f1-s3">3</div><div class="step-line"></div>
+      <div class="step-num" id="f1-s4">4</div>
+      <span class="step-text" id="f1-step-label">Hover over a group email</span>
+    </div>
+
+    <!-- Header bar -->
+    <div class="header-bar">
+      <div class="header-tab"><span class="tab-icon">&#9889;</span> Act <span class="tab-badge">3</span></div>
+      <div class="header-tab"><span class="tab-icon">&#128196;</span> Know <span class="tab-badge">6</span></div>
+      <div class="header-tab"><span class="tab-icon">&#128101;</span> Groups <span class="tab-badge">12</span></div>
+      <div class="header-tab active" style="border:1px solid rgba(255,255,255,0.15); border-radius:100px; padding:0 14px; height:30px;">Inbox <span class="tab-badge">15696</span></div>
+      <div class="header-right">
+        <div class="header-action">&#9744;</div>
+        <div class="header-action">&#9993;</div>
+        <div class="header-action">&#128465;</div>
+        <span class="header-count">1-100 of 15696</span>
+      </div>
+    </div>
+
+    <!-- Sub-label bar (Inbox categories shown as context) -->
+    <div class="sublabel-bar">
+      <div class="sublabel-pill active">All <span class="pill-count">15696</span></div>
+      <div class="sublabel-pill">Newsletters <span class="pill-count">1467</span></div>
+      <div class="sublabel-pill">Travel <span class="pill-count">0</span></div>
+      <div class="sublabel-pill">Receipts <span class="pill-count">67</span></div>
+      <div class="sublabel-pill">Notifications <span class="pill-count">543</span></div>
+      <div class="sublabel-pill">Social <span class="pill-count">98</span></div>
+      <div class="sublabel-pill">Cold Outreach <span class="pill-count">31</span></div>
+      <div class="sublabel-pill">Promotions <span class="pill-count">835</span></div>
+    </div>
+
+    <!-- Email list -->
+    <div class="email-list">
+      <div class="email-row" id="f1-target-row" style="position:relative;">
+        <div class="email-avatar">S</div>
+        <div class="email-body">
+          <span class="email-sender">Sarah Mitchell</span>
+          <span class="email-subject">Ticket #8821 needs triage — customer has been waiting 2 days</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">support</span>
+          <span class="email-time">10:32 AM</span>
+        </div>
+        <div class="always-show-cta" id="f1-cta" onclick="f1ShowDropdown(event)">Always show in</div>
+
+        <!-- Tier dropdown -->
+        <div class="dropdown" id="f1-dropdown" style="display:none; top:44px; right:16px;">
+          <div class="dropdown-header">Always show in</div>
+          <div class="dropdown-item" onclick="f1SelectTier('Act')"><span class="dot act"></span> Act</div>
+          <div class="dropdown-item" onclick="f1SelectTier('Know')"><span class="dot know"></span> Know</div>
+        </div>
+      </div>
+
+      <div class="email-row">
+        <div class="email-avatar">R</div>
+        <div class="email-body">
+          <span class="email-sender">Ravi Kumar</span>
+          <span class="email-subject">Q2 roadmap draft is ready for review</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">eng-leads</span>
+          <span class="email-time">9:45 AM</span>
+        </div>
+      </div>
+
+      <div class="email-row">
+        <div class="email-avatar">P</div>
+        <div class="email-body">
+          <span class="email-sender">Priya Sharma</span>
+          <span class="email-subject">New hire onboarding checklist for next Monday</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">team</span>
+          <span class="email-time">9:12 AM</span>
+        </div>
+      </div>
+
+      <div class="email-row">
+        <div class="email-avatar">A</div>
+        <div class="email-body">
+          <span class="email-sender">Amit Patel</span>
+          <span class="email-subject">Re: Deploy pipeline is failing on staging</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">support</span>
+          <span class="email-time">8:55 AM</span>
+        </div>
+      </div>
+
+      <div class="email-row">
+        <div class="email-avatar">M</div>
+        <div class="email-body">
+          <span class="email-sender">Maya Chen</span>
+          <span class="email-subject">Updated brand guidelines — please review before EOD</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">team</span>
+          <span class="email-time">Yesterday</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disambiguation -->
+  <div class="disambig-overlay" id="f1-disambig">
+    <div class="disambig-card">
+      <div class="disambig-title" id="f1-disambig-title">Show in Act</div>
+      <div class="disambig-subtitle">Should this apply to the entire group or just this sender?</div>
+      <div class="disambig-option" onclick="f1Choose('group')">
+        <div class="disambig-radio"><div class="inner"></div></div>
+        <div>
+          <div class="disambig-label">This group (support@littlebird.ai)</div>
+          <div class="disambig-desc">All future emails sent to this group — from any sender — will show in <span id="f1-tier-label-1">Act</span></div>
+        </div>
+      </div>
+      <div class="disambig-option" onclick="f1Choose('sender')">
+        <div class="disambig-radio"><div class="inner"></div></div>
+        <div>
+          <div class="disambig-label">Just this sender (sarah@company.com)</div>
+          <div class="disambig-desc">Only emails from Sarah Mitchell will show in <span id="f1-tier-label-2">Act</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="f1-toast"><span class="check" id="f1-toast-check">&#10003;</span><span id="f1-toast-text"></span></div>
+</div>
+
+<!-- ====================== FLOW 2 ====================== -->
+<div id="flow2" class="flow-section">
+  <div class="mock-container">
+    <button class="reset-btn" onclick="resetFlow2()">Reset</button>
+
+    <!-- Steps -->
+    <div class="step-bar" id="f2-steps">
+      <div class="step-num active" id="f2-s1">1</div><div class="step-line"></div>
+      <div class="step-num" id="f2-s2">2</div><div class="step-line"></div>
+      <div class="step-num" id="f2-s3">3</div>
+      <span class="step-text" id="f2-step-label">Click the arrow on a group sub-label</span>
+    </div>
+
+    <!-- Header bar -->
+    <div class="header-bar">
+      <div class="header-tab"><span class="tab-icon">&#9889;</span> Act <span class="tab-badge">3</span></div>
+      <div class="header-tab"><span class="tab-icon">&#128196;</span> Know <span class="tab-badge">6</span></div>
+      <div class="header-tab active"><span class="tab-icon">&#128101;</span> Groups <span class="tab-badge">12</span></div>
+      <div class="header-tab" style="border:1px solid rgba(255,255,255,0.15); border-radius:100px; padding:0 14px; height:30px;">Inbox <span class="tab-badge">15696</span></div>
+      <div class="header-right">
+        <div class="header-action">&#9744;</div>
+        <div class="header-action">&#9993;</div>
+        <div class="header-action">&#128465;</div>
+        <span class="header-count">1-12 of 12</span>
+      </div>
+    </div>
+
+    <!-- Sub-label bar — GROUP sub-labels as pills -->
+    <div class="sublabel-bar" id="f2-sublabel-bar" style="position:relative;">
+      <div class="sublabel-pill active" id="f2-pill-all">All <span class="pill-count">12</span></div>
+
+      <div class="sublabel-pill" id="f2-pill-support" style="position:relative;">
+        <span class="pill-trained-dot" id="f2-dot-support"></span>
+        support <span class="pill-count">5</span>
+        <span class="sublabel-train" onclick="f2ShowDropdown('support', event)" title="Train group">&#9662;</span>
+        <!-- Dropdown -->
+        <div class="dropdown" id="f2-dropdown-support" style="display:none; top:36px; left:0;">
+          <div class="dropdown-header">Train group</div>
+          <div class="dropdown-item" onclick="f2Train('support','act',event)"><span class="dot act"></span> Act</div>
+          <div class="dropdown-item" onclick="f2Train('support','know',event)"><span class="dot know"></span> Know</div>
+        </div>
+      </div>
+
+      <div class="sublabel-pill" id="f2-pill-eng-leads" style="position:relative;">
+        <span class="pill-trained-dot" id="f2-dot-eng-leads"></span>
+        eng-leads <span class="pill-count">4</span>
+        <span class="sublabel-train" onclick="f2ShowDropdown('eng-leads', event)" title="Train group">&#9662;</span>
+        <div class="dropdown" id="f2-dropdown-eng-leads" style="display:none; top:36px; left:0;">
+          <div class="dropdown-header">Train group</div>
+          <div class="dropdown-item" onclick="f2Train('eng-leads','act',event)"><span class="dot act"></span> Act</div>
+          <div class="dropdown-item" onclick="f2Train('eng-leads','know',event)"><span class="dot know"></span> Know</div>
+        </div>
+      </div>
+
+      <div class="sublabel-pill" id="f2-pill-team" style="position:relative;">
+        <span class="pill-trained-dot" id="f2-dot-team"></span>
+        team <span class="pill-count">3</span>
+        <span class="sublabel-train" onclick="f2ShowDropdown('team', event)" title="Train group">&#9662;</span>
+        <div class="dropdown" id="f2-dropdown-team" style="display:none; top:36px; left:0;">
+          <div class="dropdown-header">Train group</div>
+          <div class="dropdown-item" onclick="f2Train('team','act',event)"><span class="dot act"></span> Act</div>
+          <div class="dropdown-item" onclick="f2Train('team','know',event)"><span class="dot know"></span> Know</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email list -->
+    <div class="email-list">
+      <div class="email-row">
+        <div class="email-avatar">S</div>
+        <div class="email-body">
+          <span class="email-sender">Sarah Mitchell</span>
+          <span class="email-subject">Ticket #8821 needs triage — customer has been waiting 2 days</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">support</span>
+          <span class="email-time">10:32 AM</span>
+        </div>
+      </div>
+      <div class="email-row">
+        <div class="email-avatar">R</div>
+        <div class="email-body">
+          <span class="email-sender">Ravi Kumar</span>
+          <span class="email-subject">Q2 roadmap draft is ready for review</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">eng-leads</span>
+          <span class="email-time">9:45 AM</span>
+        </div>
+      </div>
+      <div class="email-row">
+        <div class="email-avatar">P</div>
+        <div class="email-body">
+          <span class="email-sender">Priya Sharma</span>
+          <span class="email-subject">New hire onboarding checklist for next Monday</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">team</span>
+          <span class="email-time">9:12 AM</span>
+        </div>
+      </div>
+      <div class="email-row">
+        <div class="email-avatar">A</div>
+        <div class="email-body">
+          <span class="email-sender">Amit Patel</span>
+          <span class="email-subject">Re: Deploy pipeline is failing on staging</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">support</span>
+          <span class="email-time">8:55 AM</span>
+        </div>
+      </div>
+      <div class="email-row">
+        <div class="email-avatar">N</div>
+        <div class="email-body">
+          <span class="email-sender">Nisha Verma</span>
+          <span class="email-subject">Sprint retro notes — action items for next week</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">eng-leads</span>
+          <span class="email-time">Yesterday</span>
+        </div>
+      </div>
+      <div class="email-row">
+        <div class="email-avatar">M</div>
+        <div class="email-body">
+          <span class="email-sender">Maya Chen</span>
+          <span class="email-subject">Updated brand guidelines — please review before EOD</span>
+        </div>
+        <div class="email-right">
+          <span class="group-tag">team</span>
+          <span class="email-time">Yesterday</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="f2-toast"><span class="check" id="f2-toast-check">&#10003;</span><span id="f2-toast-text"></span></div>
+</div>
+
+<script>
+  /* ---- Flow switching ---- */
+  function switchFlow(id) {
+    document.querySelectorAll('.flow-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.flow-nav button').forEach((b,i) => {
+      b.classList.toggle('active', (i===0 && id==='flow1') || (i===1 && id==='flow2'));
+    });
+  }
+
+  /* ==================== FLOW 1 ==================== */
+  let f1Step = 1, f1Tier = '';
+  const f1Labels = ['Hover over a group email','Pick a tier','Group or sender?','Done'];
+
+  function f1UpdateSteps() {
+    document.getElementById('f1-step-label').textContent = f1Labels[f1Step-1]||'';
+    for(let i=1;i<=4;i++){
+      const d=document.getElementById('f1-s'+i);
+      d.className='step-num'+(i<f1Step?' done':i===f1Step?' active':'');
+    }
+  }
+
+  function f1ShowDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('f1-dropdown').style.display='block';
+    document.getElementById('f1-target-row').classList.add('show-cta');
+    f1Step=2; f1UpdateSteps();
+    setTimeout(()=>document.addEventListener('click',()=>{
+      document.getElementById('f1-dropdown').style.display='none';
+    },{once:true}),10);
+  }
+
+  function f1SelectTier(tier) {
+    f1Tier=tier;
+    document.getElementById('f1-dropdown').style.display='none';
+    document.getElementById('f1-disambig-title').textContent='Show in '+tier;
+    document.getElementById('f1-tier-label-1').textContent=tier;
+    document.getElementById('f1-tier-label-2').textContent=tier;
+    document.getElementById('f1-disambig').classList.add('visible');
+    document.querySelectorAll('#f1-disambig .disambig-option').forEach(o=>o.classList.remove('selected'));
+    f1Step=3; f1UpdateSteps();
+  }
+
+  function f1Choose(choice) {
+    document.querySelectorAll('#f1-disambig .disambig-option').forEach(o=>o.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    setTimeout(()=>{
+      document.getElementById('f1-disambig').classList.remove('visible');
+      const txt = choice==='group'
+        ? 'support group trained to '+f1Tier
+        : 'Sarah Mitchell trained to '+f1Tier;
+      document.getElementById('f1-toast-text').textContent=txt;
+      const c=document.getElementById('f1-toast-check');
+      c.className='check '+(f1Tier==='Act'?'act':'know');
+      document.getElementById('f1-toast').classList.add('visible');
+      document.getElementById('f1-target-row').classList.remove('show-cta');
+      f1Step=4; f1UpdateSteps();
+      setTimeout(()=>document.getElementById('f1-toast').classList.remove('visible'),3000);
+    },350);
+  }
+
+  function resetFlow1() {
+    f1Step=1; f1Tier=''; f1UpdateSteps();
+    document.getElementById('f1-dropdown').style.display='none';
+    document.getElementById('f1-disambig').classList.remove('visible');
+    document.getElementById('f1-toast').classList.remove('visible');
+    document.getElementById('f1-target-row').classList.remove('show-cta');
+  }
+
+  /* ==================== FLOW 2 ==================== */
+  let f2Step=1, f2Active=null;
+  const f2Labels=['Click the arrow on a group sub-label','Pick Act or Know','Done — group trained'];
+
+  function f2UpdateSteps(){
+    document.getElementById('f2-step-label').textContent=f2Labels[f2Step-1]||'';
+    for(let i=1;i<=3;i++){
+      const d=document.getElementById('f2-s'+i);
+      d.className='step-num'+(i<f2Step?' done':i===f2Step?' active':'');
+    }
+  }
+
+  function f2ShowDropdown(group,e){
+    e.stopPropagation();
+    if(f2Active) document.getElementById('f2-dropdown-'+f2Active).style.display='none';
+    f2Active=group;
+    document.getElementById('f2-dropdown-'+group).style.display='block';
+    f2Step=2; f2UpdateSteps();
+    setTimeout(()=>document.addEventListener('click',()=>{
+      if(f2Active){document.getElementById('f2-dropdown-'+f2Active).style.display='none';f2Active=null;}
+    },{once:true}),10);
+  }
+
+  function f2Train(group,tier,e){
+    e.stopPropagation();
+    document.getElementById('f2-dropdown-'+group).style.display='none';
+    f2Active=null;
+
+    // Show trained dot on pill
+    const dot=document.getElementById('f2-dot-'+group);
+    dot.className='pill-trained-dot visible '+tier;
+
+    // Toast
+    const label=tier.charAt(0).toUpperCase()+tier.slice(1);
+    document.getElementById('f2-toast-text').textContent=group+' trained to '+label;
+    const c=document.getElementById('f2-toast-check');
+    c.className='check '+tier;
+    document.getElementById('f2-toast').classList.add('visible');
+
+    f2Step=3; f2UpdateSteps();
+    setTimeout(()=>document.getElementById('f2-toast').classList.remove('visible'),3000);
+  }
+
+  function resetFlow2(){
+    f2Step=1; f2UpdateSteps();
+    if(f2Active){document.getElementById('f2-dropdown-'+f2Active).style.display='none';f2Active=null;}
+    document.getElementById('f2-toast').classList.remove('visible');
+    ['support','eng-leads','team'].forEach(g=>{
+      document.getElementById('f2-dot-'+g).className='pill-trained-dot';
+      document.getElementById('f2-dropdown-'+g).style.display='none';
+    });
+  }
+
+  f1UpdateSteps(); f2UpdateSteps();
+</script>
+</body>
+</html>
