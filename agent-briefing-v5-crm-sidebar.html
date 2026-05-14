@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailZap — CRM + Sidebar</title>
+<style>
+:root {
+  --text:#1a1a1a;--text2:#444;--text3:#777;--text4:#aaa;
+  --bg:#eeeef2;--surface:#fff;--hover:#f7f7fa;
+  --border:#e2e2e8;--border-lt:#eeeeF2;
+  --accent:#6C5CE7;--accent-light:#f0eeff;--accent-mid:#8B7CF7;--accent-dim:#ddd8ff;
+  --action:#c0392b;--action-bg:#fdf2f0;
+  --dark:#18181b;--dark2:#27272a;--dark3:#3f3f46;
+  --followup:#e65100;--followup-light:#fff3e0;
+  --green:#059669;--green-light:#ecfdf5;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter','Helvetica Neue',sans-serif;
+  --font-h:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter','Helvetica Neue',sans-serif;
+  --t-fast:120ms;--t-med:200ms;--t-slow:320ms;
+  --r-pill:999px;--r-sm:8px;--r-md:12px;--r-lg:16px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;font-size:13px;line-height:1.5;}
+
+/* Topbar */
+.topbar{height:50px;background:var(--dark);display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:100;gap:4px;}
+.tab{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--r-pill);font-size:13px;color:#999;cursor:pointer;user-select:none;font-weight:500;transition:all var(--t-fast);}
+.tab .count{font-size:10px;background:var(--dark3);color:#999;padding:1px 6px;border-radius:var(--r-pill);font-weight:600;}
+.tab.active{color:#fff;background:var(--dark3);}
+.tab.active .count{background:var(--accent);color:#fff;}
+.tab:hover:not(.active){color:#ccc;}
+.topbar-spacer{flex:1;}
+.topbar-right{font-size:11px;color:#666;}
+.topbar-logo{font-size:14px;font-weight:700;color:#fff;margin-right:16px;letter-spacing:-.02em;font-family:var(--font-h);}
+.topbar-logo span{color:var(--accent-mid);}
+
+.view{display:none;}.view.active{display:block;}
+
+/* Section nav */
+.section-nav{height:38px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:2px;position:sticky;top:90px;z-index:90;}
+.nav-link{font-size:11px;font-weight:500;color:var(--text3);padding:5px 11px;border-radius:var(--r-pill);cursor:pointer;transition:all var(--t-fast);white-space:nowrap;user-select:none;}
+.nav-link:hover{color:var(--text);background:var(--hover);}
+.nav-link.active{color:var(--accent);font-weight:600;background:var(--accent-light);}
+.nav-link .nav-count{margin-left:2px;opacity:.6;}
+.nav-sep{width:1px;height:14px;background:var(--border);margin:0 6px;}
+
+/* Layout: list + detail + sidebar */
+.main-layout{display:flex;max-width:1400px;margin:0 auto;min-height:calc(100vh - 128px);}
+.email-list-col{flex:1;min-width:0;transition:flex var(--t-med);}
+.email-list-col.narrowed{flex:0 0 380px;max-width:380px;border-right:1px solid var(--border);}
+.detail-col{flex:1;display:none;background:var(--surface);overflow-y:auto;position:sticky;top:128px;height:calc(100vh - 128px);}
+.detail-col.open{display:block;}
+.sidebar-col{width:260px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;position:sticky;top:128px;height:calc(100vh - 128px);display:none;}
+.sidebar-col.open{display:block;}
+
+/* Briefing container */
+.briefing-container{background:var(--surface);border-radius:0 0 var(--r-lg) var(--r-lg);box-shadow:0 4px 24px rgba(0,0,0,.05);margin-bottom:2px;position:relative;}
+.briefing-container::after{content:'';position:absolute;bottom:-16px;left:20px;right:20px;height:16px;background:linear-gradient(to bottom,rgba(0,0,0,.03),transparent);pointer-events:none;}
+
+/* Summary */
+.agent-summary{padding:20px 24px 16px;background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#3730a3 100%);color:#fff;}
+.summary-greeting{font-size:18px;font-weight:600;font-family:var(--font-h);margin-bottom:4px;}
+.summary-sub{font-size:13px;color:rgba(255,255,255,.7);}
+.summary-sub b{color:#fff;font-weight:600;}
+
+/* Section */
+.briefing-section{border-bottom:1px solid var(--border-lt);}
+.briefing-section:last-child{border-bottom:none;}
+.section-header{display:flex;align-items:center;gap:8px;padding:12px 20px 4px;}
+.section-icon{font-size:12px;flex-shrink:0;width:18px;text-align:center;}
+.section-label{font-size:13px;font-weight:700;color:var(--text);}
+.section-label.action-label{color:var(--action);}
+.section-label.followup-label{color:var(--followup);}
+.section-spacer{flex:1;}
+.section-count{font-size:11px;color:var(--text4);font-weight:500;}
+.section-action{font-size:11px;color:var(--accent);cursor:pointer;font-weight:500;opacity:0;transition:opacity var(--t-fast);}
+.briefing-section:hover .section-action{opacity:1;}
+.section-explain{padding:0 20px 8px 46px;font-size:11px;color:var(--text4);}
+
+/* Email row */
+.email-row{display:flex;align-items:center;gap:10px;padding:0 20px;height:42px;cursor:pointer;transition:background var(--t-fast);border-bottom:1px solid var(--border-lt);}
+.email-row:hover{background:var(--hover);}
+.email-row.selected{background:var(--accent-light);}
+.email-check{width:17px;height:17px;border:1.5px solid #ccc;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--t-fast);font-size:0;}
+.email-check:hover{border-color:var(--accent);background:var(--accent-light);}
+.email-check.done{border-color:var(--accent);background:var(--accent);font-size:9px;color:#fff;}
+.email-sender{font-size:13px;font-weight:600;color:var(--text);width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.email-sender.read{font-weight:400;color:var(--text2);}
+.email-subject{font-size:13px;color:var(--text2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.email-action-tag{font-size:11px;color:var(--action);font-weight:500;flex-shrink:0;padding:2px 8px;background:var(--action-bg);border-radius:4px;}
+.email-time{font-size:11px;color:var(--text4);flex-shrink:0;width:60px;text-align:right;}
+.email-cat{font-size:10px;color:var(--text3);flex-shrink:0;padding:1px 6px;background:var(--hover);border-radius:4px;font-weight:500;}
+.show-more{display:flex;align-items:center;height:34px;padding:0 20px;font-size:12px;color:var(--accent);cursor:pointer;font-weight:500;transition:background var(--t-fast);}
+.show-more:hover{background:var(--hover);}
+.section-gap{height:8px;background:var(--bg);}
+.draft-tag{font-size:10px;color:var(--followup);font-weight:600;padding:2px 8px;background:var(--followup-light);border-radius:4px;flex-shrink:0;cursor:pointer;}
+
+/* Intent tags (Level 2) */
+.intent-tag{font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;flex-shrink:0;text-transform:uppercase;letter-spacing:.03em;}
+.intent-tag.invoice{background:#fff3e0;color:#e65100;}
+.intent-tag.query{background:#e3f2fd;color:#1565c0;}
+.intent-tag.escalation{background:var(--action-bg);color:var(--action);}
+.intent-tag.deliverable{background:var(--green-light);color:var(--green);}
+.intent-tag.calendar{background:#f3e5f5;color:#7b1fa2;}
+.intent-tag.followup-i{background:var(--followup-light);color:var(--followup);}
+.intent-tag.introduction{background:#e8f5e9;color:#2e7d32;}
+.intent-tag.general{background:var(--hover);color:var(--text4);}
+.intent-tag.proposal{background:#fce4ec;color:#c62828;}
+
+/* Agent review section */
+.section-label.agent-label{color:var(--accent);}
+.agent-row{display:flex;align-items:center;gap:10px;padding:0 20px;height:48px;cursor:pointer;transition:background var(--t-fast);border-bottom:1px solid var(--border-lt);}
+.agent-row:hover{background:var(--hover);}
+.agent-icon{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent-mid));display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex-shrink:0;}
+.agent-name{font-size:11px;color:var(--accent);font-weight:600;flex-shrink:0;width:110px;}
+.agent-desc{font-size:12px;color:var(--text2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.agent-approve{font-size:10px;font-weight:600;padding:3px 10px;border-radius:var(--r-pill);background:var(--accent);color:#fff;cursor:pointer;flex-shrink:0;border:none;font-family:var(--font);transition:background var(--t-fast);}
+.agent-approve:hover{background:var(--accent-mid);}
+.agent-dismiss{font-size:10px;color:var(--text4);cursor:pointer;flex-shrink:0;padding:3px 6px;transition:color var(--t-fast);}
+.agent-dismiss:hover{color:var(--text2);}
+
+/* Search bar */
+.briefing-search{display:flex;align-items:center;gap:8px;padding:8px 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:50px;z-index:95;}
+.briefing-search input{flex:1;padding:7px 14px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:12px;font-family:var(--font);color:var(--text);background:var(--hover);transition:all var(--t-fast);}
+.briefing-search input:focus{outline:none;border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px rgba(108,92,231,.1);}
+.briefing-search input::placeholder{color:var(--text4);}
+.briefing-search .search-shortcut{font-size:10px;color:var(--text4);background:var(--surface);border:1px solid var(--border);padding:1px 6px;border-radius:4px;flex-shrink:0;}
+
+/* All emails */
+.all-emails-segment{margin-top:20px;}
+.all-emails-header{display:flex;align-items:center;gap:8px;padding:14px 20px 10px;}
+.all-emails-title{font-size:14px;font-weight:700;color:var(--text);font-family:var(--font-h);}
+.all-emails-count{font-size:11px;color:var(--text4);}
+.category-bar{display:flex;gap:5px;padding:8px 20px 10px;background:var(--surface);flex-wrap:wrap;border-bottom:1px solid var(--border);}
+.cat-pill{padding:5px 12px;border-radius:var(--r-pill);font-size:12px;background:var(--surface);color:var(--text3);border:1px solid var(--border);cursor:pointer;transition:all var(--t-fast);white-space:nowrap;}
+.cat-pill:hover{border-color:#bbb;color:var(--text2);}
+.cat-pill.active{background:var(--dark);color:#fff;border-color:var(--dark);font-weight:500;}
+.cat-pill .pill-count{opacity:.5;margin-left:2px;}
+
+/* ══ SIDEBAR ══ */
+.sb-section{padding:16px;border-bottom:1px solid var(--border-lt);}
+.sb-section:last-child{border-bottom:none;}
+.sb-label{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.sb-empty{padding:40px 16px;text-align:center;color:var(--text4);font-size:12px;}
+
+/* Contact card */
+.sb-contact{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.sb-avatar{width:36px;height:36px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0;}
+.sb-name{font-size:14px;font-weight:700;color:var(--text);font-family:var(--font-h);}
+.sb-company{font-size:11px;color:var(--text3);}
+.sb-type-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--r-pill);display:inline-block;margin-top:4px;}
+.sb-type-badge.customer{background:var(--accent-light);color:var(--accent);}
+.sb-type-badge.vendor{background:#f0f0f0;color:var(--text3);}
+.sb-type-badge.lead{background:var(--green-light);color:var(--green);}
+.sb-type-badge.internal{background:#f0f4ff;color:#3b5998;}
+
+/* Stats */
+.sb-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sb-stat{background:var(--hover);border-radius:var(--r-sm);padding:8px 10px;}
+.sb-stat .val{font-size:15px;font-weight:700;color:var(--text);font-family:var(--font-h);}
+.sb-stat .lbl{font-size:10px;color:var(--text4);margin-top:1px;}
+
+/* Recent threads */
+.sb-thread{padding:8px 0;border-bottom:1px solid var(--border-lt);}
+.sb-thread:last-child{border-bottom:none;}
+.sb-thread-subject{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-thread-meta{font-size:10px;color:var(--text4);margin-top:2px;display:flex;gap:6px;}
+.sb-thread-status{font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;}
+.sb-thread-status.pending{background:var(--action-bg);color:var(--action);}
+.sb-thread-status.replied{background:var(--green-light);color:var(--green);}
+.sb-thread-status.waiting{background:var(--followup-light);color:var(--followup);}
+
+/* Quick actions */
+.sb-actions{display:flex;flex-direction:column;gap:4px;}
+.sb-action-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r-sm);font-size:12px;color:var(--text2);cursor:pointer;transition:all var(--t-fast);border:none;background:none;font-family:var(--font);width:100%;text-align:left;}
+.sb-action-btn:hover{background:var(--hover);color:var(--text);}
+.sb-action-btn .sb-act-icon{width:16px;text-align:center;color:var(--text4);font-size:12px;}
+
+/* ══ CRM TAB ══ */
+.crm-content{max-width:900px;margin:0 auto;padding:0;}
+.crm-header{padding:20px 20px 12px;display:flex;align-items:center;gap:12px;}
+.crm-title{font-size:18px;font-weight:700;font-family:var(--font-h);color:var(--text);letter-spacing:-.02em;}
+.crm-count{font-size:12px;color:var(--text4);}
+.crm-filters{display:flex;gap:5px;padding:0 20px 12px;flex-wrap:wrap;}
+.crm-search{
+  margin:0 20px 12px;padding:8px 14px;border-radius:var(--r-pill);border:1px solid var(--border);
+  font-size:12px;font-family:var(--font);color:var(--text);width:calc(100% - 40px);
+  background:var(--surface);transition:border-color var(--t-fast);
+}
+.crm-search:focus{outline:none;border-color:var(--accent);}
+.crm-search::placeholder{color:var(--text4);}
+
+/* CRM table */
+.crm-table{width:100%;background:var(--surface);border-radius:var(--r-md);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);margin:0 auto;}
+.crm-table-header{display:flex;align-items:center;padding:10px 20px;background:var(--hover);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;gap:10px;}
+.crm-row{display:flex;align-items:center;padding:0 20px;height:52px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background var(--t-fast);gap:10px;}
+.crm-row:hover{background:var(--hover);}
+.crm-row:last-child{border-bottom:none;}
+.crm-col{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.crm-col-name{width:180px;flex-shrink:0;}
+.crm-col-type{width:100px;flex-shrink:0;}
+.crm-col-last{width:110px;flex-shrink:0;}
+.crm-col-pending{flex:1;min-width:0;}
+.crm-col-threads{width:60px;flex-shrink:0;text-align:center;}
+.crm-col-response{width:80px;flex-shrink:0;text-align:center;}
+
+.crm-name{font-size:13px;font-weight:600;color:var(--text);}
+.crm-company{font-size:10px;color:var(--text4);}
+.crm-type{font-size:10px;font-weight:600;padding:3px 8px;border-radius:var(--r-pill);display:inline-block;}
+.crm-type.customer{background:var(--accent-light);color:var(--accent);}
+.crm-type.vendor{background:#f0f0f0;color:var(--text3);}
+.crm-type.lead{background:var(--green-light);color:var(--green);}
+.crm-type.internal{background:#f0f4ff;color:#3b5998;}
+.crm-last{font-size:12px;color:var(--text2);}
+.crm-pending{font-size:11px;display:flex;align-items:center;gap:6px;}
+.crm-pending-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;}
+.crm-pending-tag.reply{background:var(--action-bg);color:var(--action);}
+.crm-pending-tag.followup{background:var(--followup-light);color:var(--followup);}
+.crm-pending-tag.none{background:var(--hover);color:var(--text4);}
+.crm-pending-text{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.crm-threads{font-size:12px;color:var(--text3);font-weight:500;}
+.crm-response{font-size:11px;color:var(--text3);}
+
+/* Detail panel */
+.dp-topbar{display:flex;align-items:center;height:46px;padding:0 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:10;}
+.dp-close{font-size:18px;color:var(--text3);cursor:pointer;padding:4px 6px;margin-right:8px;border-radius:var(--r-sm);transition:all var(--t-fast);line-height:1;}
+.dp-close:hover{color:var(--text);background:var(--hover);}
+.dp-topbar-spacer{flex:1;}
+.dp-action-btn{font-size:11px;color:var(--text2);padding:5px 12px;border:1px solid var(--border);border-radius:var(--r-pill);cursor:pointer;background:var(--surface);font-family:var(--font);font-weight:500;transition:all var(--t-fast);margin-left:5px;}
+.dp-action-btn:hover{border-color:#999;color:var(--text);}
+.dp-action-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.dp-action-btn.primary:hover{background:var(--accent-mid);}
+.dp-thread{padding:24px 24px 80px;}
+.dp-subject{font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.4;font-family:var(--font-h);letter-spacing:-.02em;}
+.dp-action-banner{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--accent-light);border:1px solid var(--accent-dim);border-radius:var(--r-sm);margin-bottom:20px;font-size:12px;color:var(--accent);font-weight:500;}
+.dp-action-banner .ab-icon{width:18px;height:18px;border-radius:5px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;flex-shrink:0;}
+.dp-message{margin-bottom:16px;border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;}
+.dp-msg-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--hover);border-bottom:1px solid var(--border-lt);}
+.dp-msg-avatar{width:30px;height:30px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.dp-msg-from{font-size:13px;font-weight:600;color:var(--text);}
+.dp-msg-to{font-size:11px;color:var(--text4);}
+.dp-msg-spacer{flex:1;}
+.dp-msg-time{font-size:11px;color:var(--text4);}
+.dp-msg-body{padding:16px;font-size:13px;color:var(--text2);line-height:1.7;}
+.dp-msg-body p{margin-bottom:10px;}.dp-msg-body p:last-child{margin-bottom:0;}
+.dp-msg-body .sig{color:var(--text4);font-size:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-lt);}
+.dp-ai-reply{border:1px solid var(--accent-dim);border-radius:var(--r-md);overflow:hidden;margin-top:24px;background:var(--accent-light);}
+.dp-ai-header{display:flex;align-items:center;gap:8px;padding:10px 16px;background:linear-gradient(135deg,var(--accent-light),#e8e4ff);border-bottom:1px solid var(--accent-dim);font-size:12px;color:var(--accent);font-weight:600;}
+.dp-ai-header .ai-icon{width:18px;height:18px;border-radius:5px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
+.dp-ai-body{padding:16px;font-size:13px;color:var(--text2);line-height:1.7;background:#fff;}
+.dp-ai-body p{margin-bottom:8px;}.dp-ai-body p:last-child{margin-bottom:0;}
+.dp-ai-actions{display:flex;align-items:center;gap:6px;padding:10px 16px;border-top:1px solid var(--accent-dim);background:linear-gradient(135deg,var(--accent-light),#e8e4ff);}
+.dp-ai-edit{font-size:11px;color:var(--accent);margin-left:auto;cursor:pointer;font-weight:500;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--dark);color:#fff;padding:10px 20px;border-radius:var(--r-sm);font-size:12px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:200;transition:transform var(--t-slow) cubic-bezier(.4,0,.2,1);white-space:nowrap;}
+.toast.visible{transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px;}
+
+/* ══ CRM SPLIT LAYOUT ══ */
+.crm-split{display:flex;max-width:1200px;margin:0 auto;min-height:calc(100vh - 50px);}
+.crm-list-col{flex:1;min-width:0;transition:flex var(--t-med);overflow-y:auto;}
+.crm-list-col.narrowed{flex:0 0 400px;max-width:400px;border-right:1px solid var(--border);}
+.crm-detail-col{flex:1;display:none;background:var(--surface);overflow-y:auto;position:sticky;top:50px;height:calc(100vh - 50px);}
+.crm-detail-col.open{display:block;}
+
+/* Contact detail header */
+.cd-header{padding:24px 24px 20px;border-bottom:1px solid var(--border);}
+.cd-top{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.cd-avatar{width:44px;height:44px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#fff;flex-shrink:0;}
+.cd-name{font-size:18px;font-weight:700;color:var(--text);font-family:var(--font-h);letter-spacing:-.02em;}
+.cd-company{font-size:12px;color:var(--text3);}
+.cd-type{font-size:10px;font-weight:600;padding:3px 10px;border-radius:var(--r-pill);display:inline-block;margin-top:4px;}
+.cd-close{font-size:18px;color:var(--text3);cursor:pointer;padding:4px 6px;border-radius:var(--r-sm);margin-left:auto;transition:all var(--t-fast);line-height:1;flex-shrink:0;}
+.cd-close:hover{color:var(--text);background:var(--hover);}
+
+/* Stats row */
+.cd-stats{display:flex;gap:16px;margin-top:4px;}
+.cd-stat{text-align:center;flex:1;}
+.cd-stat .cd-val{font-size:16px;font-weight:700;color:var(--text);font-family:var(--font-h);}
+.cd-stat .cd-lbl{font-size:10px;color:var(--text4);margin-top:1px;}
+
+/* Pending banner */
+.cd-pending-banner{display:flex;align-items:center;gap:8px;padding:10px 14px;margin:0 24px 0;border-radius:var(--r-sm);font-size:12px;font-weight:500;}
+.cd-pending-banner.reply{background:var(--action-bg);color:var(--action);}
+.cd-pending-banner.followup{background:var(--followup-light);color:var(--followup);}
+.cd-pending-banner .cd-pending-action{margin-left:auto;font-weight:600;cursor:pointer;text-decoration:underline;}
+
+/* Tab bar */
+.cd-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 24px;background:var(--surface);position:sticky;top:0;z-index:5;}
+.cd-tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all var(--t-fast);user-select:none;}
+.cd-tab:hover{color:var(--text);}
+.cd-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+
+/* Timeline */
+.cd-timeline{padding:20px 24px;}
+.tl-month{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px;}.tl-month:first-child{margin-top:0;}
+.tl-item{display:flex;gap:12px;padding:8px 0;position:relative;}
+.tl-line{position:absolute;left:10px;top:28px;bottom:-8px;width:1px;background:var(--border);}
+.tl-item:last-child .tl-line{display:none;}
+.tl-dot-col{width:22px;flex-shrink:0;display:flex;justify-content:center;padding-top:2px;position:relative;z-index:1;}
+.tl-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--border);background:var(--surface);}
+.tl-dot.sent{border-color:var(--accent);background:var(--accent);}
+.tl-dot.received{border-color:var(--text3);background:var(--text3);}
+.tl-dot.pending{border-color:var(--action);background:var(--action);}
+.tl-dot.waiting{border-color:var(--followup);background:var(--followup);}
+.tl-dot.money{border-color:var(--green);background:var(--green);}
+.tl-body{flex:1;min-width:0;}
+.tl-subject{font-size:12px;color:var(--text);font-weight:500;cursor:pointer;transition:color var(--t-fast);}
+.tl-subject:hover{color:var(--accent);}
+.tl-meta{font-size:10px;color:var(--text4);margin-top:2px;display:flex;gap:6px;align-items:center;}
+.tl-dir{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;}
+.tl-dir.inbound{background:#f0f4ff;color:#3b5998;}
+.tl-dir.outbound{background:var(--accent-light);color:var(--accent);}
+.tl-status{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;}
+.tl-status.replied{background:var(--green-light);color:var(--green);}
+.tl-status.pending-s{background:var(--action-bg);color:var(--action);}
+.tl-status.waiting-s{background:var(--followup-light);color:var(--followup);}
+.tl-status.paid{background:var(--green-light);color:var(--green);}
+
+/* Email list in contact detail */
+.cd-email-list{padding:0;}
+.cd-email-row{display:flex;align-items:center;gap:10px;padding:0 24px;height:42px;cursor:pointer;border-bottom:1px solid var(--border-lt);transition:background var(--t-fast);}
+.cd-email-row:hover{background:var(--hover);}
+.cd-email-dir{width:16px;text-align:center;font-size:10px;flex-shrink:0;}
+.cd-email-dir.in{color:var(--text3);}
+.cd-email-dir.out{color:var(--accent);}
+.cd-email-subject{font-size:13px;color:var(--text2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cd-email-status{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;flex-shrink:0;}
+.cd-email-date{font-size:11px;color:var(--text4);flex-shrink:0;width:80px;text-align:right;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ BRIEFING VIEW ═══════════ -->
+<div class="view active" id="view-briefing">
+  <div class="topbar">
+    <div class="topbar-logo">Email<span>Zap</span></div>
+    <div class="tab active" onclick="switchView('briefing')">Briefing <span class="count">3</span></div>
+    <div class="tab" onclick="switchView('crm')">Contacts</div>
+    <div class="tab" onclick="switchView('settings')">Settings</div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-right">Wed, May 14 · 9:12 AM</div>
+  </div>
+  <div class="briefing-search">
+    <input type="text" placeholder="Search all emails across accounts…" />
+    <span class="search-shortcut">/</span>
+  </div>
+  <div class="section-nav">
+    <div class="nav-link active" onclick="jumpTo('sec-action')">Needs Action<span class="nav-count"> 4</span></div>
+    <div class="nav-link" onclick="jumpTo('sec-fyi')">FYI<span class="nav-count"> 8</span></div>
+    <div class="nav-link" onclick="jumpTo('sec-followup')">Follow Up<span class="nav-count"> 3</span></div>
+    <div class="nav-link" onclick="jumpTo('sec-agents')">Agent Actions<span class="nav-count"> 3</span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-link" onclick="jumpTo('sec-allemail')">All Emails<span class="nav-count"> 47</span></div>
+  </div>
+
+  <div class="main-layout">
+    <div class="email-list-col" id="email-list-col">
+
+      <div class="briefing-container">
+        <div class="agent-summary"><div><div class="summary-greeting">Good morning, Chandan</div><div class="summary-sub"><b>47 emails</b> processed overnight — <b>4</b> need your action, <b>3</b> follow-ups pending, <b>3</b> agent actions to review.</div></div></div>
+
+        <!-- Needs Action -->
+        <div class="briefing-section" id="sec-action">
+          <div class="section-header"><span class="section-icon">●</span><span class="section-label action-label">Needs Action</span><span class="section-spacer"></span><span class="section-count">4</span><span class="section-action">Mark all done</span></div>
+          <div class="section-explain">Emails that need your reply or decision.</div>
+          <div class="email-row" data-sender="Acme Corp" data-subject="Re: Q3 contract renewal — final terms" data-type="customer" onclick="openEmail(this,'acme')">
+            <div class="email-check"></div><div class="email-sender">Acme Corp</div><div class="email-subject">Re: Q3 contract renewal — final terms</div><span class="intent-tag invoice">Invoice</span><div class="email-action-tag">Approve renewal terms</div><span class="email-cat">Customer</span><div class="email-time">8:41 AM</div>
+          </div>
+          <div class="email-row" data-sender="Zara Khan" data-subject="Referral from Sarah — interested in design services" data-type="lead" onclick="openEmail(this,'zara')">
+            <div class="email-check"></div><div class="email-sender">Zara Khan</div><div class="email-subject">Referral from Sarah — interested in design services</div><span class="intent-tag introduction">Intro</span><div class="email-action-tag">Warm lead — reply today</div><span class="email-cat" style="background:var(--green-light);color:var(--green)">Potential</span><div class="email-time">9:30 AM</div>
+          </div>
+          <div class="email-row" data-sender="Ravi Kumar" data-subject="Q3 budget — needs your approval" data-type="internal" onclick="openEmail(this,'ravi')">
+            <div class="email-check"></div><div class="email-sender">Ravi Kumar</div><div class="email-subject">Q3 budget — needs your approval</div><span class="intent-tag query">Query</span><div class="email-action-tag">Approve or request changes</div><span class="email-cat">Internal</span><div class="email-time">10:23 AM</div>
+          </div>
+          <div class="email-row" data-sender="Ali Asmi" data-subject="Re: Q3 onboarding plan — final review" data-type="internal" onclick="openEmail(this,'ali')">
+            <div class="email-check"></div><div class="email-sender">Ali Asmi</div><div class="email-subject">Re: Q3 onboarding plan — final review</div><span class="intent-tag deliverable">Deliverable</span><div class="email-action-tag">Reply: confirm agenda</div><span class="email-cat">Internal</span><div class="email-time">2d ago</div>
+          </div>
+        </div>
+
+        <!-- FYI -->
+        <div class="briefing-section" id="sec-fyi">
+          <div class="section-header"><span class="section-icon" style="color:var(--accent)">◆</span><span class="section-label">FYI</span><span class="section-spacer"></span><span class="section-count">8</span><span class="section-action">Mark all seen</span></div>
+          <div class="section-explain">Updates to register. No response needed.</div>
+          <div class="email-row" data-sender="Stripe" onclick="openEmail(this,'stripe')"><div class="email-check"></div><div class="email-sender read">Stripe</div><div class="email-subject">Payment received — ₹16,900 from ClientCo</div><div class="email-time">9:12 AM</div></div>
+          <div class="email-row" data-sender="GitHub" onclick="openEmail(this,'github')"><div class="email-check"></div><div class="email-sender read">GitHub</div><div class="email-subject">PR merged — auth refactor (#247)</div><div class="email-time">8:55 AM</div></div>
+          <div class="email-row" data-sender="Figma" onclick="openEmail(this,'figma')"><div class="email-check"></div><div class="email-sender read">Figma</div><div class="email-subject">Subscription renewed — $15/mo</div><div class="email-time">8:30 AM</div></div>
+          <div class="email-row" data-sender="Designcraft" onclick="openEmail(this,'designcraft')"><div class="email-check"></div><div class="email-sender read">Designcraft</div><div class="email-subject">Revised deliverables attached — round 3</div><div class="email-time">7:45 AM</div></div>
+          <div class="show-more">+ 4 more updates</div>
+        </div>
+
+        <!-- Follow Up -->
+        <div class="briefing-section" id="sec-followup">
+          <div class="section-header"><span class="section-icon" style="color:var(--followup)">↻</span><span class="section-label followup-label">Follow Up</span><span class="section-spacer"></span><span class="section-count">3</span></div>
+          <div class="section-explain">Emails you sent that haven't gotten a reply.</div>
+          <div class="email-row" data-sender="Priya Sharma" onclick="openEmail(this,'priya')"><div class="email-check" style="border-color:#ddd"></div><div class="email-sender">Priya Sharma</div><div class="email-subject">Proposal: Brand identity project — ₹4.8L</div><span class="intent-tag proposal">Proposal</span><span class="email-cat">Customer</span><div class="email-time" style="color:var(--action)">8d</div></div>
+          <div class="email-row" data-sender="Designcraft" onclick="openEmail(this,'designcraft')"><div class="email-check" style="border-color:#ddd"></div><div class="email-sender">Designcraft</div><div class="email-subject">Invoice #1047 — ₹2.4L</div><span class="intent-tag invoice">Invoice</span><span class="email-cat">Customer</span><div class="email-time" style="color:var(--action)">12d</div></div>
+          <div class="email-row" data-sender="TechStart Inc" onclick="openEmail(this,'techstart')"><div class="email-check" style="border-color:#ddd"></div><div class="email-sender">TechStart Inc</div><div class="email-subject">MVP proposal — ₹12L</div><span class="intent-tag proposal">Proposal</span><span class="email-cat" style="background:var(--green-light);color:var(--green)">Potential</span><div class="email-time" style="color:var(--action)">14d</div></div>
+        </div>
+
+        <!-- Review Agent Actions -->
+        <div class="briefing-section" id="sec-agents">
+          <div class="section-header"><span class="section-icon" style="color:var(--accent)">◆</span><span class="section-label agent-label">Agent Actions</span><span class="section-spacer"></span><span class="section-count">3</span></div>
+          <div class="section-explain">Actions your agents want to take. Review and approve.</div>
+          <div class="agent-row" onclick="showToast('Opening follow-up draft…')">
+            <div class="agent-icon">↻</div>
+            <div class="agent-name">Follow-up Agent</div>
+            <div class="agent-desc">Draft follow-up to Priya Sharma — proposal ₹4.8L, 8 days no reply</div>
+            <button class="agent-approve" onclick="event.stopPropagation();showToast('Follow-up sent to Priya Sharma')">Send</button>
+            <span class="agent-dismiss" onclick="event.stopPropagation();showToast('Dismissed')">×</span>
+          </div>
+          <div class="agent-row" onclick="showToast('Opening invoice reminder draft…')">
+            <div class="agent-icon">₹</div>
+            <div class="agent-name">Invoice Chaser</div>
+            <div class="agent-desc">Payment reminder #2 to Designcraft — Invoice #1047, ₹2.4L overdue 12 days</div>
+            <button class="agent-approve" onclick="event.stopPropagation();showToast('Reminder sent to Designcraft')">Send</button>
+            <span class="agent-dismiss" onclick="event.stopPropagation();showToast('Dismissed')">×</span>
+          </div>
+          <div class="agent-row" onclick="showToast('Opening lead response draft…')">
+            <div class="agent-icon">★</div>
+            <div class="agent-name">Lead Response</div>
+            <div class="agent-desc">Acknowledge Zara Khan's inquiry — warm referral from Sarah, schedule call</div>
+            <button class="agent-approve" onclick="event.stopPropagation();showToast('Response sent to Zara Khan')">Send</button>
+            <span class="agent-dismiss" onclick="event.stopPropagation();showToast('Dismissed')">×</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="all-emails-segment" id="sec-allemail">
+        <div class="all-emails-header"><span class="all-emails-title">All Emails</span><span class="all-emails-count">· 47</span></div>
+        <div class="category-bar"><div class="cat-pill active">All<span class="pill-count"> 47</span></div><div class="cat-pill">Customers<span class="pill-count"> 10</span></div><div class="cat-pill">Potential<span class="pill-count"> 8</span></div><div class="cat-pill">Vendors<span class="pill-count"> 12</span></div><div class="cat-pill">Internal<span class="pill-count"> 6</span></div><div class="cat-pill">Cold Outreach<span class="pill-count"> 11</span></div></div>
+        <div style="background:var(--surface);padding-bottom:20px;">
+          <div class="email-row" onclick="openEmail(this,'acme')" data-sender="Acme Corp"><div class="email-sender" style="font-weight:700">Acme Corp</div><div class="email-subject">Re: Q3 contract renewal — final terms</div><span class="intent-tag invoice">Invoice</span><div class="email-cat">Customer</div><div class="email-time">8:41 AM</div></div>
+          <div class="email-row" data-sender="Zara Khan"><div class="email-sender" style="font-weight:700">Zara Khan</div><div class="email-subject">Referral from Sarah — interested in design services</div><span class="intent-tag introduction">Intro</span><div class="email-cat" style="background:var(--green-light);color:var(--green)">Potential</div><div class="email-time">9:30 AM</div></div>
+          <div class="email-row" onclick="openEmail(this,'ravi')" data-sender="Ravi Kumar"><div class="email-sender" style="font-weight:700">Ravi Kumar</div><div class="email-subject">Q3 budget — needs your approval</div><span class="intent-tag query">Query</span><div class="email-cat">Internal</div><div class="email-time">10:23 AM</div></div>
+          <div class="email-row" onclick="openEmail(this,'ali')" data-sender="Ali Asmi"><div class="email-sender" style="font-weight:700">Ali Asmi</div><div class="email-subject">Re: Q3 onboarding plan — final review</div><span class="intent-tag deliverable">Deliverable</span><div class="email-cat">Internal</div><div class="email-time">10:23 AM</div></div>
+          <div class="email-row" onclick="openEmail(this,'stripe')" data-sender="Stripe"><div class="email-sender">Stripe</div><div class="email-subject">Payment received — ₹16,900 from ClientCo</div><span class="intent-tag general">General</span><div class="email-cat">Vendor</div><div class="email-time">9:12 AM</div></div>
+          <div class="email-row" data-sender="Figma"><div class="email-sender">Figma</div><div class="email-subject">Subscription renewed — $15/mo</div><span class="intent-tag invoice">Invoice</span><div class="email-cat">Vendor</div><div class="email-time">8:30 AM</div></div>
+          <div class="email-row" onclick="openEmail(this,'designcraft')" data-sender="Designcraft"><div class="email-sender">Designcraft</div><div class="email-subject">Revised deliverables — round 3</div><span class="intent-tag deliverable">Deliverable</span><div class="email-cat">Customer</div><div class="email-time">7:45 AM</div></div>
+          <div class="email-row" data-sender="Priya Sharma"><div class="email-sender">Priya Sharma</div><div class="email-subject">Brand identity — timeline question</div><span class="intent-tag query">Query</span><div class="email-cat">Customer</div><div class="email-time">Yesterday</div></div>
+          <div class="email-row" data-sender="SalesBot AI"><div class="email-sender" style="color:var(--text4)">SalesBot AI</div><div class="email-subject">Boost your pipeline with AI-powered outreach…</div><span class="intent-tag general">General</span><div class="email-cat" style="background:#fafafa;color:#ccc">Cold</div><div class="email-time" style="color:#ccc">Yesterday</div></div>
+          <div class="email-row" data-sender="Linear"><div class="email-sender">Linear</div><div class="email-subject">3 issues assigned to you</div><span class="intent-tag general">General</span><div class="email-cat">Vendor</div><div class="email-time">Yesterday</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail panel -->
+    <div class="detail-col" id="detail-col"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar-col" id="sidebar-col">
+      <div class="sb-empty">Click an email to see sender details.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CRM / CONTACTS VIEW ═══════════ -->
+<div class="view" id="view-crm">
+  <div class="topbar">
+    <div class="topbar-logo">Email<span>Zap</span></div>
+    <div class="tab" onclick="switchView('briefing')">Briefing <span class="count">3</span></div>
+    <div class="tab active" onclick="switchView('crm')">Contacts</div>
+    <div class="tab" onclick="switchView('settings')">Settings</div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-right">Wed, May 14 · 9:12 AM</div>
+  </div>
+
+  <div class="crm-split">
+    <div class="crm-list-col" id="crm-list-col">
+      <div class="crm-content">
+        <div class="crm-header">
+          <span class="crm-title">Contacts</span>
+          <span class="crm-count">38 contacts</span>
+        </div>
+
+        <input class="crm-search" type="text" placeholder="Search contacts…" />
+
+        <div class="crm-filters">
+          <div class="cat-pill active" onclick="filterCRM(this,'all')">All<span class="pill-count"> 38</span></div>
+          <div class="cat-pill" onclick="filterCRM(this,'customer')">Customers<span class="pill-count"> 12</span></div>
+          <div class="cat-pill" onclick="filterCRM(this,'lead')">Potential Customers<span class="pill-count"> 8</span></div>
+          <div class="cat-pill" onclick="filterCRM(this,'vendor')">Vendors<span class="pill-count"> 9</span></div>
+          <div class="cat-pill" onclick="filterCRM(this,'internal')">Internal<span class="pill-count"> 9</span></div>
+        </div>
+
+        <div style="padding:0 20px;">
+          <div class="crm-table">
+            <div class="crm-table-header">
+              <div class="crm-col crm-col-name">Contact</div>
+              <div class="crm-col crm-col-type">Type</div>
+              <div class="crm-col crm-col-last">Last contact</div>
+              <div class="crm-col crm-col-pending">Pending</div>
+              <div class="crm-col crm-col-threads">Threads</div>
+              <div class="crm-col crm-col-response">Avg reply</div>
+            </div>
+            <div id="crm-rows"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="crm-detail-col" id="crm-detail-col"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-text"></span></div>
+
+<script>
+// ── Contact data ──
+const contacts = [
+  {name:'Acme Corp',company:'Acme Corporation',type:'customer',last:'Today',pending:'reply',pendingText:'Approve renewal terms',threads:23,avgReply:'4h',initials:'A'},
+  {name:'Priya Sharma',company:'Independent',type:'customer',last:'8d ago',pending:'followup',pendingText:'Proposal — ₹4.8L, no reply',threads:14,avgReply:'6h',initials:'P'},
+  {name:'Designcraft',company:'Designcraft Studio',type:'customer',last:'Today',pending:'followup',pendingText:'Invoice #1047 — ₹2.4L overdue',threads:31,avgReply:'3h',initials:'D'},
+  {name:'Sarah Chen',company:'Chen Design Co',type:'customer',last:'Yesterday',pending:'reply',pendingText:'Deliverable format question',threads:8,avgReply:'2h',initials:'S'},
+  {name:'MegaTech',company:'MegaTech Solutions',type:'customer',last:'2d ago',pending:'none',pendingText:'',threads:19,avgReply:'8h',initials:'M'},
+  {name:'ClientCo',company:'ClientCo Pvt Ltd',type:'customer',last:'Yesterday',pending:'none',pendingText:'',threads:42,avgReply:'5h',initials:'C'},
+  {name:'TechStart Inc',company:'TechStart',type:'lead',last:'14d ago',pending:'followup',pendingText:'MVP proposal — ₹12L, no reply',threads:3,avgReply:'12h',initials:'T'},
+  {name:'Zara Khan',company:'Khan Agency',type:'lead',last:'3d ago',pending:'reply',pendingText:'Agency referral — reply within 24h',threads:1,avgReply:'—',initials:'Z'},
+  {name:'NewVenture',company:'NewVenture Labs',type:'lead',last:'4d ago',pending:'followup',pendingText:'Pitch deck follow-up pending',threads:2,avgReply:'—',initials:'N'},
+  {name:'AgencyCo',company:'Agency Collective',type:'lead',last:'6d ago',pending:'none',pendingText:'',threads:5,avgReply:'10h',initials:'A'},
+  {name:'MediaGroup',company:'MediaGroup Inc',type:'lead',last:'8d ago',pending:'followup',pendingText:'Sponsorship proposal — ₹50K',threads:2,avgReply:'—',initials:'M'},
+  {name:'StartupX',company:'StartupX',type:'lead',last:'5d ago',pending:'none',pendingText:'',threads:4,avgReply:'6h',initials:'S'},
+  {name:'ConsultCo',company:'ConsultCo',type:'lead',last:'10d ago',pending:'followup',pendingText:'Advisory retainer — ₹3L/mo',threads:3,avgReply:'—',initials:'C'},
+  {name:'DesignStudio',company:'Design Studio',type:'lead',last:'13d ago',pending:'followup',pendingText:'White-label pricing pending',threads:2,avgReply:'—',initials:'D'},
+  {name:'Figma',company:'Figma Inc',type:'vendor',last:'Today',pending:'none',pendingText:'',threads:6,avgReply:'—',initials:'F'},
+  {name:'Stripe',company:'Stripe Inc',type:'vendor',last:'Today',pending:'none',pendingText:'',threads:15,avgReply:'—',initials:'S'},
+  {name:'AWS',company:'Amazon Web Services',type:'vendor',last:'Yesterday',pending:'reply',pendingText:'IAM key rotation required',threads:9,avgReply:'—',initials:'A'},
+  {name:'Google',company:'Google Workspace',type:'vendor',last:'Today',pending:'reply',pendingText:'Storage upgrade decision',threads:11,avgReply:'—',initials:'G'},
+  {name:'Vercel',company:'Vercel Inc',type:'vendor',last:'3d ago',pending:'none',pendingText:'',threads:7,avgReply:'—',initials:'V'},
+  {name:'Freshbooks',company:'Freshbooks',type:'vendor',last:'3d ago',pending:'none',pendingText:'',threads:18,avgReply:'—',initials:'F'},
+  {name:'Razorpay',company:'Razorpay',type:'vendor',last:'3d ago',pending:'none',pendingText:'',threads:12,avgReply:'—',initials:'R'},
+  {name:'Linear',company:'Linear',type:'vendor',last:'Yesterday',pending:'none',pendingText:'',threads:8,avgReply:'—',initials:'L'},
+  {name:'Notion',company:'Notion Labs',type:'vendor',last:'2d ago',pending:'none',pendingText:'',threads:4,avgReply:'—',initials:'N'},
+  {name:'Ali Asmi',company:'Executive Function',type:'internal',last:'2d ago',pending:'reply',pendingText:'Confirm onboarding agenda',threads:34,avgReply:'1h',initials:'A'},
+  {name:'Ravi Kumar',company:'Executive Function',type:'internal',last:'Today',pending:'reply',pendingText:'Approve Q3 budget',threads:28,avgReply:'2h',initials:'R'},
+  {name:'Puneet Sharma',company:'Executive Function',type:'internal',last:'Yesterday',pending:'reply',pendingText:'Review auth refactor PR',threads:22,avgReply:'1h',initials:'P'},
+  {name:'Neeraj Singh',company:'Executive Function',type:'internal',last:'3d ago',pending:'reply',pendingText:'Select hiring shortlist',threads:15,avgReply:'3h',initials:'N'},
+  {name:'Ritik Patel',company:'Executive Function',type:'internal',last:'Yesterday',pending:'none',pendingText:'',threads:11,avgReply:'2h',initials:'R'},
+  {name:'Shivam Mehta',company:'Executive Function',type:'internal',last:'4d ago',pending:'reply',pendingText:'Approve infra migration',threads:9,avgReply:'2h',initials:'S'},
+  {name:'Anmol Gupta',company:'Executive Function',type:'internal',last:'3d ago',pending:'reply',pendingText:'Confirm launch date',threads:7,avgReply:'1h',initials:'A'},
+  {name:'Aisha Noor',company:'Executive Function',type:'internal',last:'5d ago',pending:'none',pendingText:'',threads:6,avgReply:'4h',initials:'A'},
+  {name:'InvestorCo',company:'InvestorCo Partners',type:'lead',last:'9d ago',pending:'followup',pendingText:'Term sheet — awaiting response',threads:4,avgReply:'24h',initials:'I'},
+  {name:'LegalFirm',company:'LegalFirm LLP',type:'vendor',last:'16d ago',pending:'none',pendingText:'',threads:3,avgReply:'—',initials:'L'},
+  {name:'MarketingCo',company:'MarketingCo',type:'customer',last:'4d ago',pending:'followup',pendingText:'Campaign retainer — ₹2L/mo',threads:6,avgReply:'5h',initials:'M'},
+  {name:'DataCo',company:'DataCo Analytics',type:'customer',last:'11d ago',pending:'followup',pendingText:'Analytics setup — ₹80K',threads:3,avgReply:'8h',initials:'D'},
+  {name:'SecurityFirm',company:'SecurityFirm',type:'customer',last:'6d ago',pending:'none',pendingText:'',threads:5,avgReply:'4h',initials:'S'},
+  {name:'ContentAgency',company:'Content Agency',type:'customer',last:'9d ago',pending:'followup',pendingText:'6-month content plan',threads:4,avgReply:'6h',initials:'C'},
+  {name:'UXLab',company:'UXLab Research',type:'customer',last:'5d ago',pending:'none',pendingText:'',threads:7,avgReply:'3h',initials:'U'},
+];
+
+// Sort: pending items first (reply, then followup, then none)
+const pendingOrder = {reply:0,followup:1,none:2};
+contacts.sort((a,b) => pendingOrder[a.pending] - pendingOrder[b.pending]);
+
+function renderCRM(filter) {
+  const filtered = filter === 'all' ? contacts : contacts.filter(c => c.type === filter);
+  document.getElementById('crm-rows').innerHTML = filtered.map(c => {
+    let pendingHTML = '';
+    if(c.pending === 'reply') pendingHTML = `<span class="crm-pending-tag reply">Need to reply</span><span class="crm-pending-text">${c.pendingText}</span>`;
+    else if(c.pending === 'followup') pendingHTML = `<span class="crm-pending-tag followup">Follow up</span><span class="crm-pending-text">${c.pendingText}</span>`;
+    else pendingHTML = `<span class="crm-pending-tag none">—</span>`;
+
+    return `<div class="crm-row" onclick="openContact('${c.name}')">
+      <div class="crm-col crm-col-name"><div class="crm-name">${c.name}</div><div class="crm-company">${c.company}</div></div>
+      <div class="crm-col crm-col-type"><span class="crm-type ${c.type}">${c.type==='customer'?'Customer':c.type==='vendor'?'Vendor':c.type==='lead'?'Potential':c.type==='internal'?'Internal':c.type}</span></div>
+      <div class="crm-col crm-col-last"><span class="crm-last">${c.last}</span></div>
+      <div class="crm-col crm-col-pending"><div class="crm-pending">${pendingHTML}</div></div>
+      <div class="crm-col crm-col-threads"><span class="crm-threads">${c.threads}</span></div>
+      <div class="crm-col crm-col-response"><span class="crm-response">${c.avgReply}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function filterCRM(pill, type) {
+  pill.parentElement.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  renderCRM(type);
+}
+
+renderCRM('all');
+
+// ── Sidebar data ──
+const sidebarData = {
+  ali: {name:'Ali Asmi',company:'Executive Function',type:'internal',initials:'A',threads:34,avgReply:'1h',lastContact:'2 days ago',
+    recentThreads:[
+      {subject:'Re: Q3 onboarding plan — final review',date:'2d ago',status:'pending',statusLabel:'Awaiting your reply'},
+      {subject:'Onboarding metrics — W1 data',date:'5d ago',status:'replied',statusLabel:'You replied'},
+      {subject:'Team standup notes — May 9',date:'1w ago',status:'replied',statusLabel:'You replied'}
+    ],
+    actions:['Reply to onboarding plan','Schedule 1:1','View all 34 threads']},
+  ravi: {name:'Ravi Kumar',company:'Executive Function',type:'internal',initials:'R',threads:28,avgReply:'2h',lastContact:'Today',
+    recentThreads:[
+      {subject:'Q3 budget — needs your approval',date:'Today',status:'pending',statusLabel:'Awaiting your reply'},
+      {subject:'Hiring plan — backend eng',date:'3d ago',status:'replied',statusLabel:'You replied'},
+      {subject:'Q2 budget review — final',date:'2w ago',status:'replied',statusLabel:'Closed'}
+    ],
+    actions:['Approve Q3 budget','Schedule sync','View all 28 threads']},
+  acme: {name:'Acme Corp',company:'Acme Corporation',type:'customer',initials:'A',threads:23,avgReply:'4h',lastContact:'Today',
+    recentThreads:[
+      {subject:'Q3 contract renewal — final terms',date:'Today',status:'pending',statusLabel:'Awaiting your reply'},
+      {subject:'Invoice #1038 — ₹6.2L',date:'1w ago',status:'replied',statusLabel:'Paid'},
+      {subject:'Phase 1 deliverables — sign-off',date:'2w ago',status:'replied',statusLabel:'Closed'}
+    ],
+    actions:['Approve renewal','View all 23 threads']},
+  priya: {name:'Priya Sharma',company:'Independent',type:'customer',initials:'P',threads:14,avgReply:'6h',lastContact:'8d ago',
+    recentThreads:[
+      {subject:'Proposal: Brand identity — ₹4.8L',date:'8d ago',status:'waiting',statusLabel:'No reply — 8 days'},
+      {subject:'Portfolio review — initial call',date:'3w ago',status:'replied',statusLabel:'You replied'}
+    ],
+    actions:['Send follow-up','View all 14 threads']},
+  stripe: {name:'Stripe',company:'Stripe Inc',type:'vendor',initials:'S',threads:15,avgReply:'—',lastContact:'Today',
+    recentThreads:[
+      {subject:'Payment received — ₹16,900',date:'Today',status:'replied',statusLabel:'FYI'},
+      {subject:'Payout initiated — ₹48,200',date:'3d ago',status:'replied',statusLabel:'FYI'},
+      {subject:'Monthly statement — April',date:'2w ago',status:'replied',statusLabel:'FYI'}
+    ],
+    actions:['View all 15 threads']},
+  designcraft: {name:'Designcraft',company:'Designcraft Studio',type:'customer',initials:'D',threads:31,avgReply:'3h',lastContact:'Today',
+    recentThreads:[
+      {subject:'Invoice #1047 — ₹2.4L',date:'12d ago',status:'waiting',statusLabel:'Overdue — 12 days'},
+      {subject:'Revised deliverables — round 3',date:'Today',status:'replied',statusLabel:'FYI'},
+      {subject:'Project timeline — phase 2',date:'1w ago',status:'replied',statusLabel:'Closed'}
+    ],
+    actions:['Send payment reminder','View all 31 threads']},
+};
+
+// Default fallback
+const defaultSidebar = {name:'Sender',company:'',type:'vendor',initials:'?',threads:1,avgReply:'—',lastContact:'Today',recentThreads:[],actions:[]};
+
+// ── Thread data ──
+const threads = {
+  ali:{subject:'Re: Q3 onboarding plan — final review',action:'Reply needed: confirm the onboarding agenda',messages:[{from:'Ali Asmi',initials:'A',to:'you',time:'May 12, 10:23 AM',body:'<p>Hi Chandan,</p><p>Revised agenda attached. Can you confirm:</p><p>1. Kickoff: June 2<br>2. Cohort: 15 users<br>3. Modules: Core + Advanced</p><p>Need sign-off before calendar invites.</p><p class="sig">— Ali</p>'}],aiReply:'<p>Hi Ali,</p><p>Confirming all three. June 2 works, 15 users, Core + Advanced. Go ahead with calendar invites.</p>'},
+  ravi:{subject:'Q3 budget — needs your approval',action:'Approve the Q3 budget or request changes',messages:[{from:'Ravi Kumar',initials:'R',to:'you',time:'Today, 10:23 AM',body:'<p>Hi Chandan,</p><p>Q3 budget ready. Changes from Q2:</p><p>• Eng: +2 headcount<br>• Marketing: +20%<br>• Infra: ₹45K/mo increase</p><p>Total: ₹18.2L (up from ₹14.8L)</p><p class="sig">— Ravi</p>'}],aiReply:'<p>Hi Ravi,</p><p>Looks reasonable. Two questions:<br>1. Marketing tied to conversion targets?<br>2. Backend hire timeline?</p><p>Let\'s discuss tomorrow.</p>'},
+  acme:{subject:'Re: Q3 contract renewal — final terms',action:'Approve renewal terms or request changes',messages:[{from:'James Lee',initials:'J',to:'you',time:'Today, 8:41 AM',body:'<p>Hi Chandan,</p><p>Attached final terms for Q3 renewal:</p><p>• Duration: 6 months<br>• Rate: ₹6.2L/quarter (3% increase)<br>• Scope: same as Q2 + design support<br>• Payment: NET 30</p><p>Let me know if these work.</p><p class="sig">— James, Acme Corp</p>'}],aiReply:'<p>Hi James,</p><p>Terms look good. The 3% increase is fine given the added design support. I\'ll have our legal team review and get back by Thursday.</p>'},
+  stripe:{subject:'Payment received — ₹16,900 from ClientCo',messages:[{from:'Stripe',initials:'S',to:'you',time:'Today, 9:12 AM',body:'<p>Payment of <b>₹16,900.00</b> received.</p><p>From: ClientCo Pvt Ltd<br>Invoice #1042 — May retainer<br>Net: ₹16,562.20</p>'}]},
+  priya:{subject:'Proposal: Brand identity project — ₹4.8L',messages:[{from:'You',initials:'C',to:'Priya Sharma',time:'May 6, 2:30 PM',body:'<p>Hi Priya,</p><p>Thanks for the brief. Attached is our proposal for the brand identity project:</p><p>• Scope: Logo, brand guidelines, collateral<br>• Timeline: 8 weeks<br>• Investment: ₹4,80,000</p><p>Happy to discuss.</p>'}]},
+};
+const defaultThread = {subject:'Email',messages:[{from:'Sender',initials:'?',to:'you',time:'Today',body:'<p>Email content here.</p>'}]};
+
+// ── View switching ──
+function switchView(n) {
+  closeEmailPanel();
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-'+n).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function jumpTo(id) {
+  const el = document.getElementById(id);
+  if(el) window.scrollTo({top:el.getBoundingClientRect().top+window.pageYOffset-94,behavior:'smooth'});
+  document.querySelectorAll('#view-briefing .nav-link').forEach(l => l.classList.remove('active'));
+  if(event&&event.target) event.target.closest('.nav-link').classList.add('active');
+}
+
+// ── Open email ──
+function openEmail(row, key) {
+  const thread = threads[key] || defaultThread;
+  const sb = sidebarData[key] || {...defaultSidebar, name: row.dataset.sender || 'Sender'};
+
+  document.querySelectorAll('.email-row.selected').forEach(r => r.classList.remove('selected'));
+  row.classList.add('selected');
+  document.getElementById('email-list-col').classList.add('narrowed');
+
+  // Detail panel
+  const panel = document.getElementById('detail-col');
+  panel.classList.add('open');
+  let h = `<div class="dp-topbar"><span class="dp-close" onclick="closeEmailPanel()">×</span><div class="dp-topbar-spacer"></div>`;
+  h += `<button class="dp-action-btn" onclick="showToast('Pinned to top')">📌 Pin</button>`;
+  h += `<button class="dp-action-btn" onclick="showToast('Snoozed until tomorrow 8am')">⏰ Snooze</button>`;
+  if(thread.aiReply) h += `<button class="dp-action-btn primary" onclick="showToast('Reply sent')">Send reply</button>`;
+  h += `</div><div class="dp-thread"><div class="dp-subject">${thread.subject}</div>`;
+  if(thread.action) h += `<div class="dp-action-banner"><span class="ab-icon">◆</span>${thread.action}</div>`;
+  thread.messages.forEach(msg => {
+    h += `<div class="dp-message"><div class="dp-msg-header"><div class="dp-msg-avatar">${msg.initials}</div><div><div class="dp-msg-from">${msg.from}</div><div class="dp-msg-to">to ${msg.to}</div></div><div class="dp-msg-spacer"></div><div class="dp-msg-time">${msg.time}</div></div><div class="dp-msg-body">${msg.body}</div></div>`;
+  });
+  if(thread.aiReply) {
+    h += `<div class="dp-ai-reply"><div class="dp-ai-header"><div class="ai-icon">◆</div>Suggested reply</div><div class="dp-ai-body">${thread.aiReply}</div><div class="dp-ai-actions"><button class="dp-action-btn primary" onclick="showToast('Reply sent')">Send</button><button class="dp-action-btn" onclick="showToast('Copied to editor')">Edit</button><span class="dp-ai-edit" onclick="showToast('Regenerating…')">Regenerate</span></div></div>`;
+  }
+  h += '</div>';
+  panel.innerHTML = h;
+  panel.scrollTop = 0;
+
+  // Sidebar
+  const sidebar = document.getElementById('sidebar-col');
+  sidebar.classList.add('open');
+  const typeLabel = {customer:'Customer',vendor:'Vendor',lead:'Potential Client',internal:'Internal'}[sb.type]||sb.type;
+  const typeCls = sb.type;
+  let s = '';
+
+  // Contact
+  s += `<div class="sb-section"><div class="sb-contact"><div class="sb-avatar">${sb.initials}</div><div><div class="sb-name">${sb.name}</div><div class="sb-company">${sb.company}</div><span class="sb-type-badge ${typeCls}">${typeLabel}</span></div></div></div>`;
+
+  // Stats
+  s += `<div class="sb-section"><div class="sb-label">Relationship</div><div class="sb-stats"><div class="sb-stat"><div class="val">${sb.threads}</div><div class="lbl">Threads</div></div><div class="sb-stat"><div class="val">${sb.avgReply}</div><div class="lbl">Avg reply</div></div><div class="sb-stat"><div class="val">${sb.lastContact}</div><div class="lbl">Last contact</div></div><div class="sb-stat"><div class="val">${sb.recentThreads.filter(t=>t.status==='pending'||t.status==='waiting').length||'—'}</div><div class="lbl">Pending</div></div></div></div>`;
+
+  // Recent threads
+  if(sb.recentThreads.length) {
+    s += `<div class="sb-section"><div class="sb-label">Recent threads</div>`;
+    sb.recentThreads.forEach(t => {
+      const statusCls = t.status==='pending'?'pending':t.status==='waiting'?'waiting':'replied';
+      s += `<div class="sb-thread"><div class="sb-thread-subject">${t.subject}</div><div class="sb-thread-meta"><span>${t.date}</span><span class="sb-thread-status ${statusCls}">${t.statusLabel}</span></div></div>`;
+    });
+    s += `</div>`;
+  }
+
+  // Quick actions
+  if(sb.actions.length) {
+    s += `<div class="sb-section"><div class="sb-label">Quick actions</div><div class="sb-actions">`;
+    sb.actions.forEach(a => {
+      s += `<button class="sb-action-btn" onclick="showToast('${a}')"><span class="sb-act-icon">→</span>${a}</button>`;
+    });
+    s += `</div></div>`;
+  }
+
+  sidebar.innerHTML = s;
+}
+
+function closeEmailPanel() {
+  document.getElementById('email-list-col').classList.remove('narrowed');
+  document.getElementById('detail-col').classList.remove('open');
+  document.getElementById('detail-col').innerHTML = '';
+  document.getElementById('sidebar-col').classList.remove('open');
+  document.getElementById('sidebar-col').innerHTML = '<div class="sb-empty">Click an email to see sender details.</div>';
+  document.querySelectorAll('.email-row.selected').forEach(r => r.classList.remove('selected'));
+}
+
+// Category pills
+document.querySelectorAll('.cat-pill').forEach(p => {
+  if(!p.onclick) p.addEventListener('click', function(){
+    this.parentElement.querySelectorAll('.cat-pill').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Scroll spy
+const secs = ['sec-action','sec-fyi','sec-followup','sec-agents','sec-allemail'];
+window.addEventListener('scroll', () => {
+  const bv = document.getElementById('view-briefing');
+  if(!bv.classList.contains('active')) return;
+  const nl = bv.querySelectorAll('.nav-link');
+  let ai = 0;
+  secs.forEach((id,i) => { const el = document.getElementById(id); if(el && el.getBoundingClientRect().top < 120) ai = i; });
+  nl.forEach((l,i) => l.classList.toggle('active', i === ai));
+});
+
+// ── Contact detail data ──
+const contactTimelines = {
+  'Acme Corp': {
+    emails: [
+      {dir:'in',subject:'Q3 contract renewal — final terms',date:'May 14',status:'pending',statusLabel:'Awaiting reply',statusCls:'pending-s',dotCls:'pending',month:'May 2026'},
+      {dir:'out',subject:'Invoice #1038 — ₹6.2L',date:'May 7',status:'paid',statusLabel:'Paid',statusCls:'paid',dotCls:'money',month:'May 2026'},
+      {dir:'in',subject:'Phase 1 deliverables — sign-off request',date:'May 2',status:'replied',statusLabel:'Signed off',statusCls:'replied',dotCls:'received',month:'May 2026'},
+      {dir:'out',subject:'Phase 1 final deliverables — attached',date:'Apr 28',status:'replied',statusLabel:'Delivered',statusCls:'replied',dotCls:'sent',month:'April 2026'},
+      {dir:'in',subject:'Feedback on round 2 designs',date:'Apr 22',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+      {dir:'out',subject:'Round 2 designs — 3 concepts attached',date:'Apr 15',status:'replied',statusLabel:'Delivered',statusCls:'replied',dotCls:'sent',month:'April 2026'},
+      {dir:'in',subject:'Re: Project timeline — phase 1 kickoff',date:'Apr 8',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+      {dir:'out',subject:'Proposal: Q2 retainer — ₹6L/quarter',date:'Mar 25',status:'replied',statusLabel:'Accepted',statusCls:'replied',dotCls:'sent',month:'March 2026'},
+      {dir:'in',subject:'Initial inquiry — design services',date:'Mar 18',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'March 2026'},
+      {dir:'out',subject:'Welcome! Next steps for onboarding',date:'Mar 20',status:'replied',statusLabel:'Sent',statusCls:'replied',dotCls:'sent',month:'March 2026'},
+    ]
+  },
+  'Priya Sharma': {
+    emails: [
+      {dir:'out',subject:'Proposal: Brand identity project — ₹4.8L',date:'May 6',status:'waiting',statusLabel:'No reply — 8 days',statusCls:'waiting-s',dotCls:'waiting',month:'May 2026'},
+      {dir:'in',subject:'Brand brief — final version attached',date:'May 4',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'May 2026'},
+      {dir:'out',subject:'Questions about the brand direction',date:'May 1',status:'replied',statusLabel:'She replied',statusCls:'replied',dotCls:'sent',month:'May 2026'},
+      {dir:'in',subject:'Portfolio review — initial call notes',date:'Apr 20',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+      {dir:'out',subject:'Nice to meet you — availability for call?',date:'Apr 16',status:'replied',statusLabel:'She replied',statusCls:'replied',dotCls:'sent',month:'April 2026'},
+      {dir:'in',subject:'Referral from Acme — brand identity help',date:'Apr 14',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+    ]
+  },
+  'Ravi Kumar': {
+    emails: [
+      {dir:'in',subject:'Q3 budget — needs your approval',date:'May 14',status:'pending',statusLabel:'Awaiting reply',statusCls:'pending-s',dotCls:'pending',month:'May 2026'},
+      {dir:'in',subject:'Hiring plan — backend engineer shortlist',date:'May 11',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'May 2026'},
+      {dir:'out',subject:'Re: Hiring — approved 2 headcount',date:'May 9',status:'replied',statusLabel:'Sent',statusCls:'replied',dotCls:'sent',month:'May 2026'},
+      {dir:'in',subject:'Q2 budget review — final numbers',date:'Apr 30',status:'replied',statusLabel:'Closed',statusCls:'replied',dotCls:'received',month:'April 2026'},
+      {dir:'in',subject:'Infrastructure cost projection — Q3',date:'Apr 25',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+      {dir:'out',subject:'Re: Infra — approved dedicated instances',date:'Apr 26',status:'replied',statusLabel:'Sent',statusCls:'replied',dotCls:'sent',month:'April 2026'},
+      {dir:'in',subject:'Marketing budget increase proposal',date:'Apr 18',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+      {dir:'in',subject:'Team capacity planning — Q2 review',date:'Apr 5',status:'replied',statusLabel:'Closed',statusCls:'replied',dotCls:'received',month:'April 2026'},
+    ]
+  },
+  'Designcraft': {
+    emails: [
+      {dir:'out',subject:'Invoice #1047 — ₹2.4L',date:'May 2',status:'waiting',statusLabel:'Overdue — 12 days',statusCls:'waiting-s',dotCls:'waiting',month:'May 2026'},
+      {dir:'in',subject:'Revised deliverables attached — round 3',date:'May 14',status:'replied',statusLabel:'FYI',statusCls:'replied',dotCls:'received',month:'May 2026'},
+      {dir:'in',subject:'Round 2 revisions — minor changes',date:'May 8',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'May 2026'},
+      {dir:'out',subject:'Feedback on round 1 — revision notes',date:'May 5',status:'replied',statusLabel:'They replied',statusCls:'replied',dotCls:'sent',month:'May 2026'},
+      {dir:'in',subject:'Round 1 deliverables — 5 screens',date:'Apr 28',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+      {dir:'out',subject:'Project kickoff — brief and timeline',date:'Apr 20',status:'replied',statusLabel:'They replied',statusCls:'replied',dotCls:'sent',month:'April 2026'},
+      {dir:'out',subject:'SOW signed — let\'s begin',date:'Apr 15',status:'replied',statusLabel:'Sent',statusCls:'replied',dotCls:'sent',month:'April 2026'},
+      {dir:'in',subject:'Proposal accepted — SOW attached',date:'Apr 12',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+      {dir:'out',subject:'Proposal: UI/UX redesign — ₹2.4L',date:'Apr 5',status:'replied',statusLabel:'Accepted',statusCls:'replied',dotCls:'sent',month:'April 2026'},
+      {dir:'in',subject:'Initial inquiry — UI/UX redesign',date:'Apr 2',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+    ]
+  },
+  'Ali Asmi': {
+    emails: [
+      {dir:'in',subject:'Re: Q3 onboarding plan — final review',date:'May 12',status:'pending',statusLabel:'Awaiting reply',statusCls:'pending-s',dotCls:'pending',month:'May 2026'},
+      {dir:'out',subject:'Re: Q3 onboarding — looks good, checking',date:'May 8',status:'replied',statusLabel:'Sent',statusCls:'replied',dotCls:'sent',month:'May 2026'},
+      {dir:'in',subject:'Q3 onboarding plan — initial draft',date:'May 6',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'May 2026'},
+      {dir:'in',subject:'Onboarding metrics — W1 data',date:'May 9',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'May 2026'},
+      {dir:'in',subject:'Team standup notes — May 9',date:'May 9',status:'replied',statusLabel:'Noted',statusCls:'replied',dotCls:'received',month:'May 2026'},
+      {dir:'out',subject:'Re: Standup — action items assigned',date:'May 9',status:'replied',statusLabel:'Sent',statusCls:'replied',dotCls:'sent',month:'May 2026'},
+      {dir:'in',subject:'Q2 onboarding retro — key learnings',date:'Apr 28',status:'replied',statusLabel:'You replied',statusCls:'replied',dotCls:'received',month:'April 2026'},
+      {dir:'out',subject:'Re: Retro — agreed on 3 changes',date:'Apr 29',status:'replied',statusLabel:'Sent',statusCls:'replied',dotCls:'sent',month:'April 2026'},
+    ]
+  },
+  'Stripe': {
+    emails: [
+      {dir:'in',subject:'Payment received — ₹16,900 from ClientCo',date:'May 14',status:'replied',statusLabel:'FYI',statusCls:'replied',dotCls:'money',month:'May 2026'},
+      {dir:'in',subject:'Payout initiated — ₹48,200',date:'May 11',status:'replied',statusLabel:'FYI',statusCls:'replied',dotCls:'money',month:'May 2026'},
+      {dir:'in',subject:'Payment received — ₹24,000 from MegaTech',date:'May 5',status:'replied',statusLabel:'FYI',statusCls:'replied',dotCls:'money',month:'May 2026'},
+      {dir:'in',subject:'Monthly statement — April 2026',date:'May 1',status:'replied',statusLabel:'FYI',statusCls:'replied',dotCls:'received',month:'May 2026'},
+      {dir:'in',subject:'Payment received — ₹16,900 from ClientCo',date:'Apr 14',status:'replied',statusLabel:'FYI',statusCls:'replied',dotCls:'money',month:'April 2026'},
+      {dir:'in',subject:'Payout initiated — ₹52,100',date:'Apr 11',status:'replied',statusLabel:'FYI',statusCls:'replied',dotCls:'money',month:'April 2026'},
+      {dir:'in',subject:'Dispute opened — ₹8,400',date:'Apr 3',status:'replied',statusLabel:'Resolved',statusCls:'replied',dotCls:'received',month:'April 2026'},
+    ]
+  }
+};
+
+// ── Open contact detail ──
+function openContact(name) {
+  const c = contacts.find(x => x.name === name);
+  if(!c) return;
+
+  document.getElementById('crm-list-col').classList.add('narrowed');
+  const panel = document.getElementById('crm-detail-col');
+  panel.classList.add('open');
+
+  const typeLabel = {customer:'Customer',vendor:'Vendor',lead:'Potential Client',internal:'Internal'}[c.type];
+  const typeCls = c.type;
+  const timeline = contactTimelines[name];
+  const emails = timeline ? timeline.emails : [];
+
+  // Pending banner
+  let pendingBanner = '';
+  if(c.pending === 'reply') pendingBanner = `<div class="cd-pending-banner reply">● Need to reply: ${c.pendingText}<span class="cd-pending-action" onclick="showToast('Opening reply…')">Reply →</span></div>`;
+  else if(c.pending === 'followup') pendingBanner = `<div class="cd-pending-banner followup">↻ Follow up: ${c.pendingText}<span class="cd-pending-action" onclick="showToast('Opening follow-up…')">Send follow-up →</span></div>`;
+
+  // Build timeline HTML
+  let timelineHTML = '<div class="cd-timeline">';
+  let currentMonth = '';
+  emails.forEach((e, i) => {
+    if(e.month !== currentMonth) {
+      currentMonth = e.month;
+      timelineHTML += `<div class="tl-month">${currentMonth}</div>`;
+    }
+    const dirLabel = e.dir === 'in' ? 'Received' : 'Sent';
+    const dirCls = e.dir === 'in' ? 'inbound' : 'outbound';
+    timelineHTML += `<div class="tl-item">
+      <div class="tl-dot-col"><div class="tl-dot ${e.dotCls}"></div><div class="tl-line"></div></div>
+      <div class="tl-body">
+        <div class="tl-subject" onclick="showToast('Opening: ${e.subject.replace(/'/g,'')}')">${e.subject}</div>
+        <div class="tl-meta">
+          <span>${e.date}</span>
+          <span class="tl-dir ${dirCls}">${dirLabel}</span>
+          <span class="tl-status ${e.statusCls}">${e.statusLabel}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  timelineHTML += '</div>';
+
+  // Build email list HTML
+  let emailListHTML = '<div class="cd-email-list">';
+  emails.forEach(e => {
+    const dirIcon = e.dir === 'in' ? '↓' : '↑';
+    const dirCls = e.dir === 'in' ? 'in' : 'out';
+    let statusHTML = '';
+    if(e.statusCls === 'pending-s') statusHTML = `<span class="cd-email-status" style="background:var(--action-bg);color:var(--action)">${e.statusLabel}</span>`;
+    else if(e.statusCls === 'waiting-s') statusHTML = `<span class="cd-email-status" style="background:var(--followup-light);color:var(--followup)">${e.statusLabel}</span>`;
+    else if(e.statusCls === 'paid') statusHTML = `<span class="cd-email-status" style="background:var(--green-light);color:var(--green)">${e.statusLabel}</span>`;
+    else statusHTML = `<span class="cd-email-status" style="background:var(--hover);color:var(--text4)">${e.statusLabel}</span>`;
+
+    emailListHTML += `<div class="cd-email-row" onclick="showToast('Opening: ${e.subject.replace(/'/g,'')}')">
+      <span class="cd-email-dir ${dirCls}">${dirIcon}</span>
+      <div class="cd-email-subject">${e.subject}</div>
+      ${statusHTML}
+      <div class="cd-email-date">${e.date}</div>
+    </div>`;
+  });
+  emailListHTML += '</div>';
+
+  let h = `
+    <div class="cd-header">
+      <div class="cd-top">
+        <div class="cd-avatar">${c.initials}</div>
+        <div>
+          <div class="cd-name">${c.name}</div>
+          <div class="cd-company">${c.company}</div>
+          <span class="cd-type ${typeCls}">${typeLabel}</span>
+        </div>
+        <span class="cd-close" onclick="closeContact()">×</span>
+      </div>
+      <div class="cd-stats">
+        <div class="cd-stat"><div class="cd-val">${c.threads}</div><div class="cd-lbl">Threads</div></div>
+        <div class="cd-stat"><div class="cd-val">${c.avgReply}</div><div class="cd-lbl">Avg reply</div></div>
+        <div class="cd-stat"><div class="cd-val">${c.last}</div><div class="cd-lbl">Last contact</div></div>
+        <div class="cd-stat"><div class="cd-val">${c.pending!=='none'?'1':'—'}</div><div class="cd-lbl">Pending</div></div>
+      </div>
+    </div>
+    ${pendingBanner}
+    <div class="cd-tabs">
+      <div class="cd-tab active" onclick="showCRMTab(this,'timeline-${name.replace(/\s/g,'')}')">Timeline</div>
+      <div class="cd-tab" onclick="showCRMTab(this,'emails-${name.replace(/\s/g,'')}')">All Emails (${emails.length})</div>
+    </div>
+    <div id="timeline-${name.replace(/\s/g,'')}">${timelineHTML}</div>
+    <div id="emails-${name.replace(/\s/g,'')}" style="display:none">${emailListHTML}</div>
+  `;
+
+  panel.innerHTML = h;
+  panel.scrollTop = 0;
+}
+
+function closeContact() {
+  document.getElementById('crm-list-col').classList.remove('narrowed');
+  document.getElementById('crm-detail-col').classList.remove('open');
+  document.getElementById('crm-detail-col').innerHTML = '';
+}
+
+function showCRMTab(tabEl, panelId) {
+  // Toggle tabs
+  tabEl.parentElement.querySelectorAll('.cd-tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  // Toggle panels — hide siblings, show target
+  const parent = document.getElementById(panelId).parentElement;
+  const panels = parent.querySelectorAll('.cd-timeline, .cd-email-list');
+  // Actually, use IDs — find all tab content divs
+  const allIds = [];
+  tabEl.parentElement.querySelectorAll('.cd-tab').forEach(t => {
+    const onclick = t.getAttribute('onclick');
+    const match = onclick.match(/'([^']+)'/);
+    if(match) allIds.push(match[1]);
+  });
+  allIds.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = id === panelId ? '' : 'none';
+  });
+}
+
+let toastT;
+function showToast(m) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = m;
+  t.classList.add('visible');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('visible'), 2200);
+}
+</script>
+</body>
+</html>
