@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EmailZap — Mobile Native (Business)</title>
+<style>
+:root{
+  --ink:#161616; --ink-2:#3a3a3a; --ink-3:#6b6b6b; --ink-4:#9c9c9c; --ink-5:#c4c1b9;
+  --line:#e6e3dc; --line-soft:#efece5;
+  --paper:#faf8f3; --paper-2:#f4f0e6; --surface:#ffffff;
+  --accent:#1b4332; --accent-soft:#e8efea;
+  --warn:#a13b1f; --warn-soft:#fbeee9;
+  --gold:#8b6914; --gold-soft:#f4ecd6;
+  --plum:#5c4a7a; --plum-soft:#ece8f2;
+  --teal:#2f5d4f; --teal-soft:#dfe9e3;
+  --mauve:#9d4e6c; --mauve-soft:#f3e8ee;
+  --green:#2f8f5f; --green-soft:#e3f2e9;
+  --text:var(--ink); --text2:var(--ink-2); --text3:var(--ink-3); --text4:var(--ink-4);
+  --bg:var(--paper); --hover:var(--paper-2); --sep:var(--line); --sep-lt:var(--line-soft);
+  --act:var(--warn); --act-bg:var(--warn-soft); --red:var(--warn);
+  --serif:'Tiempos Headline','Charter','Iowan Old Style','Apple Garamond','Baskerville','Times New Roman',serif;
+  --font:-apple-system,BlinkMacSystemFont,'Inter','Helvetica Neue',sans-serif;
+  --mono:'SF Mono','JetBrains Mono','Menlo',monospace;
+  --r-card:14px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:var(--font);background:radial-gradient(circle at 50% 0%,#2a2a30,#141418);color:var(--text);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.45;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+
+.phone{width:390px;height:844px;background:#000;border-radius:54px;padding:11px;box-shadow:0 0 0 2px #3a3a40,0 30px 70px rgba(0,0,0,.6);position:relative;flex-shrink:0;}
+.phone-screen{width:100%;height:100%;background:var(--bg);border-radius:44px;overflow:hidden;position:relative;}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:34px;background:#000;border-radius:20px;z-index:9000;}
+.statusbar{position:absolute;top:0;left:0;right:0;height:54px;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:15px 30px 0;font-size:15px;font-weight:600;color:var(--ink);pointer-events:none;}
+.statusbar .sb-right{display:flex;align-items:center;gap:7px;}
+.statusbar .bat{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;}
+.statusbar svg{height:13px;fill:var(--ink);}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg);}
+.screen.active{display:flex;}
+.view{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transform:translateX(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);z-index:1000;}
+.view.open{transform:translateX(0);}
+
+/* header */
+.nav{padding:60px 20px 0;flex-shrink:0;position:relative;z-index:50;background:var(--bg);}
+.nav-top{display:flex;align-items:center;justify-content:space-between;height:40px;}
+.logo{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--ink);}
+.logo em{color:var(--plum);font-style:normal;}
+.acct-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;cursor:pointer;border:none;}
+.acct-avatar svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;}
+.nav-title-lg{font-family:var(--serif);font-size:27px;font-weight:600;letter-spacing:-.015em;padding:8px 0 2px;}
+.nav-sub{font-size:13px;color:var(--ink-3);padding-bottom:6px;}
+.nav-actions{display:flex;align-items:center;gap:8px;}
+.nav-btn{font-size:15px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:var(--font);font-weight:500;}
+
+/* compact greeting */
+.greet{padding:12px 20px 8px;}
+.greet-line{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em;}
+.greet-sub{font-size:13px;color:var(--ink-3);margin-top:2px;}
+.greet-sub b{color:var(--warn);font-weight:600;}
+
+.vhead{padding:58px 8px 10px;background:rgba(250,248,243,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid var(--line);display:flex;align-items:center;flex-shrink:0;position:relative;height:100px;}
+.vhead-title{position:absolute;left:0;right:0;text-align:center;font-size:17px;font-weight:600;font-family:var(--serif);pointer-events:none;}
+.vback{display:flex;align-items:center;gap:2px;color:var(--accent);font-size:16px;background:none;border:none;cursor:pointer;padding:6px 8px;font-family:var(--font);z-index:2;}
+.vback svg{width:23px;height:23px;stroke:var(--accent);fill:none;stroke-width:2.2;}
+.vhead .nav-btn{margin-left:auto;padding-right:10px;z-index:2;}
+
+/* account dropdown */
+.acct-scrim{position:absolute;inset:0;background:rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .2s;z-index:3000;}
+.acct-scrim.open{opacity:1;pointer-events:auto;}
+.acct-menu{position:absolute;top:96px;right:14px;width:330px;background:var(--surface);border-radius:18px;box-shadow:0 16px 50px rgba(20,20,20,.22),0 2px 8px rgba(0,0,0,.08);z-index:3001;padding:8px;transform:scale(.92) translateY(-8px);transform-origin:top right;opacity:0;pointer-events:none;transition:all .2s cubic-bezier(.32,.72,0,1);}
+.acct-menu.open{transform:scale(1) translateY(0);opacity:1;pointer-events:auto;}
+.acct-menu-label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--ink-4);padding:12px 14px 8px;}
+.acct-row{display:flex;align-items:center;gap:14px;padding:11px 14px;border-radius:12px;cursor:pointer;}
+.acct-row:active{background:var(--paper);}
+.acct-row .av{width:44px;height:44px;font-size:15px;}
+.acct-row .av svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;}
+.acct-row .info{flex:1;min-width:0;}
+.acct-row .nm{font-size:17px;font-weight:600;color:var(--ink);}
+.acct-row .em{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.acct-row .ct{font-family:var(--mono);font-size:14px;color:var(--ink-3);}
+.acct-row .tick{width:20px;height:20px;stroke:var(--plum);fill:none;stroke-width:2.5;opacity:0;}
+.acct-row.sel .tick{opacity:1;}
+.acct-divider{height:.5px;background:var(--line);margin:6px 14px;}
+.acct-foot{display:flex;align-items:center;gap:13px;padding:13px 14px;border-radius:12px;cursor:pointer;font-size:15px;color:var(--ink-2);}
+.acct-foot:active{background:var(--paper);}
+.acct-foot svg{width:20px;height:20px;stroke:var(--ink-3);fill:none;stroke-width:1.8;}
+
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative;}
+.scroll::-webkit-scrollbar{display:none;}
+
+.av{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;text-transform:uppercase;}
+.av-wrap{position:relative;flex-shrink:0;}
+.av-acct{position:absolute;bottom:-1px;right:-2px;width:13px;height:13px;border-radius:50%;border:2.5px solid var(--surface);}
+
+/* relationship filter pills */
+.relbar{padding:6px 0 8px;}
+.relpills{display:flex;gap:7px;overflow-x:auto;padding:0 16px;scrollbar-width:none;}
+.relpills::-webkit-scrollbar{display:none;}
+.relpill{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer;white-space:nowrap;transition:all .15s;position:relative;}
+.relpill .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.relpill .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+.relpill.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.relpill.on .n{color:rgba(255,255,255,.65);}
+.relpill .new{position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:var(--warn);border:2px solid var(--bg);}
+
+/* section navigator (sticky) */
+.secnav-wrap{position:sticky;top:0;z-index:40;background:rgba(250,248,243,.93);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:9px 0;border-bottom:.5px solid transparent;transition:border-color .2s;}
+.secnav-wrap.stuck{border-color:var(--line);}
+.secnav{display:flex;gap:7px;overflow-x:auto;padding:0 16px;scrollbar-width:none;}
+.secnav::-webkit-scrollbar{display:none;}
+.secchip{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--paper-2);font-size:12.5px;font-weight:500;color:var(--ink-2);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.secchip .d{width:6px;height:6px;border-radius:50%;}
+.secchip .n{font-family:var(--mono);font-size:11px;color:var(--ink-4);}
+.secchip.on{background:var(--ink);color:#fff;}
+.secchip.on .n{color:rgba(255,255,255,.6);}
+.secchip.today .d{background:var(--gold);} .secchip.overdue .d{background:var(--warn);} .secchip.pinned .d{background:var(--plum);} .secchip.know .d{background:var(--ink-4);} .secchip.cleared .d{background:var(--ink-3);}
+
+/* section headers */
+.sec-hdr{display:flex;align-items:center;gap:8px;padding:18px 20px 7px;}
+.sec-hdr .badge{font-family:var(--serif);font-size:19px;font-weight:600;}
+.sec-hdr .badge.act{color:var(--warn);} .sec-hdr .badge.know{color:var(--ink-3);}
+.sec-hdr .hc{font-family:var(--mono);font-size:11px;color:var(--ink-3);background:var(--paper-2);padding:2px 8px;border-radius:999px;}
+.sec-hdr .sp{flex:1;}
+.sec-hdr .bulk{font-size:13px;color:var(--ink-2);font-weight:500;cursor:pointer;border:1px solid var(--line);padding:5px 12px;border-radius:999px;background:var(--surface);}
+.sub-hdr{display:flex;align-items:center;gap:7px;padding:13px 20px 6px;}
+.sub-hdr .d{width:7px;height:7px;border-radius:50%;}
+.sub-hdr .t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-family:var(--mono);}
+.sub-hdr .c{font-family:var(--mono);font-size:11px;color:var(--ink-4);}
+.sub-hdr.today .d{background:var(--gold);} .sub-hdr.today .t{color:var(--gold);}
+.sub-hdr.overdue .d{background:var(--warn);} .sub-hdr.overdue .t{color:var(--warn);}
+.sub-hdr.pinned .d{background:var(--plum);} .sub-hdr.pinned .t{color:var(--plum);}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);margin:0 16px 8px;overflow:hidden;}
+
+/* swipe row */
+.swipe-wrap{position:relative;overflow:hidden;background:var(--bg);}
+.swipe-actions{position:absolute;top:0;right:0;bottom:0;display:flex;align-items:stretch;}
+.sa-btn{width:72px;border:none;color:#fff;font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:var(--font);}
+.sa-btn svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2;}
+.sa-btn.move{background:var(--accent);} .sa-btn.hide{background:var(--gold);} .sa-btn.block{background:var(--warn);}
+.swipe-content{position:relative;background:var(--surface);display:flex;align-items:flex-start;gap:11px;padding:11px 12px 11px 14px;min-height:62px;transition:transform .28s cubic-bezier(.32,.72,0,1);touch-action:pan-y;border-bottom:.5px solid var(--line-soft);}
+.swipe-wrap:last-child .swipe-content{border-bottom:none;}
+.row-check{width:23px;height:23px;border-radius:50%;border:1.5px solid var(--ink-5);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:8px;}
+.row-check svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3;opacity:0;}
+.act-row .row-check{border-color:#dcb3a8;}
+.row-check.done{background:var(--ink);border-color:var(--ink);}
+.row-check.done svg{opacity:1;}
+.row-main{flex:1;min-width:0;}
+.row-l1{display:flex;align-items:baseline;gap:8px;margin-bottom:2px;}
+.row-sender{font-size:14px;font-weight:600;color:var(--ink);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-time{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex-shrink:0;}
+.row-action{font-size:13px;color:var(--warn);font-weight:500;margin-bottom:1px;}
+.row-l2{font-size:13px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-snippet{font-size:12.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+.row-tags{display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap;}
+
+.rtag{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9.5px;padding:3px 8px;border-radius:999px;letter-spacing:.04em;text-transform:lowercase;border:1px solid var(--line-soft);background:var(--paper-2);color:var(--ink-2);cursor:pointer;}
+.rtag .dot{width:5px;height:5px;border-radius:50%;}
+.rtag .caret{font-size:7px;opacity:.5;margin-left:1px;}
+.rtag.customer{color:var(--warn);background:var(--warn-soft);border-color:#ecd5cd;} .rtag.customer .dot{background:var(--warn);}
+.rtag.vendor{color:var(--gold);background:var(--gold-soft);border-color:#e6d6a3;} .rtag.vendor .dot{background:var(--gold);}
+.rtag.internal{color:var(--plum);background:var(--plum-soft);border-color:#d6cee5;} .rtag.internal .dot{background:var(--plum);}
+.rtag.promotions{color:var(--mauve);background:var(--mauve-soft);border-color:#e6d2dd;} .rtag.promotions .dot{background:var(--mauve);}
+.rtag.notifications{color:var(--teal);background:var(--teal-soft);border-color:#cfe0d8;} .rtag.notifications .dot{background:var(--teal);}
+.rtag.cold{color:var(--ink-3);background:var(--paper-2);border-color:var(--line);} .rtag.cold .dot{background:var(--ink-4);}
+/* content-type tag (neutral, secondary) */
+.ttag{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9.5px;padding:3px 8px;border-radius:999px;letter-spacing:.04em;text-transform:lowercase;border:1px dashed var(--line);background:var(--surface);color:var(--ink-3);cursor:pointer;}
+
+.row-more{width:28px;height:28px;border-radius:50%;flex-shrink:0;border:none;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:6px;}
+.row-more svg{width:18px;height:18px;fill:var(--ink-4);}
+.row-more:active{background:var(--paper);}
+
+.show-more{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px;font-size:13px;color:var(--accent);font-weight:500;cursor:pointer;border-top:1px dashed var(--line);background:var(--surface);}
+.show-more svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2.2;}
+.section-empty{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);margin:0 16px 8px;padding:22px;display:flex;align-items:center;gap:12px;}
+.section-empty svg{width:22px;height:22px;stroke:var(--ink-3);fill:none;stroke-width:2;flex-shrink:0;}
+.section-empty .t{font-family:var(--serif);font-size:16px;font-weight:600;}
+.section-empty .d{font-size:13px;color:var(--ink-3);}
+
+.cleared-toggle{display:flex;align-items:center;gap:8px;padding:16px 20px 8px;cursor:pointer;}
+.cleared-toggle .chev{width:13px;height:13px;stroke:var(--ink-3);fill:none;stroke-width:3;transition:transform .2s;}
+.cleared-toggle.collapsed .chev{transform:rotate(-90deg);}
+.cleared-toggle .badge{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink-2);}
+.cleared-toggle .cnt{font-family:var(--mono);font-size:12px;color:var(--ink-3);background:var(--paper-2);padding:2px 8px;border-radius:999px;}
+.cleared .swipe-content{opacity:.55;}
+
+.progress{flex-shrink:0;background:rgba(250,248,243,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--line);padding:10px 18px;display:flex;align-items:center;gap:10px;}
+.progress .pi{width:17px;height:17px;stroke:var(--ink-3);fill:none;stroke-width:2.4;}
+.progress .pt{font-size:13px;color:var(--ink-2);white-space:nowrap;}
+.progress .pt b{font-family:var(--mono);font-weight:700;color:var(--ink);}
+.progress .track{flex:1;height:5px;background:var(--line);border-radius:3px;overflow:hidden;}
+.progress .fill{height:100%;background:var(--ink);border-radius:3px;width:0;transition:width .4s ease;}
+
+/* bottom bar: hero + scrollable categories */
+.tabbar{flex-shrink:0;height:86px;background:rgba(250,248,243,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--line);display:flex;align-items:stretch;gap:9px;padding:8px 10px 22px;}
+.tab-hero{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:76px;border:none;border-radius:17px;background:var(--paper-2);color:var(--ink-2);cursor:pointer;font-family:var(--font);padding:6px 14px;position:relative;}
+.tab-hero.on{background:var(--ink);color:#fff;box-shadow:0 4px 14px rgba(22,22,22,.28);}
+.tab-hero svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;}
+.tab-hero .lbl{font-size:11px;font-weight:700;}
+.tab-hero .hero-badge{position:absolute;top:3px;right:10px;min-width:17px;height:17px;padding:0 4px;background:var(--warn);color:#fff;font-size:9.5px;font-weight:700;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);border:1.5px solid var(--paper-2);}
+.tab-hero.on .hero-badge{border-color:var(--ink);}
+.tab-scroll{flex:1;display:flex;align-items:stretch;gap:2px;overflow-x:auto;scrollbar-width:none;position:relative;border-left:1px solid var(--line);padding-left:4px;}
+.tab-scroll::-webkit-scrollbar{display:none;}
+.tabitem{flex:0 0 auto;min-width:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--ink-4);padding:0 6px;position:relative;}
+.tabitem svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.7;}
+.tabitem .lbl{font-size:10px;font-weight:500;}
+.tabitem.on{color:var(--accent);}
+.tabfade{position:absolute;right:0;top:0;bottom:0;width:22px;background:linear-gradient(90deg,rgba(250,248,243,0),rgba(250,248,243,.97));pointer-events:none;}
+
+/* category screen */
+.catsub-wrap{position:sticky;top:0;z-index:40;background:rgba(250,248,243,.93);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:8px 0 10px;border-bottom:.5px solid transparent;transition:border-color .2s;}
+.catsub-wrap.stuck{border-color:var(--line);}
+.catsub{display:flex;gap:7px;overflow-x:auto;padding:0 16px;scrollbar-width:none;}
+.catsub::-webkit-scrollbar{display:none;}
+.catpill{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer;white-space:nowrap;}
+.catpill .n{font-family:var(--mono);font-size:11px;color:var(--ink-4);}
+.catpill.on{background:var(--ink);color:#fff;border-color:var(--ink);} .catpill.on .n{color:rgba(255,255,255,.6);}
+.inbox-row{display:flex;align-items:flex-start;gap:11px;padding:11px 12px 11px 16px;background:var(--surface);border-bottom:.5px solid var(--line-soft);cursor:pointer;position:relative;}
+.inbox-row:last-child{border-bottom:none;}
+.inbox-row .unread{position:absolute;left:6px;top:20px;width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.inbox-row.read .row-sender{font-weight:500;color:var(--ink-2);}
+.sel-check{width:23px;height:23px;border-radius:50%;border:1.5px solid var(--ink-5);flex-shrink:0;display:none;align-items:center;justify-content:center;margin-top:8px;}
+.sel-check svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3;opacity:0;}
+.sel-check.on{background:var(--ink);border-color:var(--ink);} .sel-check.on svg{opacity:1;}
+.selecting .sel-check{display:flex;}
+.selecting .inbox-row .unread{display:none;}
+.selecting .row-more{display:none;}
+.empty-list{text-align:center;color:var(--ink-3);font-size:14px;padding:50px 20px;font-style:italic;font-family:var(--serif);}
+
+.selbar{flex-shrink:0;background:rgba(250,248,243,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--line);display:flex;padding:10px 8px 26px;}
+.selbar button{flex:1;background:none;border:none;cursor:pointer;font-family:var(--font);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--accent);font-weight:500;}
+.selbar button svg{width:21px;height:21px;stroke:var(--accent);fill:none;stroke-width:1.8;}
+.selbar button.danger{color:var(--warn);} .selbar button.danger svg{stroke:var(--warn);}
+.selbar button:disabled{color:var(--ink-5);} .selbar button:disabled svg{stroke:var(--ink-5);}
+
+/* settings */
+.grp-label{font-family:var(--mono);font-size:11px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.1em;padding:22px 20px 8px;}
+.grp{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);margin:0 16px;overflow:hidden;}
+.cell{display:flex;align-items:center;gap:13px;padding:13px 16px;min-height:52px;border-bottom:.5px solid var(--line-soft);cursor:pointer;background:var(--surface);}
+.cell:last-child{border-bottom:none;}
+.cell .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cell .ic svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;}
+.cell .ctext{flex:1;min-width:0;}
+.cell .ctitle{font-size:16px;color:var(--ink);}
+.cell .csub{font-size:13px;color:var(--ink-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cell .cval{font-family:var(--mono);font-size:13px;color:var(--ink-3);}
+.cell .chev{width:15px;height:15px;stroke:var(--ink-5);fill:none;stroke-width:2.5;flex-shrink:0;}
+.cell.danger .ctitle{color:var(--warn);}
+.cell.center{justify-content:center;} .cell.center .ctitle{color:var(--accent);}
+.cell.center.danger .ctitle{color:var(--warn);}
+.grp-note{font-size:12px;color:var(--ink-3);padding:8px 20px 0;line-height:1.45;}
+.sw{position:relative;width:51px;height:31px;flex-shrink:0;}
+.sw input{display:none;}
+.sw .slider{position:absolute;inset:0;background:#dcd8cf;border-radius:999px;transition:background .2s;}
+.sw .slider::before{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;background:#fff;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.18);transition:transform .2s;}
+.sw input:checked + .slider{background:var(--accent);}
+.sw input:checked + .slider::before{transform:translateX(20px);}
+.notif-sub{padding-left:38px;} .notif-sub.off{opacity:.4;pointer-events:none;}
+.notif-head{display:flex;align-items:center;gap:11px;padding:24px 20px 9px;}
+.notif-head .av{width:32px;height:32px;font-size:12px;}
+.notif-head .nh-name{font-size:16px;font-weight:600;color:var(--ink);}
+.notif-head .nh-email{font-size:13px;color:var(--ink-3);}
+.time-pill{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink-2);background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:6px 11px;cursor:pointer;flex-shrink:0;}
+.time-pill:active{background:var(--line);}
+.grp.disabled{opacity:.4;pointer-events:none;}
+.warn-txt{font-size:11px;color:var(--gold);font-weight:600;}
+.search-wrap{padding:10px 16px 12px;background:var(--bg);}
+.search{display:flex;align-items:center;gap:8px;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;}
+.search svg{width:16px;height:16px;stroke:var(--ink-4);fill:none;stroke-width:2.2;}
+.search input{flex:1;border:none;background:none;outline:none;font-size:16px;font-family:var(--font);color:var(--ink);}
+.blocked-row{display:flex;align-items:center;gap:11px;padding:11px 16px;border-bottom:.5px solid var(--line-soft);background:var(--surface);}
+.blocked-row:last-child{border-bottom:none;}
+.blocked-row .e{flex:1;min-width:0;}
+.blocked-row .e .n{font-size:15px;font-weight:600;}
+.blocked-row .e .a{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.unblock{background:var(--accent);color:#fff;border:none;border-radius:999px;padding:7px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);flex-shrink:0;}
+
+/* email detail */
+.mail-head{padding:18px 16px;background:var(--surface);border-bottom:.5px solid var(--line);}
+.mail-subj{font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.3;margin-bottom:14px;letter-spacing:-.01em;}
+.mail-from{display:flex;align-items:center;gap:11px;}
+.mail-from .meta{flex:1;min-width:0;}
+.mail-from .fn{font-size:15px;font-weight:600;}
+.mail-from .fa{font-size:13px;color:var(--ink-3);}
+.mail-from .ft{font-family:var(--mono);font-size:12px;color:var(--ink-3);text-align:right;}
+.mail-from .via{font-size:11px;color:var(--ink-4);margin-top:2px;}
+.mail-tags{display:flex;gap:6px;margin-top:12px;}
+.mail-body{padding:18px 16px;font-size:15px;color:var(--ink-2);line-height:1.65;}
+.mail-body p{margin-bottom:14px;}
+
+.mail-foot{flex-shrink:0;background:rgba(250,248,243,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--line);padding-bottom:24px;}
+.mail-bar{display:flex;padding:8px 2px 2px;}
+.mb{flex:1;background:none;border:none;cursor:pointer;font-family:var(--font);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:500;color:var(--ink-2);padding:6px 2px;}
+.mb svg{width:21px;height:21px;stroke:var(--ink-2);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+.mb.danger{color:var(--warn);} .mb.danger svg{stroke:var(--warn);}
+.mb:active{opacity:.45;}
+.ai-region{padding:4px 12px;}
+.ai-actions{display:flex;align-items:center;gap:8px;background:var(--warn-soft);border:.5px solid #f1d6d1;border-radius:13px;padding:8px 10px;}
+.ai-label{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--warn);display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.ai-label svg{width:13px;height:13px;fill:var(--warn);stroke:none;}
+.ai-draft{display:flex;align-items:center;gap:6px;padding:9px 15px;border-radius:999px;background:var(--warn);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:var(--font);margin-left:auto;}
+.ai-draft:active{opacity:.85;}
+.ai-draft svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;}
+.ai-block{display:flex;align-items:center;gap:5px;padding:9px 15px;border-radius:999px;background:var(--surface);border:.5px solid var(--line);color:var(--ink-2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);}
+.ai-block:active{background:var(--paper);}
+.ai-block svg{width:14px;height:14px;stroke:var(--warn);fill:none;stroke-width:1.8;}
+.block-confirm{margin:4px 12px 0;background:var(--warn-soft);border:.5px solid #f0d0cb;border-radius:13px;padding:13px 15px;animation:slideUpSm .2s ease-out;}
+@keyframes slideUpSm{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.bc-title{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--warn);margin-bottom:4px;}
+.bc-desc{font-size:12.5px;color:#9b4a3e;line-height:1.45;margin-bottom:12px;}
+.bc-desc b{font-weight:600;}
+.bc-actions{display:flex;gap:10px;}
+.bc-yes{background:var(--warn);color:#fff;border:none;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:6px;}
+.bc-yes svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;}
+.bc-cancel{background:var(--surface);border:.5px solid var(--line);border-radius:999px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;font-family:var(--font);}
+.draft-panel{background:var(--warn-soft);padding:13px 14px 8px;animation:slideUpSm .2s ease-out;}
+.dp-head{display:flex;align-items:center;gap:8px;margin-bottom:11px;}
+.dp-title{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--warn);display:flex;align-items:center;gap:4px;}
+.dp-actions{display:flex;align-items:center;gap:7px;margin-left:auto;}
+.dp-reply{background:var(--warn);color:#fff;border:none;border-radius:999px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:4px;}
+.dp-reply svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.2;}
+.dp-cancel{background:none;border:none;color:var(--ink-3);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);padding:6px 4px;}
+.dp-to{font-size:13px;color:var(--ink-3);margin-bottom:8px;} .dp-to span{color:var(--ink);}
+.dp-body{background:var(--surface);border:.5px solid var(--line);border-radius:11px;padding:14px;font-size:14px;color:var(--ink-2);line-height:1.6;min-height:110px;outline:none;}
+.dp-body:focus{border-color:var(--warn);} .dp-body p{margin-bottom:12px;}
+.dp-hint{font-size:11px;color:var(--ink-4);text-align:center;padding:7px 0 0;}
+
+/* compose */
+.compose-field{display:flex;gap:10px;padding:13px 16px;border-bottom:.5px solid var(--line-soft);background:var(--surface);align-items:baseline;}
+.cf-label{font-size:13px;color:var(--ink-3);width:54px;flex-shrink:0;}
+.cf-val{font-size:14px;color:var(--ink);flex:1;min-width:0;word-break:break-word;}
+.compose-body{padding:16px;font-size:15px;color:var(--ink-2);line-height:1.6;outline:none;min-height:160px;background:var(--surface);}
+.compose-quote{border-left:2px solid var(--line);padding-left:12px;color:var(--ink-3);margin-top:16px;font-size:13px;line-height:1.55;}
+
+/* sheet */
+.sheet-scrim{position:absolute;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s;z-index:3500;}
+.sheet-scrim.open{opacity:1;pointer-events:auto;}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:3501;padding:8px 10px 30px;}
+.sheet.open{transform:translateY(0);}
+.sheet-title{text-align:center;font-size:13px;color:var(--ink-3);padding:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sheet-grp{background:var(--surface);border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:8px;}
+.sheet-item{display:flex;align-items:center;gap:12px;padding:15px 16px;border-bottom:.5px solid var(--line-soft);cursor:pointer;font-size:17px;color:var(--ink);}
+.sheet-item:last-child{border-bottom:none;}
+.sheet-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;}
+.sheet-item.cancel{justify-content:center;color:var(--accent);font-weight:600;border-radius:13px;border:1px solid var(--line);}
+.sheet-item.danger{color:var(--warn);}
+.sheet-item .check{margin-left:auto;width:18px;height:18px;stroke:var(--accent);}
+
+.toast{position:absolute;bottom:108px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(22,22,22,.95);color:#fff;font-size:13px;font-weight:500;padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:all .25s;z-index:5000;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@keyframes rowOut{to{opacity:0;height:0;min-height:0;padding-top:0;padding-bottom:0;}}
+</style>
+</head>
+<body>
+<div class="phone"><div class="phone-screen" id="app">
+  <div class="island"></div>
+  <div class="statusbar">
+    <span>5:43</span>
+    <span class="sb-right">
+      <svg viewBox="0 0 18 12" width="18"><path d="M1 9.5h2.5v2H1zM5 7h2.5v4.5H5zM9 4.5h2.5v7H9zM13 1.5h2.5v10H13z"/></svg>
+      <span class="bat">5G <svg viewBox="0 0 28 14" width="26"><rect x=".5" y="1" width="23" height="12" rx="3" fill="none" stroke="#161616" stroke-width="1"/><rect x="2" y="2.5" width="19" height="9" rx="1.5"/><path d="M25 5v4a2 2 0 000-4z"/></svg></span>
+    </span>
+  </div>
+
+  <!-- ═══ BRIEFING ═══ -->
+  <div class="screen active" id="screen-briefing">
+    <div class="nav">
+      <div class="nav-top"><div class="logo">Email<em>Zap</em></div><button class="acct-avatar" id="acctAv0" onclick="toggleAcctMenu(event)"></button></div>
+    </div>
+    <div class="greet"><div class="greet-line">Good evening, Chandan</div><div class="greet-sub"><b id="sumAct">22 to act on</b> · <span id="sumKnow">10 to know</span></div></div>
+    <div class="scroll" id="briefScroll">
+      <div class="relbar"><div class="relpills" id="relpills"></div></div>
+      <div class="secnav-wrap" id="secnavWrap"><div class="secnav" id="secnav"></div></div>
+      <div id="briefBody"></div>
+      <div id="clearedSection" style="display:none;">
+        <div class="cleared-toggle" id="clearedToggle" onclick="toggleCleared()"><svg class="chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><span class="badge">Cleared</span><span class="cnt" id="clearedCnt">0</span></div>
+        <div class="card cleared" id="clearedList"></div>
+      </div>
+      <div style="height:14px;"></div>
+    </div>
+    <div class="progress"><svg class="pi" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span class="pt" id="progressText"><b>0 of 32</b> cleared</span><div class="track"><div class="fill" id="progressFill"></div></div></div>
+    <div class="tabbar" id="tabbar-briefing"></div>
+  </div>
+
+  <!-- ═══ CATEGORY ═══ -->
+  <div class="screen" id="screen-cat">
+    <div class="nav">
+      <div class="nav-top"><div class="logo">Email<em>Zap</em></div><button class="acct-avatar" id="acctAv1" onclick="toggleAcctMenu(event)"></button></div>
+      <div class="nav-top" style="height:auto;margin-top:6px;"><div class="nav-title-lg" id="catTitle" style="padding:0;">Vendors</div><div class="nav-actions"><button class="nav-btn" id="catSelectBtn" onclick="enterSelect()">Select</button><button class="nav-btn" id="catCancelBtn" onclick="exitSelect()" style="display:none;">Cancel</button></div></div>
+      <div class="nav-sub" id="catSub">All emails — not curated</div>
+    </div>
+    <div class="scroll" id="catScroll">
+      <div class="catsub-wrap" id="catsubWrap"><div class="catsub" id="catsub"></div></div>
+      <div class="card" id="catList" style="margin-top:4px;"></div>
+      <div style="height:20px;"></div>
+    </div>
+    <div class="selbar" id="selbar" style="display:none;">
+      <button onclick="bulkSelectAll()" id="selAllBtn"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>All</button>
+      <button onclick="bulkMarkRead()"><svg viewBox="0 0 24 24"><path d="M2 6l10 7L22 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>Read</button>
+      <button onclick="bulkBlock()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="5" y1="5" x2="19" y2="19"/></svg>Block</button>
+      <button class="danger" onclick="bulkDelete()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>
+    </div>
+    <div class="tabbar" id="tabbar-cat"></div>
+  </div>
+
+  <!-- ═══ SETTINGS ═══ -->
+  <div class="screen" id="screen-settings">
+    <div class="nav"><div class="nav-top"><div class="logo">Email<em>Zap</em></div><button class="acct-avatar" id="acctAv2" onclick="toggleAcctMenu(event)"></button></div><div class="nav-title-lg">Settings</div></div>
+    <div class="scroll">
+      <div class="grp-label">Accounts</div>
+      <div class="grp" id="settingsAccounts"></div>
+      <div class="grp" style="margin-top:8px;"><div class="cell center" onclick="pushView('view-add-account')"><span class="ctitle">＋ Add account</span></div></div>
+      <div class="grp-label">Briefing & alerts</div>
+      <div class="grp">
+        <div class="cell" onclick="pushView('view-notifications')"><div class="ic" style="background:var(--warn);"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="ctext"><div class="ctitle">Notifications</div></div><svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        <div class="cell" onclick="pushView('view-briefing-settings')"><div class="ic" style="background:var(--gold);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg></div><div class="ctext"><div class="ctitle">Morning briefing</div><div class="csub" id="briefingTimeSub">Daily at 8:00 AM</div></div><svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        <div class="cell" onclick="pushView('view-blocked')"><div class="ic" style="background:var(--ink-3);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="5" y1="5" x2="19" y2="19"/></svg></div><div class="ctext"><div class="ctitle">Blocked senders</div></div><span class="cval" id="blockedCountVal">0</span><svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="grp-label">Account</div>
+      <div class="grp"><div class="cell center" onclick="showToast('Logged out (demo)')"><span class="ctitle">Log out</span></div></div>
+      <div class="grp" style="margin-top:8px;"><div class="cell center danger" onclick="confirmDelete()"><span class="ctitle">Delete EmailZap account</span></div></div>
+      <div class="grp-note">Deleting removes all connected accounts, blocked lists, and briefing history. This can't be undone.</div>
+      <div style="height:30px;"></div>
+    </div>
+    <div class="tabbar" id="tabbar-settings"></div>
+  </div>
+
+  <!-- ═══ PUSHED VIEWS ═══ -->
+  <div class="view" id="view-add-account">
+    <div class="vhead"><button class="vback" onclick="popView()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Settings</button><div class="vhead-title">Add account</div></div>
+    <div class="scroll"><div class="grp-label">Connect a mailbox</div><div class="grp">
+      <div class="cell" onclick="addAccount('Gmail')"><div class="ic" style="background:#ea4335;"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div><div class="ctext"><div class="ctitle">Add Gmail account</div></div><svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      <div class="cell" onclick="addAccount('Outlook')"><div class="ic" style="background:#0078d4;"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div><div class="ctext"><div class="ctitle">Add Outlook account</div></div><svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div><div class="grp-note">EmailZap requests read & modify access to triage your inbox. Disconnect anytime — nothing is deleted from your mailbox.</div></div>
+  </div>
+
+  <div class="view" id="view-notifications">
+    <div class="vhead"><button class="vback" onclick="popView()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Settings</button><div class="vhead-title">Notifications</div></div>
+    <div class="scroll"><div class="grp-note" style="padding-top:14px;">Choose what each account notifies you about. We recommend alerts for <b>Act</b> only.</div><div id="notifAccounts"></div><div style="height:30px;"></div></div>
+  </div>
+
+  <div class="view" id="view-briefing-settings">
+    <div class="vhead"><button class="vback" onclick="popView()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Settings</button><div class="vhead-title">Morning briefing</div></div>
+    <div class="scroll">
+      <div class="grp-label">Morning briefing</div>
+      <div class="grp">
+        <div class="cell"><div class="ctext"><div class="ctitle">Send morning briefing</div><div class="csub">Master switch — turns it off for every account</div></div><label class="sw"><input type="checkbox" id="briefingMaster" checked onchange="toggleBriefingMaster(this)"><span class="slider"></span></label></div>
+      </div>
+      <div class="grp-note">Generated overnight and delivered at each account's own time. Turning it off keeps EmailZap triaging — you just won't get the daily push & email.</div>
+      <div class="grp-label" id="briefingPerLabel">Delivery time — per account</div>
+      <div class="grp" id="briefingAccounts"></div>
+      <div class="grp-note">Tap a time to change when that mailbox's briefing arrives, or switch any account off individually.</div>
+      <div style="height:30px;"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-blocked">
+    <div class="vhead"><button class="vback" onclick="popView()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Settings</button><div class="vhead-title">Blocked senders</div></div>
+    <div class="search-wrap"><div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="blockedSearch" placeholder="Search blocked senders" oninput="renderBlocked()"></div></div>
+    <div class="scroll"><div class="card" id="blockedList" style="margin-top:4px;"></div><div class="grp-note">Blocked senders never reach you — EmailZap automatically deletes their future emails. Unblocking lets them back in.</div><div style="height:30px;"></div></div>
+  </div>
+
+  <div class="view" id="view-email">
+    <div class="vhead"><button class="vback" onclick="popView()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span id="emailBackLabel">Briefing</span></button></div>
+    <div class="scroll">
+      <div class="mail-head">
+        <div class="mail-subj" id="mailSubj"></div>
+        <div class="mail-from"><div class="av-wrap"><div class="av" id="mailAv"></div><span class="av-acct" id="mailAvAcct"></span></div><div class="meta"><div class="fn" id="mailFn"></div><div class="fa" id="mailFa"></div><div class="via" id="mailVia"></div></div><div class="ft" id="mailFt"></div></div>
+        <div class="mail-tags" id="mailTags"></div>
+      </div>
+      <div class="mail-body" id="mailBody"></div>
+    </div>
+    <div class="mail-foot">
+      <div class="mail-bar" id="mailBar">
+        <button class="mb" onclick="openCompose('reply')"><svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>Reply</button>
+        <button class="mb" onclick="openCompose('replyall')"><svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/><path d="M22 18v-1a4 4 0 0 0-4-4H6"/></svg>Reply All</button>
+        <button class="mb" onclick="openCompose('forward')"><svg viewBox="0 0 24 24"><polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></svg>Forward</button>
+        <button class="mb danger" onclick="deleteFromDetail()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>
+        <button class="mb" onclick="markUnreadDetail()"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7L22 6"/></svg>Unread</button>
+      </div>
+      <div class="ai-region" id="aiRegion">
+        <div class="ai-actions" id="aiActions">
+          <span class="ai-label"><svg viewBox="0 0 24 24"><path d="M12 2L9.5 8.5 2 12l7.5 3.5L12 22l2.5-6.5L22 12l-7.5-3.5z"/></svg>AI ACTIONS</span>
+          <button class="ai-draft" onclick="genDraft()"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Generate Draft</button>
+          <button class="ai-block" onclick="showBlockConfirm()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="5" y1="5" x2="19" y2="19"/></svg>Block</button>
+        </div>
+        <div class="block-confirm" id="blockConfirm" style="display:none;">
+          <div class="bc-title">Block this sender?</div>
+          <div class="bc-desc">All future emails from <b id="bcSender">this sender</b> will be automatically deleted. They won't appear in your inbox.</div>
+          <div class="bc-actions"><button class="bc-yes" onclick="confirmBlockSender()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="5" y1="5" x2="19" y2="19"/></svg>Yes, block sender</button><button class="bc-cancel" onclick="resetAiRegion()">Cancel</button></div>
+        </div>
+      </div>
+      <div class="draft-panel" id="draftPanel" style="display:none;">
+        <div class="dp-head"><span class="dp-title"><svg viewBox="0 0 24 24" width="13" height="13" fill="var(--warn)" stroke="none"><path d="M12 2L9.5 8.5 2 12l7.5 3.5L12 22l2.5-6.5L22 12l-7.5-3.5z"/></svg>AI-GENERATED DRAFT</span><div class="dp-actions"><button class="dp-reply" onclick="sendDraft('Reply')"><svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>Reply</button><button class="dp-reply" onclick="sendDraft('Reply all')"><svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/><path d="M22 18v-1a4 4 0 0 0-4-4H6"/></svg>Reply All</button><button class="dp-cancel" onclick="resetAiRegion()">Cancel</button></div></div>
+        <div class="dp-to">To: <span id="dpTo"></span></div>
+        <div class="dp-body" id="dpBody" contenteditable="true"></div>
+        <div class="dp-hint">Tap to edit before sending</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- compose -->
+  <div class="view" id="view-compose">
+    <div class="vhead"><button class="vback" onclick="popView()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Cancel</button><div class="vhead-title" id="composeTitle">Reply</div><button class="nav-btn" onclick="sendCompose()">Send</button></div>
+    <div class="scroll">
+      <div class="compose-field"><span class="cf-label">To</span><span class="cf-val" id="composeTo"></span></div>
+      <div class="compose-field" id="composeCcRow"><span class="cf-label">Cc</span><span class="cf-val" id="composeCc"></span></div>
+      <div class="compose-field"><span class="cf-label">Subject</span><span class="cf-val" id="composeSubj"></span></div>
+      <div class="compose-body" contenteditable="true" id="composeBody"></div>
+    </div>
+  </div>
+
+  <div class="acct-scrim" id="acctScrim" onclick="closeAcctMenu()"></div>
+  <div class="acct-menu" id="acctMenu"></div>
+  <div class="sheet-scrim" id="sheetScrim" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet"></div>
+  <div class="toast" id="toast"></div>
+</div></div>
+
+<script>
+// ═══ DATA ═══
+const ALL_COLOR='#6b4ce6';
+const accounts=[
+  {name:'Execfn', email:'chandan@execfn.com', color:'#1f9b9b', provider:'Gmail', primary:true,  notif:{master:true,act:true,know:false,all:false}, briefing:{on:true,time:'8:00 AM'}},
+  {name:'Littlebird', email:'chandan@littlebird.ai', color:'#d6402c', provider:'Gmail', primary:false, notif:{master:true,act:true,know:true,all:false}, briefing:{on:true,time:'7:30 AM'}},
+  {name:'Chandan1312', email:'chandan1312@gmail.com', color:'#2f8f5f', provider:'Gmail', primary:false, notif:{master:false,act:false,know:false,all:false}, briefing:{on:false,time:'9:00 AM'}},
+];
+const REL={customer:{label:'Customers'}, vendor:{label:'Vendors'}, internal:{label:'Internal'}, promotions:{label:'Promotions'}, notifications:{label:'Notifications'}, cold:{label:'Cold'}};
+const REL_ORDER=['customer','vendor','internal','promotions','notifications','cold'];
+const TYPE={request:'Requests', update:'Updates', pitch:'Pitches', receipt:'Receipts'};
+const TYPE_ORDER=['request','update','pitch','receipt'];
+
+const TODAY=[
+  {sender:'Priya Mehta', action:'Approve budget', subject:'Q3 Marketing Budget — sign-off by Friday', rel:'internal', type:'request', acct:0, time:'2h'},
+  {sender:'Rahul Kapoor', action:'Reply needed', subject:'Partnership proposal — Littlebird x Acme Corp', rel:'customer', type:'request', acct:1, time:'3h'},
+  {sender:'Ananya Singh', action:'Review deck', subject:'Investor pitch deck v4 — updated projections', rel:'internal', type:'request', acct:0, time:'5h'},
+  {sender:'DocuSign', action:'Sign document', subject:'NDA with TechVentures — awaiting signature', rel:'vendor', type:'request', acct:0, time:'6h'},
+  {sender:'Vikram Desai', action:'Confirm meeting', subject:'Board meeting Thursday 3pm — confirm', rel:'internal', type:'request', acct:0, time:'7h'},
+  {sender:'Anil Gupta', action:'Review PR', subject:'PR #247 — Refactor auth middleware', rel:'internal', type:'request', acct:1, time:'8h'},
+  {sender:'Calendly', action:'Confirm time', subject:'New event: Shubham Dhawan — 02:00 PM', rel:'vendor', type:'request', acct:0, time:'9h'},
+  {sender:'Notion', action:'Approve access', subject:'Priya requested edit access to "Q3 OKRs"', rel:'notifications', type:'request', acct:0, time:'9h'},
+  {sender:'Razorpay', action:'Verify details', subject:'Business verification incomplete — submit PAN', rel:'vendor', type:'request', acct:0, time:'10h'},
+  {sender:'Swiggy Biz', action:'Update menu', subject:'Your menu has out-of-stock items', rel:'vendor', type:'request', acct:2, time:'11h'},
+  {sender:'Nandini Joshi', action:'Share feedback', subject:'Product roadmap review — before standup', rel:'internal', type:'request', acct:0, time:'11h'},
+  {sender:'GitHub', action:'Merge conflict', subject:'PR #312 has conflicts — resolve before deploy', rel:'notifications', type:'request', acct:1, time:'12h'},
+];
+const OVERDUE=[
+  {sender:'Abraham B Ali', action:'Sign and return', subject:'PFV-12-176 — signed Agreement copy', rel:'customer', type:'request', acct:0, time:'May 12'},
+  {sender:'Sneha Rao', action:'Send invoice', subject:'April consulting invoice overdue', rel:'customer', type:'request', acct:0, time:'May 10'},
+  {sender:'HDFC Bank', action:'Complete KYC', subject:'Video KYC required — account pending', rel:'vendor', type:'request', acct:0, time:'May 8'},
+  {sender:'Meera Patel', action:'Approve hire', subject:'Frontend engineer offer — approval pending', rel:'internal', type:'request', acct:1, time:'May 7'},
+  {sender:'AWS', action:'Update payment', subject:'Payment method expiring — avoid interruption', rel:'vendor', type:'request', acct:1, time:'May 6'},
+  {sender:'Rajiv Sinha', action:'Review contract', subject:'Vendor agreement — redlines from legal', rel:'vendor', type:'request', acct:0, time:'May 5'},
+  {sender:'Slack', action:'Accept invite', subject:'Invited to #product-launch channel', rel:'notifications', type:'request', acct:0, time:'May 4'},
+  {sender:'Zoho Invoice', action:'Collect payment', subject:'Invoice #1042 overdue 12 days — Acme Corp', rel:'customer', type:'request', acct:0, time:'May 3'},
+];
+const PINNED=[
+  {sender:'Google Workspace', action:'Renew subscription', subject:'Business Standard plan expires in 5 days', rel:'vendor', type:'request', acct:0, time:'May 11'},
+  {sender:'Nandini Joshi', action:'Share feedback', subject:'Product roadmap review — comments needed', rel:'internal', type:'request', acct:0, time:'May 13'},
+];
+const KNOW=[
+  {sender:'Airtel', subject:'Payment of ₹1,767.64 received', snippet:'via HDFC ··6170', rel:'vendor', type:'receipt', acct:2, time:'Today'},
+  {sender:'Zomato', subject:'Order from Magnolia Bakery', snippet:'Delivered successfully', rel:'promotions', type:'receipt', acct:2, time:'Today'},
+  {sender:'Amazon', subject:'Kindle book — order #D01-3605009', snippet:'Ready to read', rel:'promotions', type:'receipt', acct:2, time:'Today'},
+  {sender:'Stripe', subject:'Monthly payout processed', snippet:'Deposited to ICICI ··4820', rel:'notifications', type:'receipt', acct:0, time:'Today'},
+  {sender:'Linear', subject:'Sprint 24 completed', snippet:'14 of 16 issues closed', rel:'notifications', type:'update', acct:1, time:'Today'},
+  {sender:'Figma', subject:'New comment on "Briefing v3"', snippet:'Nandan left feedback on the Act card', rel:'notifications', type:'update', acct:0, time:'Yest'},
+  {sender:'Flipkart', subject:'Your order has shipped', snippet:'Arriving by May 17', rel:'promotions', type:'update', acct:2, time:'Yest'},
+  {sender:'Substack', subject:"Lenny's Newsletter — Why PLG fails", snippet:'Metrics that matter for self-serve', rel:'promotions', type:'update', acct:2, time:'Yest'},
+  {sender:'Twitter', subject:'3 new followers this week', snippet:'Weekly activity digest', rel:'promotions', type:'update', acct:2, time:'Yest'},
+  {sender:'Notion', subject:'Weekly changelog — May 12', snippet:'New database automations & API updates', rel:'notifications', type:'update', acct:0, time:'Yest'},
+];
+
+const MAIL=[
+  {sender:'Rahul Kapoor', subject:'Re: Partnership proposal', snippet:'Sounds great, let me loop in legal...', rel:'customer', type:'request', acct:1, time:'7:55 AM', unread:false},
+  {sender:'Sneha Rao', subject:'April consulting invoice', snippet:'Following up on the overdue payment...', rel:'customer', type:'request', acct:0, time:'Yest', unread:true},
+  {sender:'Abraham B Ali', subject:'Signed agreement copy', snippet:'Please find the counter-signed PDF...', rel:'customer', type:'update', acct:0, time:'Mon', unread:false},
+  {sender:'Zoho Invoice', subject:'Invoice #1042 — Acme Corp', snippet:'This invoice is now 12 days overdue', rel:'customer', type:'request', acct:0, time:'Mon', unread:false},
+  {sender:'Meghan Foster', subject:'Re: renewal terms', snippet:'Can we revisit the annual pricing?', rel:'customer', type:'update', acct:0, time:'Sun', unread:false},
+  {sender:'Priyanka Das', subject:'Need a custom quote', snippet:'For a 40-seat team, what would pricing...', rel:'customer', type:'request', acct:1, time:'Sat', unread:true},
+  {sender:'DocuSign', subject:'Please sign: NDA TechVentures', snippet:'A document is waiting for signature', rel:'vendor', type:'request', acct:0, time:'Yest', unread:false},
+  {sender:'Calendly', subject:'New Event: Shubham Dhawan', snippet:'02:00 PM IST — India Standard Time', rel:'vendor', type:'update', acct:0, time:'Tue', unread:true},
+  {sender:'Razorpay', subject:'Settlement of ₹1,24,500', snippet:'UTR: RZPX902817 credited', rel:'vendor', type:'receipt', acct:0, time:'Mon', unread:false},
+  {sender:'HDFC Bank', subject:'Video KYC reminder', snippet:'Complete KYC to avoid account freeze', rel:'vendor', type:'request', acct:0, time:'Sun', unread:false},
+  {sender:'AWS', subject:'Payment method expiring', snippet:'Update before May 31 to avoid interruption', rel:'vendor', type:'request', acct:1, time:'Sat', unread:true},
+  {sender:'Google Workspace', subject:'Plan expires in 5 days', snippet:'Renew Business Standard to keep access', rel:'vendor', type:'request', acct:0, time:'Fri', unread:false},
+  {sender:'Priya Mehta', subject:'Q3 Marketing Budget', snippet:'Attaching revised numbers for sign-off...', rel:'internal', type:'request', acct:0, time:'9:32 AM', unread:true},
+  {sender:'Ananya Singh', subject:'Investor pitch deck v4', snippet:'Updated the financial section, slides 8-14', rel:'internal', type:'request', acct:0, time:'5h', unread:true},
+  {sender:'Vikram Desai', subject:'Board meeting Thursday', snippet:'Confirm attendance and agenda items', rel:'internal', type:'update', acct:0, time:'7h', unread:false},
+  {sender:'Anil Gupta', subject:'PR #247 review', snippet:'Refactored auth middleware for compliance', rel:'internal', type:'request', acct:1, time:'8h', unread:false},
+  {sender:'Meera Patel', subject:'Frontend engineer offer', snippet:'Offer letter ready for your approval', rel:'internal', type:'request', acct:1, time:'Mon', unread:true},
+  {sender:'Nandini Joshi', subject:'Product roadmap review', snippet:'Your comments needed before standup', rel:'internal', type:'update', acct:0, time:'11h', unread:false},
+  {sender:'Substack', subject:"Lenny's Newsletter — PLG teardown", snippet:'The metrics that matter for self-serve', rel:'promotions', type:'update', acct:2, time:'Yest', unread:true},
+  {sender:'Groupon', subject:'🔥 70% off spa deals near you', snippet:'Limited time — book before midnight', rel:'promotions', type:'pitch', acct:2, time:'Yest', unread:true},
+  {sender:'Flipkart', subject:'Big Saving Days are live', snippet:'Up to 80% off across categories', rel:'promotions', type:'pitch', acct:2, time:'Fri', unread:false},
+  {sender:'Swiggy', subject:'Rate your last order', snippet:'How was your meal from Magnolia Bakery?', rel:'promotions', type:'pitch', acct:2, time:'Mon', unread:false},
+  {sender:'GitHub', subject:'PR #312 has conflicts', snippet:'main has diverged — resolve before deploy', rel:'notifications', type:'update', acct:1, time:'Yest', unread:false},
+  {sender:'Stripe', subject:'Monthly payout processed', snippet:'₹4,82,310 deposited to ICICI ··4820', rel:'notifications', type:'receipt', acct:0, time:'8:14 AM', unread:true},
+  {sender:'Linear', subject:'Sprint 24 completed', snippet:'14 of 16 issues closed', rel:'notifications', type:'update', acct:1, time:'Today', unread:false},
+  {sender:'Notion', subject:'Weekly changelog — May 12', snippet:'New database automations and API updates', rel:'notifications', type:'update', acct:0, time:'Sun', unread:false},
+  {sender:'Acme Outreach', subject:'Quick question about Littlebird', snippet:'Saw your launch — would love 15 min', rel:'cold', type:'pitch', acct:1, time:'Wed', unread:true},
+  {sender:'LinkedIn', subject:'You appeared in 9 searches', snippet:'See who is looking at your profile', rel:'cold', type:'update', acct:2, time:'8:50 AM', unread:true},
+  {sender:'Tarun Recruiter', subject:'Exciting opportunity at FinPeak', snippet:'Your profile is a great match for...', rel:'cold', type:'pitch', acct:1, time:'Tue', unread:false},
+  {sender:'MailBoost Sales', subject:'Cut your email costs 40%', snippet:'A quick demo of how teams like yours...', rel:'cold', type:'pitch', acct:0, time:'Mon', unread:false},
+];
+
+let blocked=[
+  {name:'Spam Promotions', email:'deals@megasale-offers.com'},
+  {name:'CryptoBro Daily', email:'noreply@cryptobro-daily.io'},
+  {name:'Loan Offers', email:'instant@quickloan-india.com'},
+  {name:'Casino Royale', email:'win@royale-casino.net'},
+  {name:'Job Spam', email:'recruit@fake-hiring-now.com'},
+  {name:'SEO Services', email:'rank1@seo-boost-pro.com'},
+];
+
+const TOTAL=TODAY.length+OVERDUE.length+PINNED.length+KNOW.length;
+let cleared=0, currentAcct='all', currentRel='all', currentTab='briefing', currentCat='customer', currentType='all';
+let newRels=new Set(['customer','promotions']);
+let collapsed={today:true, overdue:true, pinned:false};
+const VISIBLE_LIMIT={today:5, overdue:3, pinned:99};
+
+// ═══ HELPERS ═══
+const AV_COLORS=['#4f46e5','#7c3aed','#2563eb','#0891b2','#0d9488','#1b4332','#65a30d','#8b6914','#ea580c','#a13b1f','#db2777','#5c4a7a','#0284c7','#2f5d4f','#b45309'];
+function avColor(n){let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AV_COLORS[Math.abs(h)%AV_COLORS.length];}
+function initials(n){const p=n.trim().split(/\s+/);return (p.length>=2?p[0][0]+p[p.length-1][0]:n.slice(0,1)).toUpperCase();}
+function el(html){const t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstElementChild;}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1900);}
+function relLabel(r){return REL[r]?REL[r].label.toLowerCase():r;}
+function relDotColor(r){return {customer:'var(--warn)',vendor:'var(--gold)',internal:'var(--plum)',promotions:'var(--mauve)',notifications:'var(--teal)',cold:'var(--ink-4)'}[r];}
+const EMAIL_MAP={Calendly:'notifications@calendly.com',DocuSign:'dse@docusign.net',GitHub:'notifications@github.com',Stripe:'no-reply@stripe.com',LinkedIn:'messages-noreply@linkedin.com',Notion:'team@makenotion.com',Slack:'no-reply@slack.com',AWS:'no-reply@aws.amazon.com',Razorpay:'noreply@razorpay.com',Amazon:'auto-confirm@amazon.in',Substack:'newsletter@substack.com',Groupon:'deals@groupon.com',Twitter:'info@twitter.com',Figma:'no-reply@figma.com',Linear:'notifications@linear.app',Zomato:'noreply@zomato.com',Flipkart:'noreply@flipkart.com',Airtel:'noreply@airtel.com'};
+function emailOf(n){return EMAIL_MAP[n]||n.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/^\.|\.$/g,'')+'@email.com';}
+function acctMatch(i){return currentAcct==='all'||i.acct===currentAcct;}
+function avHtml(item){const a=accounts[item.acct];return `<div class="av-wrap"><div class="av" style="background:${avColor(item.sender)}">${initials(item.sender)}</div><span class="av-acct" style="background:${a.color}"></span></div>`;}
+function tagsHtml(item){return `<span class="rtag ${item.rel}"><span class="dot"></span>${relLabel(item.rel)}<span class="caret">▼</span></span><span class="ttag">${item.type}</span>`;}
+
+// ═══ TAB BAR ═══
+const TAB_ICONS={
+  briefing:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+  customer:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  vendor:'<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+  internal:'<path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/>',
+  promotions:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',
+  notifications:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+  cold:'<line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/>'
+};
+function buildTabBar(){
+  const catHtml=REL_ORDER.map(r=>`<div class="tabitem" data-tab="${r}" onclick="showTab('${r}')"><svg viewBox="0 0 24 24">${TAB_ICONS[r]}</svg><span class="lbl">${REL[r].label}</span></div>`).join('');
+  const html=`<button class="tab-hero" data-tab="briefing" onclick="showTab('briefing')"><svg viewBox="0 0 24 24">${TAB_ICONS.briefing}</svg><span class="lbl">Briefing</span><span class="hero-badge" id="briefBadge">32</span></button><div class="tab-scroll">${catHtml}<div class="tabfade"></div></div>`;
+  ['tabbar-briefing','tabbar-cat','tabbar-settings'].forEach(id=>document.getElementById(id).innerHTML=html);
+}
+function setActiveTab(name){document.querySelectorAll('.tab-hero').forEach(h=>h.classList.toggle('on',name==='briefing'));document.querySelectorAll('.tabitem').forEach(t=>t.classList.toggle('on',t.dataset.tab===name));}
+function showTab(name){
+  while(viewStack.length) popView();closeAcctMenu();
+  if(name==='briefing'){currentTab='briefing';setScreen('screen-briefing');}
+  else{currentTab=name;currentCat=name;currentType='all';exitSelect();setScreen('screen-cat');renderCat();}
+  setActiveTab(name);
+}
+function setScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));}
+function showSettings(){while(viewStack.length) popView();closeAcctMenu();setScreen('screen-settings');setActiveTab('');}
+
+// ═══ VIEW STACK ═══
+let viewStack=[];
+function pushView(id){viewStack.push(id);if(id==='view-notifications')renderNotifications();if(id==='view-briefing-settings')renderBriefingAccounts();if(id==='view-blocked'){document.getElementById('blockedSearch').value='';renderBlocked();}requestAnimationFrame(()=>document.getElementById(id).classList.add('open'));}
+function popView(){const id=viewStack.pop();if(id)document.getElementById(id).classList.remove('open');}
+
+// ═══ ACCOUNT DROPDOWN ═══
+function renderAcctMenu(){
+  let html=`<div class="acct-menu-label">SWITCH ACCOUNT</div>`;
+  html+=`<div class="acct-row ${currentAcct==='all'?'sel':''}" onclick="pickAccount('all')"><div class="av" style="background:${ALL_COLOR}"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="info"><div class="nm">All accounts</div></div><span class="ct">${acctRemaining('all')}</span><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="acct-divider"></div>`;
+  accounts.forEach((a,i)=>{html+=`<div class="acct-row ${currentAcct===i?'sel':''}" onclick="pickAccount(${i})"><div class="av" style="background:${a.color}">${initials(a.name)}</div><div class="info"><div class="nm">${a.name}</div><div class="em">${a.email}</div></div><span class="ct">${acctRemaining(i)}</span><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>`;});
+  html+=`<div class="acct-divider"></div><div class="acct-foot" onclick="closeAcctMenu();pushView('view-add-account')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add account</div><div class="acct-foot" onclick="showSettings()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</div>`;
+  document.getElementById('acctMenu').innerHTML=html;
+}
+function acctRemaining(a){const rows=[...document.querySelectorAll('#card-today .swipe-wrap, #card-overdue .swipe-wrap, #card-pinned .swipe-wrap, #card-know .swipe-wrap')];if(!rows.length){return [...TODAY,...OVERDUE,...PINNED,...KNOW].filter(i=>a==='all'||i.acct===a).length;}return rows.filter(w=>a==='all'||+w.dataset.acct===a).length;}
+function toggleAcctMenu(e){e.stopPropagation();const m=document.getElementById('acctMenu');if(m.classList.contains('open')){closeAcctMenu();return;}renderAcctMenu();document.getElementById('acctScrim').classList.add('open');m.classList.add('open');}
+function closeAcctMenu(){document.getElementById('acctScrim').classList.remove('open');document.getElementById('acctMenu').classList.remove('open');}
+function pickAccount(a){currentAcct=a;closeAcctMenu();syncAcctAvatars();applyBriefingFilters();renderRelPills();if(currentTab!=='briefing')renderCat();}
+function syncAcctAvatars(){const col=currentAcct==='all'?ALL_COLOR:accounts[currentAcct].color;const inner=currentAcct==='all'?'<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>':initials(accounts[currentAcct].name);['acctAv0','acctAv1','acctAv2'].forEach(id=>{const b=document.getElementById(id);b.style.background=col;b.innerHTML=inner;});}
+
+// ═══ BRIEFING ROWS ═══
+function briefRow(item, section){
+  const wrap=el(`<div class="swipe-wrap" data-section="${section}" data-rel="${item.rel}" data-acct="${item.acct}">
+    <div class="swipe-actions"><button class="sa-btn move"><svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>Know</button><button class="sa-btn hide"><svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>Hide</button><button class="sa-btn block"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="5" y1="5" x2="19" y2="19"/></svg>Block</button></div>
+    <div class="swipe-content act-row">
+      <div class="row-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      ${avHtml(item)}
+      <div class="row-main"><div class="row-l1"><span class="row-sender">${item.sender}</span><span class="row-time">${item.time}</span></div><div class="row-action">${item.action}</div><div class="row-l2">${item.subject}</div><div class="row-tags">${tagsHtml(item)}</div></div>
+      <button class="row-more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+    </div></div>`);
+  bindRow(wrap,item,section,true);return wrap;
+}
+function knowRow(item){
+  const wrap=el(`<div class="swipe-wrap" data-section="know" data-rel="${item.rel}" data-acct="${item.acct}">
+    <div class="swipe-actions"><button class="sa-btn hide"><svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>Hide</button><button class="sa-btn block"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="5" y1="5" x2="19" y2="19"/></svg>Block</button></div>
+    <div class="swipe-content">
+      <div class="row-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      ${avHtml(item)}
+      <div class="row-main"><div class="row-l1"><span class="row-sender">${item.sender}</span><span class="row-time">${item.time}</span></div><div class="row-l2">${item.subject}</div><div class="row-snippet">${item.snippet}</div><div class="row-tags">${tagsHtml(item)}</div></div>
+      <button class="row-more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+    </div></div>`);
+  bindRow(wrap,item,'know',false);return wrap;
+}
+function bindRow(wrap,item,section,isAct){
+  wrap.querySelector('.row-check').addEventListener('click',e=>{e.stopPropagation();markDone(wrap,section);});
+  wrap.querySelector('.row-more').addEventListener('click',e=>{e.stopPropagation();openRowActions(item,wrap,section);});
+  const tags=wrap.querySelector('.row-tags');
+  tags.querySelector('.rtag').addEventListener('click',e=>{e.stopPropagation();openRelPicker(wrap,item);});
+  tags.querySelector('.ttag').addEventListener('click',e=>{e.stopPropagation();openTypePicker(wrap,item);});
+  const mv=wrap.querySelector('.sa-btn.move');if(mv)mv.addEventListener('click',e=>{e.stopPropagation();removeRow(wrap,()=>showToast('Moved to Know'));});
+  wrap.querySelector('.sa-btn.hide').addEventListener('click',e=>{e.stopPropagation();removeRow(wrap,()=>showToast('Hidden from briefing'));});
+  wrap.querySelector('.sa-btn.block').addEventListener('click',e=>{e.stopPropagation();blocked.unshift({name:item.sender,email:emailOf(item.sender)});updateBlockedCount();removeRow(wrap,()=>showToast('Sender blocked'));});
+  attachSwipe(wrap,()=>openEmail(item,'Briefing',isAct,wrap));
+}
+function renderBriefing(){
+  const body=document.getElementById('briefBody');body.innerHTML='';
+  body.appendChild(el(`<div class="sec-hdr" id="actHdr"><span class="badge act">Act</span><span class="hc" id="actCnt">22</span><span class="sp"></span><span class="bulk" onclick="markAllDone('act')">Mark all done</span></div>`));
+  ['today','overdue','pinned'].forEach(sec=>{
+    const data=sec==='today'?TODAY:sec==='overdue'?OVERDUE:PINNED;
+    body.appendChild(el(`<div class="sub-hdr ${sec}" id="hdr-${sec}"><span class="d"></span><span class="t">${sec[0].toUpperCase()+sec.slice(1)}</span><span class="c" id="cnt-${sec}">${data.length}</span></div>`));
+    const card=el(`<div class="card" id="card-${sec}"></div>`);
+    data.forEach((item,i)=>{const r=briefRow(item,sec);if(i>=VISIBLE_LIMIT[sec]&&collapsed[sec])r.dataset.over='1';card.appendChild(r);});
+    if(data.length>VISIBLE_LIMIT[sec]){const sm=el(`<div class="show-more" id="sm-${sec}"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>Show ${data.length-VISIBLE_LIMIT[sec]} more</div>`);sm.addEventListener('click',()=>toggleMore(sec));card.appendChild(sm);}
+    body.appendChild(card);
+  });
+  body.appendChild(el(`<div class="sec-hdr" id="knowHdr"><span class="badge know">Know</span><span class="hc" id="knowCnt">10</span><span class="sp"></span><span class="bulk" onclick="markAllDone('know')">Mark all seen</span></div>`));
+  const kc=el(`<div class="card" id="card-know"></div>`);KNOW.forEach(item=>kc.appendChild(knowRow(item)));body.appendChild(kc);
+  body.appendChild(el(`<div class="section-empty" id="knowEmpty" style="display:none;"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><div><div class="t">All caught up</div><div class="d">No new FYI items since your last briefing</div></div></div>`));
+  buildSecNav();renderRelPills();applyBriefingFilters();
+}
+function toggleMore(sec){collapsed[sec]=!collapsed[sec];applyBriefingFilters();const sm=document.getElementById('sm-'+sec);if(collapsed[sec]){const data=sec==='today'?TODAY:sec==='overdue'?OVERDUE:PINNED;sm.innerHTML=`<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>Show ${data.length-VISIBLE_LIMIT[sec]} more`;}else sm.innerHTML=`<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Show less`;}
+
+// ═══ SECTION NAVIGATOR ═══
+function buildSecNav(){
+  const items=[{id:'hdr-today',cls:'today',label:'Today'},{id:'hdr-overdue',cls:'overdue',label:'Overdue'},{id:'hdr-pinned',cls:'pinned',label:'Pinned'},{id:'knowHdr',cls:'know',label:'Know'}];
+  const nav=document.getElementById('secnav');nav.innerHTML='';
+  items.forEach(it=>{const chip=el(`<div class="secchip ${it.cls}" data-target="${it.id}"><span class="d"></span>${it.label}<span class="n" id="secn-${it.cls}"></span></div>`);chip.addEventListener('click',()=>scrollToSection(it.id));nav.appendChild(chip);});
+  const cc=el(`<div class="secchip cleared" id="secchip-cleared" data-target="clearedSection" style="display:none;"><span class="d"></span>Cleared<span class="n" id="secn-cleared"></span></div>`);cc.addEventListener('click',()=>scrollToSection('clearedSection'));nav.appendChild(cc);
+}
+function scrollToSection(id){const t=document.getElementById(id);if(!t)return;document.getElementById('briefScroll').scrollTo({top:Math.max(0,t.offsetTop-56),behavior:'smooth'});}
+function onBriefScroll(){const sc=document.getElementById('briefScroll');document.getElementById('secnavWrap').classList.toggle('stuck',sc.scrollTop>document.getElementById('secnavWrap').offsetTop-1);const anchors=[['hdr-today','today'],['hdr-overdue','overdue'],['hdr-pinned','pinned'],['knowHdr','know'],['clearedSection','cleared']];let active='today';const y=sc.scrollTop+70;anchors.forEach(([id,cls])=>{const e=document.getElementById(id);if(e&&e.offsetParent!==null&&e.offsetTop<=y)active=cls;});document.querySelectorAll('.secchip').forEach(c=>c.classList.toggle('on',c.classList.contains(active)));}
+
+// ═══ RELATIONSHIP FILTER PILLS ═══
+function relCounts(){const c={};REL_ORDER.forEach(r=>c[r]=0);document.querySelectorAll('#card-today .swipe-wrap, #card-overdue .swipe-wrap, #card-pinned .swipe-wrap, #card-know .swipe-wrap').forEach(w=>{if(!acctMatch({acct:+w.dataset.acct}))return;if(c[w.dataset.rel]!==undefined)c[w.dataset.rel]++;});return c;}
+function renderRelPills(){
+  const c=relCounts();const cont=document.getElementById('relpills');cont.innerHTML='';
+  REL_ORDER.forEach(r=>{if(c[r]===0)return;const pill=el(`<div class="relpill ${r===currentRel?'on':''}" data-rel="${r}"><span class="dot" style="background:${relDotColor(r)}"></span>${REL[r].label}<span class="n">${c[r]}</span>${newRels.has(r)?'<span class="new"></span>':''}</div>`);pill.addEventListener('click',()=>pickRel(r));cont.appendChild(pill);});
+}
+function pickRel(r){currentRel=(currentRel===r)?'all':r;newRels.delete(r);renderRelPills();applyBriefingFilters();}
+function applyBriefingFilters(){
+  ['today','overdue','pinned'].forEach(sec=>{
+    document.querySelectorAll('#card-'+sec+' .swipe-wrap').forEach(w=>{const relOk=currentRel==='all'||w.dataset.rel===currentRel;const acctOk=acctMatch({acct:+w.dataset.acct});const overHidden=w.dataset.over==='1'&&collapsed[sec];w.style.display=(relOk&&acctOk&&!overHidden)?'':'none';});
+    const sm=document.getElementById('sm-'+sec);if(sm){const overVisible=[...document.querySelectorAll('#card-'+sec+' .swipe-wrap')].filter(w=>(currentRel==='all'||w.dataset.rel===currentRel)&&acctMatch({acct:+w.dataset.acct})&&w.dataset.over==='1').length;sm.style.display=overVisible>0?'':'none';}
+  });
+  document.querySelectorAll('#card-know .swipe-wrap').forEach(w=>{const relOk=currentRel==='all'||w.dataset.rel===currentRel;w.style.display=(relOk&&acctMatch({acct:+w.dataset.acct}))?'':'none';});
+  updateCounts();
+}
+
+// ═══ SWIPE ═══
+let openRow=null;
+function attachSwipe(wrap,onTap){
+  const content=wrap.querySelector('.swipe-content');const maxW=wrap.querySelectorAll('.sa-btn').length*72;
+  let startX=0,startY=0,dx=0,dragging=false,decided=false,horiz=false,curOpen=false,suppress=false;
+  content.addEventListener('pointerdown',e=>{if(e.target.closest('.row-check'))return;startX=e.clientX;startY=e.clientY;dx=0;dragging=true;decided=false;horiz=false;curOpen=content.dataset.open==='1';content.style.transition='none';});
+  content.addEventListener('pointermove',e=>{if(!dragging)return;const mx=e.clientX-startX,my=e.clientY-startY;if(!decided){if(Math.abs(mx)>8||Math.abs(my)>8){decided=true;horiz=Math.abs(mx)>Math.abs(my);}else return;}if(!horiz){dragging=false;return;}e.preventDefault();dx=Math.max(-maxW,Math.min(0,(curOpen?-maxW:0)+mx));content.style.transform=`translateX(${dx}px)`;});
+  const finish=()=>{if(!dragging)return;dragging=false;content.style.transition='';if(decided){suppress=true;setTimeout(()=>suppress=false,350);}if(horiz){if(dx<-maxW/2)openSwipe(wrap,maxW);else closeSwipe(wrap);}};
+  content.addEventListener('pointerup',finish);content.addEventListener('pointercancel',()=>{dragging=false;content.style.transition='';closeSwipe(wrap);});
+  content.addEventListener('click',e=>{if(e.target.closest('.row-check'))return;if(suppress)return;if(content.dataset.open==='1'){closeSwipe(wrap);return;}onTap();});
+}
+function openSwipe(wrap,maxW){if(openRow&&openRow!==wrap)closeSwipe(openRow);const c=wrap.querySelector('.swipe-content');c.style.transform=`translateX(${-maxW}px)`;c.dataset.open='1';openRow=wrap;}
+function closeSwipe(wrap){const c=wrap.querySelector('.swipe-content');c.style.transform='translateX(0)';c.dataset.open='0';if(openRow===wrap)openRow=null;}
+
+// ═══ DONE / REMOVE ═══
+function markDone(wrap,section){if(wrap.dataset.done)return;wrap.dataset.done='1';wrap.querySelector('.row-check').classList.add('done');closeSwipe(wrap);setTimeout(()=>{const c=wrap.querySelector('.swipe-content');c.style.transition='transform .3s ease,opacity .3s ease';c.style.transform='translateX(40px)';c.style.opacity='0';setTimeout(()=>{const clone=wrap.cloneNode(true);clone.querySelector('.swipe-content').style='';clone.querySelector('.row-check').classList.add('done');document.getElementById('clearedList').appendChild(clone);wrap.style.animation='rowOut .25s forwards';setTimeout(()=>{wrap.remove();cleared++;updateCounts();},220);},280);},180);}
+function removeRow(wrap,cb){closeSwipe(wrap);wrap.style.animation='rowOut .28s forwards';setTimeout(()=>{wrap.remove();updateCounts();if(cb)cb();},260);}
+function markAllDone(section){let rows=section==='know'?document.querySelectorAll('#card-know .swipe-wrap'):document.querySelectorAll('#card-today .swipe-wrap, #card-overdue .swipe-wrap, #card-pinned .swipe-wrap');let d=0;rows.forEach(r=>{if(r.dataset.done)return;if(r.style.display==='none')markDone(r,section);else{setTimeout(()=>markDone(r,section),d);d+=60;}});}
+function updateCounts(){
+  const actLeft=[...document.querySelectorAll('#card-today .swipe-wrap, #card-overdue .swipe-wrap, #card-pinned .swipe-wrap')].filter(w=>acctMatch({acct:+w.dataset.acct})).length;
+  const knowLeft=[...document.querySelectorAll('#card-know .swipe-wrap')].filter(w=>acctMatch({acct:+w.dataset.acct})).length;
+  document.getElementById('actCnt').textContent=actLeft;document.getElementById('knowCnt').textContent=knowLeft;
+  ['today','overdue','pinned'].forEach(s=>{const n=[...document.querySelectorAll('#card-'+s+' .swipe-wrap')].filter(w=>acctMatch({acct:+w.dataset.acct})&&(currentRel==='all'||w.dataset.rel===currentRel)).length;const c=document.getElementById('cnt-'+s);if(c)c.textContent=n;const sn=document.getElementById('secn-'+s);if(sn)sn.textContent=n;});
+  const knowNav=document.getElementById('secn-know');if(knowNav)knowNav.textContent=knowLeft;
+  document.getElementById('progressText').innerHTML=`<b>${cleared} of ${TOTAL}</b> cleared`;document.getElementById('progressFill').style.width=Math.round(cleared/TOTAL*100)+'%';
+  const badge=document.getElementById('briefBadge');const rem=actLeft+knowLeft;if(rem>0){badge.style.display='flex';badge.textContent=rem;}else badge.style.display='none';
+  document.getElementById('sumAct').textContent=`${actLeft} to act on`;document.getElementById('sumKnow').textContent=knowLeft>0?`${knowLeft} to know`:`nothing new to know`;
+  const ke=document.getElementById('knowEmpty'),kc=document.getElementById('card-know');if(ke&&kc){const anyKnow=[...kc.querySelectorAll('.swipe-wrap')].some(w=>w.style.display!=='none');kc.style.display=anyKnow?'':'none';ke.style.display=anyKnow?'none':'flex';}
+  if(cleared>0){document.getElementById('clearedSection').style.display='block';document.getElementById('clearedCnt').textContent=cleared;const sc=document.getElementById('secchip-cleared');if(sc){sc.style.display='flex';document.getElementById('secn-cleared').textContent=cleared;}}
+  if(document.getElementById('relpills').children.length)renderRelPills();
+}
+let clearedOpen=true;
+function toggleCleared(){clearedOpen=!clearedOpen;document.getElementById('clearedList').style.display=clearedOpen?'block':'none';document.getElementById('clearedToggle').classList.toggle('collapsed',!clearedOpen);}
+
+// ═══ CATEGORY SCREEN (content-type filters) ═══
+let selecting=false, selected=new Set();
+function typesInCat(){const set=new Set();MAIL.forEach(m=>{if(m.rel===currentCat&&acctMatch(m))set.add(m.type);});return TYPE_ORDER.filter(t=>set.has(t));}
+function renderCat(){
+  document.getElementById('catTitle').textContent=REL[currentCat].label;
+  const cs=document.getElementById('catsub');cs.innerHTML='';
+  const types=typesInCat();
+  const pills=[{id:'all',label:'All'},...types.map(t=>({id:t,label:TYPE[t]}))];
+  pills.forEach(p=>{const cnt=MAIL.filter(m=>m.rel===currentCat&&acctMatch(m)&&(p.id==='all'||m.type===p.id)).length;const pill=el(`<div class="catpill ${p.id===currentType?'on':''}" data-type="${p.id}">${p.label}<span class="n">${cnt}</span></div>`);pill.addEventListener('click',()=>{currentType=p.id;renderCat();});cs.appendChild(pill);});
+  const list=document.getElementById('catList');list.innerHTML='';
+  const data=MAIL.filter(m=>m.rel===currentCat&&acctMatch(m)&&(currentType==='all'||m.type===currentType));
+  document.getElementById('catSub').textContent=`${data.length} emails — not curated`;
+  if(!data.length){list.innerHTML='<div class="empty-list">No emails here</div>';return;}
+  data.forEach(item=>{
+    const row=el(`<div class="inbox-row ${item.unread?'':'read'}" data-id="${item.sender}|${item.subject}" data-rel="${item.rel}" data-acct="${item.acct}">${item.unread?'<span class="unread"></span>':''}<div class="sel-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>${avHtml(item)}<div class="row-main"><div class="row-l1"><span class="row-sender">${item.sender}</span><span class="row-time">${item.time}</span></div><div class="row-l2">${item.subject}</div><div class="row-snippet">${item.snippet}</div><div class="row-tags">${tagsHtml(item)}</div></div><button class="row-more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button></div>`);
+    row.addEventListener('click',()=>{if(selecting)toggleSel(row);else openEmail(item,REL[currentCat].label,false,row);});
+    row.querySelector('.row-more').addEventListener('click',e=>{e.stopPropagation();if(selecting){toggleSel(row);return;}openInboxActions(item,row);});
+    const tags=row.querySelector('.row-tags');
+    tags.querySelector('.rtag').addEventListener('click',e=>{e.stopPropagation();if(selecting){toggleSel(row);return;}openRelPicker(row,item);});
+    tags.querySelector('.ttag').addEventListener('click',e=>{e.stopPropagation();if(selecting){toggleSel(row);return;}openTypePicker(row,item);});
+    list.appendChild(row);
+  });
+}
+function enterSelect(){selecting=true;selected.clear();document.getElementById('screen-cat').classList.add('selecting');document.getElementById('catSelectBtn').style.display='none';document.getElementById('catCancelBtn').style.display='block';document.getElementById('selbar').style.display='flex';document.getElementById('tabbar-cat').style.display='none';updateSelTitle();}
+function exitSelect(){selecting=false;selected.clear();const s=document.getElementById('screen-cat');s.classList.remove('selecting');document.getElementById('catSelectBtn').style.display='block';document.getElementById('catCancelBtn').style.display='none';document.getElementById('selbar').style.display='none';document.getElementById('tabbar-cat').style.display='flex';document.querySelectorAll('.sel-check').forEach(c=>c.classList.remove('on'));document.getElementById('catTitle').textContent=REL[currentCat]?REL[currentCat].label:'';document.getElementById('catSub').textContent='All emails — not curated';}
+function toggleSel(row){const id=row.dataset.id,chk=row.querySelector('.sel-check');if(selected.has(id)){selected.delete(id);chk.classList.remove('on');}else{selected.add(id);chk.classList.add('on');}updateSelTitle();}
+function updateSelTitle(){const n=selected.size;document.getElementById('catTitle').textContent=n>0?`${n} selected`:'Select';document.getElementById('catSub').textContent=n>0?'Choose an action below':'Tap emails to select';document.querySelectorAll('#selbar button:not(#selAllBtn)').forEach(b=>b.disabled=n===0);}
+function bulkSelectAll(){const rows=document.querySelectorAll('#catList .inbox-row');const allSel=selected.size===rows.length;selected.clear();rows.forEach(r=>{const c=r.querySelector('.sel-check');if(allSel)c.classList.remove('on');else{selected.add(r.dataset.id);c.classList.add('on');}});updateSelTitle();}
+function bulkMarkRead(){const n=selected.size;document.querySelectorAll('#catList .inbox-row').forEach(r=>{if(selected.has(r.dataset.id)){r.classList.add('read');const u=r.querySelector('.unread');if(u)u.remove();}});showToast(`${n} marked as read`);exitSelect();}
+function bulkDelete(){const n=selected.size;document.querySelectorAll('#catList .inbox-row').forEach(r=>{if(selected.has(r.dataset.id)){r.style.animation='rowOut .25s forwards';setTimeout(()=>r.remove(),240);}});showToast(`${n} deleted`);exitSelect();}
+function bulkBlock(){const n=selected.size;document.querySelectorAll('#catList .inbox-row').forEach(r=>{if(selected.has(r.dataset.id)){const nm=r.dataset.id.split('|')[0];blocked.unshift({name:nm,email:emailOf(nm)});r.style.animation='rowOut .25s forwards';setTimeout(()=>r.remove(),240);}});updateBlockedCount();showToast(`${n} sender${n!==1?'s':''} blocked`);exitSelect();}
+
+// ═══ EMAIL DETAIL ═══
+let currentEmail=null,currentRowEl=null,currentFrom='Briefing';
+function openEmail(item,from,isAct,row){
+  currentEmail=item;currentRowEl=row||null;currentFrom=from;
+  document.getElementById('mailSubj').textContent=item.subject;
+  document.getElementById('mailAv').textContent=initials(item.sender);document.getElementById('mailAv').style.background=avColor(item.sender);
+  document.getElementById('mailAvAcct').style.background=accounts[item.acct].color;
+  document.getElementById('mailFn').textContent=item.sender;document.getElementById('mailFa').textContent=emailOf(item.sender);
+  document.getElementById('mailVia').textContent='via '+accounts[item.acct].email;
+  document.getElementById('mailFt').textContent=item.time;
+  document.getElementById('mailTags').innerHTML=tagsHtml(item);
+  document.getElementById('emailBackLabel').textContent=from;
+  document.getElementById('mailBody').innerHTML=`<p>Hi Chandan,</p><p>${item.snippet||item.subject}. This is a preview of the message body — in the live app you'd see the full thread, attachments, and inline replies here.</p><p>Best,<br>${item.sender}</p>`;
+  resetAiRegion();pushView('view-email');
+}
+function removeCurrentRow(){if(!currentRowEl)return;if(currentRowEl.classList.contains('swipe-wrap'))removeRow(currentRowEl);else{const r=currentRowEl;r.style.animation='rowOut .25s forwards';setTimeout(()=>r.remove(),240);}currentRowEl=null;}
+function deleteFromDetail(){removeCurrentRow();popView();showToast('Email deleted');}
+function markUnreadDetail(){if(currentRowEl&&currentRowEl.classList.contains('inbox-row')){currentRowEl.classList.remove('read');if(!currentRowEl.querySelector('.unread')){const d=document.createElement('span');d.className='unread';currentRowEl.insertBefore(d,currentRowEl.firstChild);}}popView();showToast('Marked as unread');}
+function showBlockConfirm(){document.getElementById('bcSender').textContent=currentEmail?currentEmail.sender:'this sender';setFootState('block');}
+function confirmBlockSender(){if(currentEmail){blocked.unshift({name:currentEmail.sender,email:emailOf(currentEmail.sender)});updateBlockedCount();}removeCurrentRow();popView();showToast('Sender blocked — future emails auto-deleted');}
+function genDraft(){setFootState('draft');document.getElementById('dpTo').textContent=currentEmail?emailOf(currentEmail.sender):'';const b=document.getElementById('dpBody');b.innerHTML='<span style="color:var(--ink-4)">✨ Generating draft…</span>';clearTimeout(window._dt);window._dt=setTimeout(()=>b.innerHTML=draftFor(currentEmail),800);}
+function draftFor(item){if(!item)return'';const first=item.sender.split(/\s+/)[0];const greet=item.sender.includes(' ')?`Hi ${first},`:'Hi,';let mid='Thanks for the heads up.';if(item.action){const a=item.action.toLowerCase();if(a.includes('reply')||a.includes('feedback'))mid='Thanks for sending this over — I\'ll review and get back to you shortly.';else if(a.includes('approve')||a.includes('sign')||a.includes('confirm'))mid='Thanks — this looks good. I\'ll '+a+' today and confirm once done.';else mid='Thanks for flagging this. I\'ll take a look and follow up.';}return `<p>${greet}</p><p>${mid}</p><p>Best regards,<br>Chandan Luthra</p>`;}
+function sendDraft(k){resetAiRegion();popView();showToast(k+' sent');}
+function resetAiRegion(){setFootState('actions');}
+function setFootState(s){document.getElementById('mailBar').style.display=s==='draft'?'none':'flex';document.getElementById('aiRegion').style.display=s==='draft'?'none':'block';document.getElementById('aiActions').style.display=s==='actions'?'flex':'none';document.getElementById('blockConfirm').style.display=s==='block'?'block':'none';document.getElementById('draftPanel').style.display=s==='draft'?'block':'none';}
+
+// ═══ COMPOSE ═══
+function openCompose(mode){
+  if(!currentEmail)return;
+  const titles={reply:'Reply',replyall:'Reply All',forward:'Forward'};
+  document.getElementById('composeTitle').textContent=titles[mode];
+  const ccRow=document.getElementById('composeCcRow');
+  if(mode==='forward'){document.getElementById('composeTo').textContent='';document.getElementById('composeTo').setAttribute('contenteditable','true');document.getElementById('composeTo').dataset.ph='1';ccRow.style.display='none';document.getElementById('composeSubj').textContent='Fwd: '+currentEmail.subject;}
+  else{document.getElementById('composeTo').textContent=`${currentEmail.sender} <${emailOf(currentEmail.sender)}>`;document.getElementById('composeTo').removeAttribute('contenteditable');document.getElementById('composeSubj').textContent='Re: '+currentEmail.subject;
+    if(mode==='replyall'){ccRow.style.display='flex';document.getElementById('composeCc').textContent='team@'+(accounts[currentEmail.acct].email.split('@')[1]||'company.com')+', ops@'+(accounts[currentEmail.acct].email.split('@')[1]||'company.com');}
+    else ccRow.style.display='none';
+  }
+  const quoted=`<p><br></p><div class="compose-quote">On ${currentEmail.time}, ${currentEmail.sender} wrote:<br>${currentEmail.snippet||currentEmail.subject}</div>`;
+  document.getElementById('composeBody').innerHTML=mode==='forward'?`<p><br></p>---------- Forwarded message ----------<br>From: ${currentEmail.sender}<br>Subject: ${currentEmail.subject}<div class="compose-quote">${currentEmail.snippet||currentEmail.subject}</div>`:quoted;
+  pushView('view-compose');
+}
+function sendCompose(){popView();/*compose*/ if(viewStack[viewStack.length-1]==='view-email')popView();showToast(document.getElementById('composeTitle').textContent+' sent');}
+
+// ═══ PICKERS ═══
+let relTarget=null,relItem=null;
+function openRelPicker(target,item){relTarget=target;relItem=item;const items=REL_ORDER.map(r=>`<div class="sheet-item" onclick="assignRel('${r}')"><span class="rtag ${r}" style="pointer-events:none"><span class="dot"></span>${relLabel(r)}</span>${r===item.rel?'<svg class="check" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>`).join('');openSheet(`<div class="sheet-title">Relationship — ${item.sender}</div><div class="sheet-grp">${items}</div><div class="sheet-item cancel" onclick="closeSheet()">Cancel</div>`);}
+function assignRel(r){if(relItem)relItem.rel=r;if(relTarget){relTarget.dataset.rel=r;refreshTags(relTarget,relItem);}closeSheet();showToast('Relationship → '+REL[r].label);if(currentTab==='briefing')applyBriefingFilters();else renderCat();}
+let typeTarget=null,typeItem=null;
+function openTypePicker(target,item){typeTarget=target;typeItem=item;const items=TYPE_ORDER.map(t=>`<div class="sheet-item" onclick="assignType('${t}')"><span class="ttag" style="pointer-events:none">${t}</span>${t===item.type?'<svg class="check" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>`).join('');openSheet(`<div class="sheet-title">Content type — ${item.sender}</div><div class="sheet-grp">${items}</div><div class="sheet-item cancel" onclick="closeSheet()">Cancel</div>`);}
+function assignType(t){if(typeItem)typeItem.type=t;if(typeTarget)refreshTags(typeTarget,typeItem);closeSheet();showToast('Type → '+TYPE[t]);if(currentTab!=='briefing')renderCat();}
+function refreshTags(target,item){const tags=target.querySelector('.row-tags');if(!tags||!item)return;tags.innerHTML=tagsHtml(item);tags.querySelector('.rtag').addEventListener('click',e=>{e.stopPropagation();openRelPicker(target,item);});tags.querySelector('.ttag').addEventListener('click',e=>{e.stopPropagation();openTypePicker(target,item);});}
+
+// ═══ ROW ACTION SHEETS ═══
+let rowActionTarget=null;
+function openRowActions(item,wrap,section){rowActionTarget={item,wrap,section};const isKnow=section==='know';openSheet(`<div class="sheet-title">${item.sender} · ${item.subject}</div><div class="sheet-grp"><div class="sheet-item" style="color:var(--accent)" onclick="rowAct('done')"><svg viewBox="0 0 24 24" stroke="var(--accent)"><polyline points="20 6 9 17 4 12"/></svg>${isKnow?'Mark as seen':'Mark as done'}</div><div class="sheet-item" onclick="rowAct('pin')"><svg viewBox="0 0 24 24" stroke="var(--plum)"><path d="M12 17v5"/><path d="M9 10.5V5h6v5.5l2 3.5H7l2-3.5z"/></svg>Pin to top</div><div class="sheet-item" onclick="rowAct('snooze')"><svg viewBox="0 0 24 24" stroke="var(--gold)"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/></svg>Snooze</div><div class="sheet-item" onclick="rowAct('move')"><svg viewBox="0 0 24 24" stroke="var(--ink-3)"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>${isKnow?'Move to Act':'Move to Know'}</div><div class="sheet-item" onclick="rowChangeRel()"><svg viewBox="0 0 24 24" stroke="var(--ink-3)"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Change category</div></div><div class="sheet-grp"><div class="sheet-item" style="color:var(--gold)" onclick="rowAct('hide')"><svg viewBox="0 0 24 24" stroke="var(--gold)"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>Hide from briefing</div><div class="sheet-item danger" onclick="rowAct('block')"><svg viewBox="0 0 24 24" stroke="var(--warn)"><circle cx="12" cy="12" r="10"/><line x1="5" y1="5" x2="19" y2="19"/></svg>Block sender</div></div><div class="sheet-item cancel" onclick="closeSheet()">Cancel</div>`);}
+function rowAct(a){const t=rowActionTarget;if(!t)return;closeSheet();setTimeout(()=>{if(a==='done')markDone(t.wrap,t.section);else if(a==='hide')removeRow(t.wrap,()=>showToast('Hidden from briefing'));else if(a==='move')removeRow(t.wrap,()=>showToast(t.section==='know'?'Moved to Act':'Moved to Know'));else if(a==='pin')showToast('Pinned to top');else if(a==='snooze')showToast('Snoozed until tomorrow');else if(a==='block'){blocked.unshift({name:t.item.sender,email:emailOf(t.item.sender)});updateBlockedCount();removeRow(t.wrap,()=>showToast('Sender blocked'));}},220);}
+function rowChangeRel(){const t=rowActionTarget;closeSheet();setTimeout(()=>openRelPicker(t.wrap,t.item),260);}
+let inboxActionTarget=null;
+function openInboxActions(item,row){inboxActionTarget={item,row};const isRead=row.classList.contains('read');openSheet(`<div class="sheet-title">${item.sender} · ${item.subject}</div><div class="sheet-grp"><div class="sheet-item" onclick="inboxAct('open')"><svg viewBox="0 0 24 24" stroke="var(--accent)"><path d="M2 6l10 7L22 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>Open email</div><div class="sheet-item" onclick="inboxAct('read')"><svg viewBox="0 0 24 24" stroke="var(--ink-3)"><path d="M2 6l10 7L22 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>${isRead?'Mark as unread':'Mark as read'}</div><div class="sheet-item" onclick="inboxChangeRel()"><svg viewBox="0 0 24 24" stroke="var(--ink-3)"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Change category</div></div><div class="sheet-grp"><div class="sheet-item danger" onclick="inboxAct('block')"><svg viewBox="0 0 24 24" stroke="var(--warn)"><circle cx="12" cy="12" r="10"/><line x1="5" y1="5" x2="19" y2="19"/></svg>Block sender</div><div class="sheet-item danger" onclick="inboxAct('delete')"><svg viewBox="0 0 24 24" stroke="var(--warn)"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</div></div><div class="sheet-item cancel" onclick="closeSheet()">Cancel</div>`);}
+function inboxAct(a){const t=inboxActionTarget;if(!t)return;closeSheet();setTimeout(()=>{if(a==='open')openEmail(t.item,REL[currentCat].label,false,t.row);else if(a==='read'){const nowRead=t.row.classList.toggle('read');let u=t.row.querySelector('.unread');if(nowRead){if(u)u.remove();}else if(!u){const d=document.createElement('span');d.className='unread';t.row.insertBefore(d,t.row.firstChild);}showToast(nowRead?'Marked as read':'Marked as unread');}else if(a==='block'){blocked.unshift({name:t.item.sender,email:emailOf(t.item.sender)});updateBlockedCount();t.row.style.animation='rowOut .25s forwards';setTimeout(()=>t.row.remove(),240);showToast('Sender blocked');}else if(a==='delete'){t.row.style.animation='rowOut .25s forwards';setTimeout(()=>t.row.remove(),240);showToast('Email deleted');}},220);}
+function inboxChangeRel(){const t=inboxActionTarget;closeSheet();setTimeout(()=>openRelPicker(t.row,t.item),260);}
+
+// ═══ SETTINGS ═══
+function renderSettingsAccounts(){const c=document.getElementById('settingsAccounts');c.innerHTML='';accounts.forEach((a,i)=>{const cell=el(`<div class="cell"><div class="av" style="width:34px;height:34px;font-size:13px;background:${a.color}">${initials(a.name)}</div><div class="ctext"><div class="ctitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.email}</div><div class="csub">${a.provider}${a.primary?' · Primary':''}</div></div><button class="unblock" style="background:var(--paper-2);color:var(--warn);flex-shrink:0;padding:7px 13px;">Remove</button></div>`);cell.querySelector('button').addEventListener('click',e=>{e.stopPropagation();removeAccount(i);});c.appendChild(cell);});}
+function removeAccount(i){if(accounts[i].primary){showToast('Set another account as primary first');return;}const nm=accounts[i].email;accounts.splice(i,1);if(currentAcct===i)currentAcct='all';renderSettingsAccounts();syncAcctAvatars();showToast(nm+' disconnected');}
+function addAccount(p){accounts.push({name:'New '+p,email:`account${accounts.length+1}@${p==='Gmail'?'gmail.com':'outlook.com'}`,color:'#0284c7',provider:p,primary:false,notif:{master:true,act:true,know:false,all:false},briefing:{on:true,time:'8:00 AM'}});renderSettingsAccounts();popView();showToast(p+' account connected');}
+function confirmDelete(){openSheet(`<div class="sheet-title">This permanently deletes your EmailZap account and all data. Your mailboxes are not affected.</div><div class="sheet-grp"><div class="sheet-item danger" onclick="showToast('Account deleted (demo)');closeSheet();"><svg viewBox="0 0 24 24" stroke="var(--warn)"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>Delete account</div></div><div class="sheet-item cancel" onclick="closeSheet()">Cancel</div>`);}
+function renderNotifications(){const c=document.getElementById('notifAccounts');c.innerHTML='';accounts.forEach((a,i)=>{c.appendChild(el(`<div class="notif-head"><div class="av" style="background:${a.color}">${initials(a.name)}</div><div><div class="nh-name">${a.name}</div><div class="nh-email">${a.email}</div></div></div>`));const grp=el(`<div class="grp"></div>`);grp.appendChild(notifCell(i,'master','Notifications for this account','',a.notif.master));const sub=el(`<div class="notif-sub${a.notif.master?'':' off'}" id="notifsub-${i}"></div>`);sub.appendChild(notifCell(i,'act','Act','Stuff that needs you — recommended',a.notif.act));sub.appendChild(notifCell(i,'know','Know','FYI updates & receipts',a.notif.know));sub.appendChild(notifCell(i,'all','All emails','<span class="warn-txt">Not recommended — defeats the purpose</span>',a.notif.all));grp.appendChild(sub);c.appendChild(grp);});}
+function notifCell(i,key,title,sub,checked){const cell=el(`<div class="cell" style="cursor:default;"><div class="ctext"><div class="ctitle">${title}</div>${sub?`<div class="csub" style="white-space:normal;">${sub}</div>`:''}</div><label class="sw"><input type="checkbox" ${checked?'checked':''}><span class="slider"></span></label></div>`);cell.querySelector('input').addEventListener('change',e=>{accounts[i].notif[key]=e.target.checked;if(key==='master')document.getElementById('notifsub-'+i).classList.toggle('off',!e.target.checked);if(key==='all'&&e.target.checked)showToast('Heads up: you\'ll be notified for everything');});return cell;}
+let briefingMaster=true, timeTargetAcct=null;
+function renderBriefingAccounts(){
+  document.getElementById('briefingMaster').checked=briefingMaster;
+  const c=document.getElementById('briefingAccounts');c.innerHTML='';
+  accounts.forEach((a,i)=>{
+    const cell=el(`<div class="cell" style="cursor:default;"><div class="av" style="width:32px;height:32px;font-size:12px;background:${a.color}">${initials(a.name)}</div><div class="ctext"><div class="ctitle" style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.name}</div><div class="csub">${a.email}</div></div><button class="time-pill" onclick="openTimeSheet(${i})" style="${a.briefing.on?'':'display:none;'}">${a.briefing.time}</button><label class="sw"><input type="checkbox" ${a.briefing.on?'checked':''}><span class="slider"></span></label></div>`);
+    cell.querySelector('input').addEventListener('change',e=>{a.briefing.on=e.target.checked;cell.querySelector('.time-pill').style.display=a.briefing.on?'':'none';updateBriefingSummary();});
+    c.appendChild(cell);
+  });
+  applyBriefingMaster();
+}
+function toggleBriefingMaster(input){briefingMaster=input.checked;applyBriefingMaster();updateBriefingSummary();}
+function applyBriefingMaster(){const grp=document.getElementById('briefingAccounts');grp.classList.toggle('disabled',!briefingMaster);document.getElementById('briefingPerLabel').style.opacity=briefingMaster?'1':'.5';}
+function openTimeSheet(i){timeTargetAcct=i;const times=['6:00 AM','6:30 AM','7:00 AM','7:30 AM','8:00 AM','8:30 AM','9:00 AM','10:00 AM'];const cur=accounts[i].briefing.time;const items=times.map(t=>`<div class="sheet-item" onclick="setBriefingTime('${t}')">${t}${t===cur?'<svg class="check" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>`).join('');openSheet(`<div class="sheet-title">${accounts[i].name} — delivery time</div><div class="sheet-grp">${items}</div><div class="sheet-item cancel" onclick="closeSheet()">Cancel</div>`);}
+function setBriefingTime(t){if(timeTargetAcct!=null){accounts[timeTargetAcct].briefing.time=t;}closeSheet();renderBriefingAccounts();updateBriefingSummary();}
+function updateBriefingSummary(){const sub=document.getElementById('briefingTimeSub');if(!sub)return;if(!briefingMaster){sub.textContent='Off';return;}const on=accounts.filter(a=>a.briefing.on).length;sub.textContent=on>0?`On · ${on} of ${accounts.length} account${accounts.length!==1?'s':''}`:'On · no accounts selected';}
+function renderBlocked(){const q=(document.getElementById('blockedSearch').value||'').toLowerCase();const list=document.getElementById('blockedList');list.innerHTML='';const data=blocked.filter(b=>b.name.toLowerCase().includes(q)||b.email.toLowerCase().includes(q));if(!data.length){list.innerHTML='<div class="empty-list">'+(blocked.length===0?'No blocked senders':'No matches')+'</div>';updateBlockedCount();return;}data.forEach(b=>{const row=el(`<div class="blocked-row"><div class="av" style="width:34px;height:34px;font-size:13px;background:${avColor(b.email)}">${initials(b.name)}</div><div class="e"><div class="n">${b.name}</div><div class="a">${b.email}</div></div><button class="unblock">Unblock</button></div>`);row.querySelector('button').addEventListener('click',()=>{blocked=blocked.filter(x=>x.email!==b.email);renderBlocked();showToast(b.name+' unblocked');});list.appendChild(row);});updateBlockedCount();}
+function updateBlockedCount(){document.getElementById('blockedCountVal').textContent=blocked.length;}
+
+// ═══ SHEET ═══
+function openSheet(html){document.getElementById('sheet').innerHTML=html;document.getElementById('sheetScrim').classList.add('open');document.getElementById('sheet').classList.add('open');}
+function closeSheet(){document.getElementById('sheetScrim').classList.remove('open');document.getElementById('sheet').classList.remove('open');}
+
+document.getElementById('briefScroll').addEventListener('scroll',onBriefScroll);
+document.getElementById('catScroll').addEventListener('scroll',function(){document.getElementById('catsubWrap').classList.toggle('stuck',this.scrollTop>2);});
+
+// ═══ INIT ═══
+buildTabBar();renderBriefing();renderSettingsAccounts();updateBlockedCount();syncAcctAvatars();updateBriefingSummary();showTab('briefing');
+</script>
+</body>
+</html>
